@@ -1,0 +1,20 @@
+
+---
+
+## 📄 `.gitignore`
+
+```gitignore
+# Nix build outputs
+result
+*.swp
+*.lock
+
+# Secrets or temporary overrides
+secrets.nix
+*.age
+*.gpg
+
+# macOS/Windows cruft
+.DS_Store
+Thumbs.db
+
