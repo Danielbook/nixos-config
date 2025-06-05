@@ -3,13 +3,12 @@
 This is my declarative NixOS configuration with a modular setup.
 
 ## 📦 Included
-- GNOME on Wayland
+- Hyprland on Wayland
 - PipeWire for audio
 - Zsh + Oh My Zsh
 - Docker (non-root access)
 - Flatpak (for Microsoft Teams, etc.)
-- Chrome, Firefox, Neovim, tmux, Wezterm, etc.
-- Keyboard: US + Swedish toggle (Alt+Shift)
+- Chrome, Firefox, Neovim, tmux, etc.
 
 ## 🚀 Setup
 
