@@ -5,6 +5,7 @@
   ...
 }: {
   imports = [
+    #    ../programs/tmux
     ../misc/qt
     ../programs/alacritty
     ../programs/atuin
@@ -13,13 +14,13 @@
     ../programs/btop
     ../programs/fastfetch
     ../programs/fzf
+    ../programs/ghostty
     ../programs/git
     ../programs/go
     ../programs/gpg
     ../programs/lazygit
     ../programs/neovim
     ../programs/starship
-    #    ../programs/tmux
     ../programs/ulauncher
     ../programs/zsh
     ../scripts
@@ -44,10 +45,7 @@
   # Home-Manager configuration for the user's home environment
   home = {
     username = "${userConfig.name}";
-    homeDirectory =
-      if pkgs.stdenv.isDarwin
-      then "/Users/${userConfig.name}"
-      else "/home/${userConfig.name}";
+    homeDirectory = "/home/${userConfig.name}";
   };
 
   # Ensure common packages are installed
@@ -55,23 +53,26 @@
     [
       anki-bin
       awscli2
+      bitwarden
       dig
       du-dust
       eza
       fd
+      firefox
+      google-chrome
       jq
       lazydocker
       nh
-      kitty
       openconnect
+      pavucontrol
       pipenv
       python3
       ripgrep
       terraform
-      pavucontrol
       tesseract
       unzip
       wl-clipboard
+      xterm
     ];
 
   # Catpuccin flavor and accent

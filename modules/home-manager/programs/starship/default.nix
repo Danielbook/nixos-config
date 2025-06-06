@@ -17,18 +17,6 @@
       golang = {
         symbol = " ";
       };
-      kubernetes = {
-        disabled = false;
-        style = "bold pink";
-        symbol = "󱃾 ";
-        format = "[$symbol$context( \($namespace\))]($style)";
-        contexts = [
-          {
-            context_pattern = "arn:aws:eks:(?P<var_region>.*):(?P<var_account>[0-9]{12}):cluster/(?P<var_cluster>.*)";
-            context_alias = "$var_cluster";
-          }
-        ];
-      };
       helm = {
         symbol = " ";
       };

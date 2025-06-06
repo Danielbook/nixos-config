@@ -44,7 +44,7 @@
     kernelParams = ["quiet" "splash"];
     loader.efi.canTouchEfiVariables = true;
     loader.systemd-boot.enable = true;
-    loader.timeout = 0;
+    loader.timeout = 5;
     plymouth.enable = true;
 
     # v4l (virtual camera) module settings
@@ -71,20 +71,16 @@
 
   # Internationalization
   i18n.defaultLocale = "en_US.UTF-8";
-  i18n.supportedLocales = [
-    "en_US.UTF-8/UTF-8"
-    "sv_SE.UTF-8/UTF-8"
+
+  i18n.extraLocales = [
+    "en_US.UTF-8"
+    "sv_SE.UTF-8"
   ];
+
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_IE.UTF-8";
-    LC_IDENTIFICATION = "en_IE.UTF-8";
-    LC_MEASUREMENT = "en_IE.UTF-8";
-    LC_MONETARY = "en_IE.UTF-8";
-    LC_NAME = "en_IE.UTF-8";
-    LC_NUMERIC = "en_IE.UTF-8";
-    LC_PAPER = "en_IE.UTF-8";
-    LC_TELEPHONE = "en_IE.UTF-8";
-    LC_TIME = "en_IE.UTF-8";
+    LC_TIME = "sv_SE.UTF-8";
+    LC_MONETARY = "sv_SE.UTF-8";
+    LC_MEASUREMENT = "sv_SE.UTF-8";
   };
 
   # Input settings
@@ -93,11 +89,12 @@
   # xserver settings
   services.xserver = {
     enable = true;
-    xkb.layout = "us";
+    xkb.layout = "us,se";
     xkb.variant = "";
     excludePackages = with pkgs; [xterm];
-    displayManager.gdm.enable = true;
   };
+
+  services.displayManager.gdm.enable = true;
 
   # Enable Wayland support in Chromium and Electron based applications
   # Remove decorations for QT apps

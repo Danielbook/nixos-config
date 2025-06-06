@@ -1,77 +1,27 @@
 {pkgs, ...}: {
-  # Install alacritty via home-manager module
   programs.alacritty = {
     enable = true;
     settings = {
-      general = {
-        live_config_reload = true;
-      };
-
-      terminal = {
-        shell.program = "zsh";
-        shell.args = [
-          "-l"
-          "-c"
-          "tmux attach || tmux "
-        ];
-      };
-
-      env = {
-        TERM = "xterm-256color";
-      };
-
       window = {
-        decorations =
-          if pkgs.stdenv.isDarwin
-          then "buttonless"
-          else "none";
-        dynamic_title = false;
+        decorations = "none";
         dynamic_padding = true;
-        dimensions = {
-          columns = 170;
-          lines = 45;
-        };
         padding = {
           x = 5;
-          y = 1;
+          y = 5;
         };
+        startup_mode = "Maximized";
       };
 
-      scrolling = {
-        history = 10000;
-        multiplier = 3;
-      };
+      scrolling.history = 10000;
 
       font = {
-        size =
-          if pkgs.stdenv.isDarwin
-          then 15
-          else 12;
-        normal = {
-          family = "MesloLGS Nerd Font";
-          style = "Regular";
-        };
-        bold = {
-          family = "MesloLGS Nerd Font";
-          style = "Bold";
-        };
-        italic = {
-          family = "MesloLGS Nerd Font";
-          style = "Italic";
-        };
-        bold_italic = {
-          family = "MesloLGS Nerd Font";
-          style = "Italic";
-        };
+        normal.family = "JetBrainsMono Nerd Font";
+        bold.family = "JetBrainsMono Nerd Font";
+        italic.family = "JetBrainsMono Nerd Font";
+        size = 12;
       };
 
-      selection = {
-        semantic_escape_chars = '',│`|:"' ()[]{}<>'';
-        save_to_clipboard = true;
-      };
+      window.opacity = 0.9;
     };
   };
-
-  # Enable catppuccin theming for alacritty.
-  catppuccin.alacritty.enable = true;
 }

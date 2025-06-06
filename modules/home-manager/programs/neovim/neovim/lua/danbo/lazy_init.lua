@@ -19,7 +19,13 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     -- import your plugins
+    -- { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    { import = "lazyvim.plugins.extras.lsp.none-ls" },
     { import = "danbo.lazy" },
+  },
+  defaults = {
+    lazy = false,
+    version = false, -- always use the latest git commit
   },
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.
