@@ -48,18 +48,16 @@
     homeDirectory = "/home/${userConfig.name}";
   };
 
-  # Ensure common packages are installed
+  # ensure common packages are installed
   home.packages = with pkgs;
     [
       anki-bin
       awscli2
-      bitwarden
       dig
       du-dust
       eza
       fd
       firefox
-      google-chrome
       jq
       lazydocker
       nh
