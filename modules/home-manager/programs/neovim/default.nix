@@ -60,29 +60,24 @@ in {
       undotree
     ];
 
-    #extraPackages = with pkgs; [
-    #  alejandra
-    #  black
-    #  golangci-lint
-    #  gopls
-    #  gotools
-    #  hadolint
-    #  isort
-    #  lua-language-server
-    #  markdownlint-cli
-    #  nixd
-    #  nodePackages.bash-language-server
-    #  nodePackages.prettier
-    #  pyright
-    #  ruff
-    #  shellcheck
-    #  shfmt
-    #  stylua
-    #  terraform-ls
-    #  tflint
-    #  vscode-langservers-extracted
-    #  yaml-language-server
-    #];
+    extraPackages = with pkgs; [
+      alejandra
+      gopls
+      isort
+      lua-language-server
+      markdownlint-cli
+      nixd
+      nodePackages.bash-language-server
+      nodePackages.prettier
+      nodePackages.typescript-language-server
+      shellcheck
+      shfmt
+      stylua
+      tailwindcss-language-server
+      terraform-ls
+      vscode-langservers-extracted
+      yaml-language-server
+    ];
   };
 
   # source lua config from this repo

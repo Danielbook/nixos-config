@@ -38,11 +38,7 @@ keymap("n", "<leader>bf", "<cmd>Neotree buffers reveal float<CR>")
 -- Telescope
 local telescope = require("telescope.builtin")
 keymap("n", "<leader>ff", telescope.find_files)
-keymap("n", "<leader>en", function()
- telescope.find_files({
-   cwd = vim.fn.stdpath("config"),
- })
-end)
+keymap("n", "<leader>fb", telescope.buffers)
 keymap("n", "<C-p>", telescope.git_files, opts)
 keymap("n", "<leader>fw", function()
  local word = vim.fn.expand("<cword>")
@@ -87,3 +83,4 @@ end, {})
 keymap("n", "<leader>fb", vim.lsp.buf.format)
 keymap("n", "<leader>u", vim.cmd.UndotreeToggle)
  
+keymap("n", "<leader>u", vim.cmd.UndotreeToggle)

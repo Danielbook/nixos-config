@@ -1,5 +1,9 @@
-require("danbo.set")
-require("danbo.remap")
 require("danbo.alpha")
 require("danbo.catppuccin")
-
+require("danbo.cmp")
+require("danbo.lsp")
+require("danbo.formatting")
+require("danbo.treesitter")
+require("danbo.lualine")
+require("danbo.remap")
+require("danbo.set")
