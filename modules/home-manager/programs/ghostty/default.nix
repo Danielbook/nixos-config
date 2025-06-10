@@ -1,4 +1,4 @@
-{ config, pkgs, ... }: {
+{pkgs, ...}: {
   # Enable Ghostty via Home Manager
   programs.ghostty = {
     enable = true;

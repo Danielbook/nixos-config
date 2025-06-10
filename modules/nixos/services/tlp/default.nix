@@ -4,7 +4,6 @@
     tlp = {
       enable = true;
       settings = {
-
         # Selects the CPU scaling governor for automatic frequency scaling.
         # For Intel Core i 2nd gen. (“Sandy Bridge”) or newer Intel CPUs. Supported governors are:
         #  powersave – recommended (kernel default)
@@ -25,7 +24,7 @@
         # Disable CPU “turbo boost” (Intel) or “turbo core” (AMD) feature (0 = disable / 1 = allow).
         CPU_BOOST_ON_AC = 1;
         CPU_BOOST_ON_BAT = 0;
-        
+
         INTEL_GPU_MIN_FREQ_ON_AC = 500;
 
         PLATFORM_PROFILE_ON_AC = "low-power";

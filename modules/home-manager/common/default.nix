@@ -49,29 +49,28 @@
   };
 
   # ensure common packages are installed
-  home.packages = with pkgs;
-    [
-      anki-bin
-      awscli2
-      dig
-      du-dust
-      eza
-      fd
-      firefox
-      jq
-      lazydocker
-      nh
-      openconnect
-      pavucontrol
-      pipenv
-      python3
-      ripgrep
-      terraform
-      tesseract
-      unzip
-      wl-clipboard
-      xterm
-    ];
+  home.packages = with pkgs; [
+    anki-bin
+    awscli2
+    dig
+    du-dust
+    eza
+    fd
+    firefox
+    jq
+    lazydocker
+    nh
+    openconnect
+    pavucontrol
+    pipenv
+    python3
+    ripgrep
+    terraform
+    tesseract
+    unzip
+    wl-clipboard
+    xterm
+  ];
 
   # Catpuccin flavor and accent
   catppuccin = {

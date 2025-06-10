@@ -1,4 +1,4 @@
-{pkgs, ...}: let
+{...}: let
   copyCmd = "wl-copy";
 in {
   # Install fzf via home-manager module

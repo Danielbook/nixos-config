@@ -64,7 +64,7 @@
 
       # Config
       input-field {
-          monitor = 
+          monitor =
           size = 250, 60
           outline_thickness = 2
           dots_size = 0.2 # Scale of input-field height, 0.2 - 0.8
@@ -85,7 +85,7 @@
 
       # Date
       label {
-        monitor = 
+        monitor =
         text = cmd[update:1000] echo "<span>$(date '+%A, %d %B')</span>"
         color = rgba(255, 255, 255, 0.8)
         font_size = 15
@@ -109,7 +109,7 @@
 
       # Keyboard layout
       label {
-        monitor = 
+        monitor =
         text = $LAYOUT
         color = rgba(255, 255, 255, 0.9)
         font_size = 10

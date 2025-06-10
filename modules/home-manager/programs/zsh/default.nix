@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}: {
+{...}: {
   # Zsh shell configuration
   programs.zsh = {
     enable = true;
@@ -36,7 +32,7 @@
     initContent = ''
       # Use bitwarden as ssh agent.
       export SSH_AUTH_SOCK=/home/daniel/.bitwarden-ssh-agent.sock
-      
+
       # bindings
       bindkey -e
       bindkey '^H' backward-delete-word
@@ -47,6 +43,6 @@
       autoload -z edit-command-line
       zle -N edit-command-line
       bindkey "^v" edit-command-line
-   '';
+    '';
   };
 }

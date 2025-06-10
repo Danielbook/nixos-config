@@ -1,6 +1,5 @@
 # shells/web.nix
-{ pkgs }:
-
+{pkgs}:
 pkgs.mkShell {
   packages = [
     pkgs.nodejs_22
@@ -12,4 +11,3 @@ pkgs.mkShell {
     echo "🧪 Web dev shell active"
   '';
 }
-
