@@ -31,6 +31,7 @@
   } @ inputs: let
     inherit (self) outputs;
 
+    system = "x86_64-linux";
     # Define user configurations
     users = {
       daniel = {
@@ -76,5 +77,14 @@
     };
 
     overlays = import ./overlays {inherit inputs;};
+
+      #devShells = {
+      #  ${system} = {
+      #    web = import ./shells/web.nix { inherit pkgs; };
+
+      #    # Optional default fallback:
+      #    default = import ./shells/web.nix { inherit pkgs; };
+      #  };
+      #};
   };
 }

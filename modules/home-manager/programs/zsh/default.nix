@@ -34,6 +34,9 @@
       lt = "eza --tree --level=2 --icons"; # tree
     };
     initContent = ''
+      # Use bitwarden as ssh agent.
+      export SSH_AUTH_SOCK=/home/daniel/.bitwarden-ssh-agent.sock
+      
       # bindings
       bindkey -e
       bindkey '^H' backward-delete-word

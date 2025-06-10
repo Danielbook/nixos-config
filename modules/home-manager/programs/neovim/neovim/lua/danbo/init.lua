@@ -1,7 +1,5 @@
 require("danbo.set")
 require("danbo.remap")
-require("danbo.lazy_init")
+require("danbo.alpha")
+require("danbo.catppuccin")
 
-local augroup = vim.api.nvim_create_augroup
-local autocmd = vim.api.nvim_create_autocmd
-local yank_group = augroup("HighlightYank", {})
