@@ -33,6 +33,8 @@
       # Use bitwarden as ssh agent.
       export SSH_AUTH_SOCK=/home/daniel/.bitwarden-ssh-agent.sock
 
+      export NPM_TOKEN=23123123123
+
       # bindings
       bindkey -e
       bindkey '^H' backward-delete-word

@@ -80,7 +80,7 @@ keymap("n", "]d", function()
 	vim.diagnostic.goto_prev()
 end, {})
 
-keymap("n", "<leader>fb", vim.lsp.buf.format)
+keymap("n", "<leader>bf", vim.lsp.buf.format)
 keymap("n", "<leader>u", vim.cmd.UndotreeToggle)
 
 keymap("n", "<leader>u", vim.cmd.UndotreeToggle)
