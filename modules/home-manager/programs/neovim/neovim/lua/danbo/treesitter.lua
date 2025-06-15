@@ -1,15 +1,5 @@
 require("nvim-treesitter.configs").setup({
-	ensure_installed = {
-		"lua",
-		"vimdoc",
-		"go",
-		"bash",
-		"html",
-		"javascript",
-		"typescript",
-		"jsdoc",
-	},
-	auto_install = false, -- 🚫 disables automatic writing
+	auto_install = false,
 	highlight = { enable = true },
 	indent = { enable = true },
 })

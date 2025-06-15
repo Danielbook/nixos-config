@@ -122,9 +122,6 @@
     jack.enable = true;
   };
 
-  # Enable flatpak service
-  services.flatpak.enable = true;
-
   # User configuration
   users.users.${userConfig.name} = {
     description = userConfig.fullName;

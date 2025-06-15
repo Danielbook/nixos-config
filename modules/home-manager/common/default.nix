@@ -26,7 +26,6 @@
     ../programs/zsh
     ../scripts
     ../services/easyeffects
-    ../services/flatpak
   ];
 
   # Nixpkgs configuration
