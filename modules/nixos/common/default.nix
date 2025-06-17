@@ -86,8 +86,8 @@
   # xserver settings
   services.xserver = {
     enable = true;
-    xkb.layout = "us,se";
-    xkb.variant = "";
+    #xkb.layout = "us,se";
+    #xkb.options = "grp:alt_shift_toggle";
     excludePackages = with pkgs; [xterm];
   };
 

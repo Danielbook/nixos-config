@@ -21,6 +21,7 @@
     ../programs/lazygit
     ../programs/neovim
     ../programs/starship
+    ../programs/vscodium
     ../programs/tmux
     ../programs/ulauncher
     ../programs/zsh
