@@ -61,6 +61,7 @@ in {
         nvim-cmp
         nvim-lspconfig
         nvim-treesitter-with-plugins
+        nvim-ts-autotag
         nvim-web-devicons
         peek-nvim
         plenary-nvim

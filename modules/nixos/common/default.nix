@@ -99,7 +99,18 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    XDG_SESSION_TYPE = "wayland";
+    XDG_CURRENT_DESKTOP = "Hyprland";
+    MOZ_ENABLE_WAYLAND = "1";
+    QT_QPA_PLATFORM = "wayland"; # Needed for Qt apps like OBS, KDE, etc.
     XCURSOR_SIZE = "24";
+  };
+
+  # Configure XDG Desktop Portal and specify Hyprland backend
+  xdg.portal = {
+    enable = true;
+    extraPortals = [pkgs.xdg-desktop-portal-hyprland];
+    configPackages = [pkgs.xdg-desktop-portal-hyprland];
   };
 
   # PATH configuration
@@ -125,7 +136,7 @@
   # User configuration
   users.users.${userConfig.name} = {
     description = userConfig.fullName;
-    extraGroups = ["networkmanager" "wheel" "docker"];
+    extraGroups = ["networkmanager" "wheel" "fuse" "docker"];
     isNormalUser = true;
     shell = pkgs.zsh;
   };
@@ -151,11 +162,15 @@
   # System packages
   environment.systemPackages = with pkgs; [
     gcc
+    fuse3
     glib
     gnumake
     killall
     mesa
   ];
+
+  # Allow user-level mounting
+  programs.fuse.userAllowOther = true;
 
   # Docker configuration
   virtualisation.docker.enable = true;

@@ -7,6 +7,8 @@
   imports = [
     #    ../programs/tmux
     ../misc/qt
+    ../misc/sshfs
+    ../programs/OBS
     ../programs/alacritty
     ../programs/atuin
     ../programs/bat
@@ -21,9 +23,9 @@
     ../programs/lazygit
     ../programs/neovim
     ../programs/starship
-    ../programs/vscodium
     ../programs/tmux
     ../programs/ulauncher
+    ../programs/vscodium
     ../programs/zsh
     ../scripts
     ../services/easyeffects
@@ -53,6 +55,7 @@
   home.packages = with pkgs; [
     anki-bin
     awscli2
+    bash
     dig
     du-dust
     eza
@@ -70,6 +73,8 @@
     tesseract
     unzip
     wl-clipboard
+    xdg-desktop-portal
+    xdg-desktop-portal-hyprland
     xterm
   ];
 
