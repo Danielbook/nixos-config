@@ -15,7 +15,7 @@
           {
             criteria = "Philips Consumer Electronics Company Philips 272C4 AU41322000654";
             status = "enable";
-            position = "5120,0";
+            position = "3840,0";
           }
           {
             criteria = "eDP-1";

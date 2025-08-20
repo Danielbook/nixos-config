@@ -30,7 +30,4 @@
       ];
     };
   };
-
-  # Enable catppuccin theming for GTK apps.
-  catppuccin.gtk.enable = true;
 }
