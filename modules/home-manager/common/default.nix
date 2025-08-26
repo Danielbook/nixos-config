@@ -10,6 +10,7 @@
     ../misc/sshfs
     ../programs/OBS
     ../programs/alacritty
+    ../programs/albert
     ../programs/atuin
     ../programs/bat
     ../programs/brave
@@ -24,7 +25,6 @@
     ../programs/neovim
     ../programs/starship
     ../programs/tmux
-    ../programs/ulauncher
     ../programs/vscodium
     ../programs/zsh
     ../scripts
