@@ -12,6 +12,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative flatpak manager
+    nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.6.0";
+
+    # Declarative kde plasma manager
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # NixOS profiles to optimize settings for different hardware
     hardware.url = "github:nixos/nixos-hardware";
 

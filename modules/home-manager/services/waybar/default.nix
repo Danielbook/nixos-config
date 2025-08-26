@@ -43,7 +43,12 @@
           align = 0;
           rotate = 0;
           format = "{icon} {percent}%";
-          format-icons = ["󰃞" "󰃟" "󰃝" "󰃠"];
+          format-icons = [
+            "󰃞"
+            "󰃟"
+            "󰃝"
+            "󰃠"
+          ];
           icon-size = 10;
           on-scroll-up = "brightnessctl set +5%";
           on-scroll-down = "brightnessctl set 5%-";
@@ -175,7 +180,6 @@
         temperature = {
           interval = 10;
           tooltip = false;
-          hwmon-path = "/sys/class/hwmon/hwmon1/temp1_input";
           critical-threshold = 82;
           format-critical = "{icon} {temperatureC}°C";
           format = "󰈸 {temperatureC}°C";
@@ -251,7 +255,7 @@
       .modules-right,
       .modules-center,
       .modules-left {
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(24, 25, 38, 0.7);
         border: 0px solid #b4befe;
         border-radius: 8px;
       }
