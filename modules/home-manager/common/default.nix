@@ -42,6 +42,10 @@
     };
   };
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "libsoup-2.74.3"
+  ];
+
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 

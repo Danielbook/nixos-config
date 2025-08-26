@@ -107,10 +107,19 @@
   };
 
   # Configure XDG Desktop Portal and specify Hyprland backend
-  xdg.portal = {
-    enable = true;
-    extraPortals = [pkgs.xdg-desktop-portal-hyprland];
-    configPackages = [pkgs.xdg-desktop-portal-hyprland];
+  xdg = {
+    portal = {
+      enable = true;
+      xdgOpenUsePortal = true;
+      config = {
+        common.default = ["gtk"];
+        hyprland.default = ["gtk" "hyprland"];
+      };
+      extraPortals = [
+        pkgs.xdg-desktop-portal-gtk
+        pkgs.xdg-desktop-portal-hyprland
+      ];
+    };
   };
 
   # PATH configuration
