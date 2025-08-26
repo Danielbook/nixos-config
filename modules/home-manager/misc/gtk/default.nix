@@ -6,6 +6,14 @@
   # GTK theme configuration
   gtk = {
     enable = true;
+    theme = {
+      name = "catppuccin-macchiato-lavender-compact";
+      package = pkgs.catppuccin-gtk.override {
+        accents = ["lavender"];
+        variant = "macchiato";
+        size = "compact";
+      };
+    };
     iconTheme = {
       name = "Tela-circle-dark";
       package = pkgs.tela-circle-icon-theme;

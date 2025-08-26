@@ -1,27 +1,49 @@
 {
+  config,
   lib,
   pkgs,
   ...
-}: {
-  config = lib.mkIf (!pkgs.stdenv.isDarwin) {
-    qt = {
-      enable = true;
-      platformTheme.name = "kvantum";
-      style.name = "kvantum";
+}:
+with lib; let
+  variant = config.catppuccin.flavor;
+  accent = config.catppuccin.accent;
+
+  catppuccin-kvantum-pkg = pkgs.catppuccin-kvantum.override {inherit variant accent;};
+  catppuccin-theme-name = "catppuccin-${variant}-${accent}";
+
+  qtCtAppearanceConfig = generators.toINI {} {
+    Appearance = {
+      icon_theme = config.gtk.iconTheme.name;
+    };
+  };
+in {
+  home.packages = [
+    catppuccin-kvantum-pkg
+    pkgs.libsForQt5.qtstyleplugin-kvantum
+    pkgs.libsForQt5.qt5ct
+  ];
+
+  qt = {
+    enable = true;
+    platformTheme.name = "qtct";
+    style.name = "kvantum";
+  };
+
+  xdg.configFile = {
+    "Kvantum/${catppuccin-theme-name}".source = "${catppuccin-kvantum-pkg}/share/Kvantum/${catppuccin-theme-name}";
+
+    "Kvantum/kvantum.kvconfig".source = (pkgs.formats.ini {}).generate "kvantum.kvconfig" {
+      General.theme = catppuccin-theme-name;
     };
 
-    catppuccin.kvantum.enable = true;
-    catppuccin.kvantum.apply = true;
+    qt5ct = {
+      target = "qt5ct/qt5ct.conf";
+      text = qtCtAppearanceConfig;
+    };
 
-    home.sessionVariables = {
-      # use wayland as the default backend, fallback to xcb if wayland is not available
-      QT_QPA_PLATFORM = "wayland;xcb";
-
-      # remain backwards compatible with qt5
-      DISABLE_QT5_COMPAT = "0";
-
-      # tell calibre to use the dark theme
-      CALIBRE_USE_DARK_PALETTE = "1";
+    qt6ct = {
+      target = "qt6ct/qt6ct.conf";
+      text = qtCtAppearanceConfig;
     };
   };
 }
