@@ -5,10 +5,8 @@
   ...
 }: {
   imports = [
-    #    ../programs/tmux
     ../misc/qt
     ../misc/sshfs
-    ../programs/OBS
     ../programs/alacritty
     ../programs/albert
     ../programs/atuin
@@ -23,12 +21,14 @@
     ../programs/gpg
     ../programs/lazygit
     ../programs/neovim
+    ../programs/obs-studio
     ../programs/starship
     ../programs/tmux
     ../programs/vscodium
     ../programs/zsh
     ../scripts
     ../services/easyeffects
+    ../services/flatpak
   ];
 
   # Nixpkgs configuration

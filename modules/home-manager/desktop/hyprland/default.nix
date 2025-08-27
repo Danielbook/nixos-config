@@ -9,7 +9,6 @@
     "${nhModules}/misc/gtk"
     "${nhModules}/misc/wallpaper"
     "${nhModules}/misc/xdg"
-    #"${nhModules}/programs/swappy"
     "${nhModules}/services/cliphist"
     "${nhModules}/services/kanshi"
     "${nhModules}/services/swaync"
