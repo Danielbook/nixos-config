@@ -21,7 +21,6 @@
     thunderbird
   ];
 
-  # Apply XDG configuration only on non-Darwin platforms
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {

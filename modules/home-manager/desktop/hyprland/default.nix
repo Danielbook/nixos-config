@@ -11,7 +11,7 @@
     "${nhModules}/misc/xdg"
     "${nhModules}/services/cliphist"
     "${nhModules}/services/kanshi"
-    "${nhModules}/services/swaync"
+    "${nhModules}/services/mako"
     "${nhModules}/services/waybar"
   ];
 
