@@ -61,16 +61,6 @@
     #'';
   };
 
-  services.v4l2loopback = {
-    enable = true;
-    devices = [
-      {
-        cardLabel = "Virtual Camera";
-        exclusiveCaps = true;
-      }
-    ];
-  };
-
   # Networking
   networking.networkmanager.enable = true;
 

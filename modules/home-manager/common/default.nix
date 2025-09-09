@@ -5,8 +5,6 @@
   ...
 }: {
   imports = [
-    ../misc/qt
-    ../misc/sshfs
     ../programs/alacritty
     ../programs/albert
     ../programs/atuin
