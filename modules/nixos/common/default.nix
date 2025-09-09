@@ -19,7 +19,9 @@
   };
 
   # Register flake inputs for nix commands
-  nix.registry = lib.mapAttrs (_: flake: {inherit flake;}) (lib.filterAttrs (_: lib.isType "flake") inputs);
+  nix.registry = lib.mapAttrs (_: flake: {inherit flake;}) (
+    lib.filterAttrs (_: lib.isType "flake") inputs
+  );
 
   # Add inputs to legacy channels
   nix.nixPath = ["/etc/nix/path"];
@@ -38,23 +40,25 @@
 
   # Boot settings
   boot = {
-    kernelPackages = pkgs.linuxPackages;
+    kernelPackages = pkgs.linuxKernel.packages.linux_6_16;
     consoleLogLevel = 0;
     initrd.verbose = false;
-    kernelParams = ["quiet" "splash"];
+    kernelParams = [
+      "quiet"
+      "splash"
+      "rd.udev.log_level=3"
+    ];
     loader.efi.canTouchEfiVariables = true;
     loader.systemd-boot.enable = true;
-    loader.timeout = 5;
+    loader.timeout = 10;
     plymouth.enable = true;
 
-    #    # v4l (virtual camera) module settings
-    #    kernelModules = ["v4l2loopback"];
-    #    extraModulePackages = with config.boot.kernelPackages; [
-    #      v4l2loopback
-    #    ];
-    #    extraModprobeConfig = ''
-    #      options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
-    #    '';
+    # v4l (virtual camera) module settings
+    kernelModules = ["v4l2loopback"];
+    extraModulePackages = with config.boot.kernelPackages; [v4l2loopback];
+    extraModprobeConfig = ''
+      options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
+    '';
   };
 
   # Networking
@@ -66,61 +70,45 @@
     plymouth-quit-wait.enable = false;
   };
 
-  # Timezone
+  # Timezone (Sweden)
   time.timeZone = "Europe/Stockholm";
 
-  # Internationalization
-  i18n.defaultLocale = "en_US.UTF-8";
+  # Internationalization: English UI + Swedish formats
+  i18n = {
+    defaultLocale = "en_US.UTF-8";
+    supportedLocales = [
+      "en_US.UTF-8/UTF-8"
+      "sv_SE.UTF-8/UTF-8"
+    ];
+    extraLocaleSettings = {
+      LC_TIME = "sv_SE.UTF-8";
+      LC_MONETARY = "sv_SE.UTF-8";
+      LC_MEASUREMENT = "sv_SE.UTF-8";
+    };
+  };
 
-  i18n.supportedLocales = ["en_US.UTF-8/UTF-8" "sv_SE.UTF-8/UTF-8"];
-
-  i18n.extraLocaleSettings = {
-    LC_TIME = "sv_SE.UTF-8";
-    LC_MONETARY = "sv_SE.UTF-8";
-    LC_MEASUREMENT = "sv_SE.UTF-8";
+  # Enables support for Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
   };
 
   # Input settings
   services.libinput.enable = true;
 
-  # xserver settings
+  # X server keyboard: US + SE, Alt+Shift to toggle
   services.xserver = {
-    enable = true;
-    #xkb.layout = "us,se";
-    #xkb.options = "grp:alt_shift_toggle";
+    xkb.layout = "us,se";
+    xkb.options = "grp:alt_shift_toggle";
+    xkb.variant = "";
     excludePackages = with pkgs; [xterm];
   };
 
-  services.displayManager.gdm.enable = true;
-
   # Enable Wayland support in Chromium and Electron based applications
-  # Remove decorations for QT apps
   # Set cursor size
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
-    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-    XDG_SESSION_TYPE = "wayland";
-    XDG_CURRENT_DESKTOP = "Hyprland";
-    MOZ_ENABLE_WAYLAND = "1";
-    QT_QPA_PLATFORM = "wayland"; # Needed for Qt apps like OBS, KDE, etc.
     XCURSOR_SIZE = "24";
-  };
-
-  # Configure XDG Desktop Portal and specify Hyprland backend
-  xdg = {
-    portal = {
-      enable = true;
-      xdgOpenUsePortal = true;
-      config = {
-        common.default = ["gtk"];
-        hyprland.default = ["gtk" "hyprland"];
-      };
-      extraPortals = [
-        pkgs.xdg-desktop-portal
-        pkgs.xdg-desktop-portal-gtk
-        pkgs.xdg-desktop-portal-hyprland
-      ];
-    };
   };
 
   # PATH configuration
@@ -143,10 +131,17 @@
     jack.enable = true;
   };
 
+  # Enable flatpak service
+  services.flatpak.enable = true;
+
   # User configuration
   users.users.${userConfig.name} = {
     description = userConfig.fullName;
-    extraGroups = ["networkmanager" "wheel" "fuse" "docker"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+    ];
     isNormalUser = true;
     shell = pkgs.zsh;
   };
@@ -172,20 +167,19 @@
   # System packages
   environment.systemPackages = with pkgs; [
     gcc
-    fuse3
     glib
     gnumake
     killall
     mesa
   ];
 
-  # Allow user-level mounting
-  programs.fuse.userAllowOther = true;
-
   # Docker configuration
   virtualisation.docker.enable = true;
   virtualisation.docker.rootless.enable = true;
   virtualisation.docker.rootless.setSocketVariable = true;
+
+  # Enable xwayland
+  programs.xwayland.enable = true;
 
   # Zsh configuration
   programs.zsh.enable = true;
