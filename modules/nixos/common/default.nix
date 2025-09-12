@@ -40,7 +40,7 @@
 
   # Boot settings
   boot = {
-    kernelPackages = pkgs.linuxKernel.packages.linux_6_16;
+    kernelPackages = pkgs.linuxPackages;
     consoleLogLevel = 0;
     initrd.verbose = false;
     kernelParams = [
@@ -49,7 +49,10 @@
       "rd.udev.log_level=3"
     ];
     loader.efi.canTouchEfiVariables = true;
-    loader.systemd-boot.enable = true;
+    loader.systemd-boot = {
+      enable = true;
+      configurationLimit = 10;
+    };
     loader.timeout = 10;
     plymouth.enable = true;
 
@@ -140,6 +143,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "fuse"
       "docker"
     ];
     isNormalUser = true;
@@ -166,6 +170,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    fuse3
     gcc
     glib
     gnumake
@@ -177,6 +182,9 @@
   virtualisation.docker.enable = true;
   virtualisation.docker.rootless.enable = true;
   virtualisation.docker.rootless.setSocketVariable = true;
+
+  # Allow user-level mounting
+  programs.fuse.userAllowOther = true;
 
   # Enable xwayland
   programs.xwayland.enable = true;
