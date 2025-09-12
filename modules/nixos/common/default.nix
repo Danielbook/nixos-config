@@ -107,11 +107,14 @@
     excludePackages = with pkgs; [xterm];
   };
 
-  # Enable Wayland support in Chromium and Electron based applications
-  # Set cursor size
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
-    XCURSOR_SIZE = "24";
+  # Wayland/NVIDIA-friendly env (system-wide)
+  environment.variables = {
+    NIXOS_OZONE_WL = "1"; # you already had this—keep it
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # make sure GLX points at NVIDIA
+    WLR_NO_HARDWARE_CURSORS = "1"; # KEY workaround for black/blank on NVIDIA
+    # Optional accel envs; harmless to keep:
+    LIBVA_DRIVER_NAME = "nvidia";
+    VDPAU_DRIVER = "nvidia";
   };
 
   # PATH configuration

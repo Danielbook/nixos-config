@@ -65,6 +65,7 @@
     openconnect
     pavucontrol
     pipenv
+    prusa-slicer
     python3
     ripgrep
     terraform
