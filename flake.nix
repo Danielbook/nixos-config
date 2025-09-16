@@ -65,7 +65,9 @@
     # Function for Home Manager configuration
     mkHomeConfiguration = system: username: hostname:
       home-manager.lib.homeManagerConfiguration {
-        pkgs = import nixpkgs {inherit system;};
+        pkgs = import nixpkgs {
+          inherit system;
+        };
         extraSpecialArgs = {
           inherit inputs outputs;
           userConfig = users.${username};

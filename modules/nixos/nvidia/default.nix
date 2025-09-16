@@ -42,11 +42,13 @@
     package = config.boot.kernelPackages.nvidiaPackages.production;
 
     prime = {
-      #offload.enable = true;
-      #intelBusId = "PCI:0:2:0";
-      #nvidiaBusId = "PCI:1:0:0";
-      offload.enable = false;
-      intelBusId = lib.mkForce null;
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
+      # Verify these PCI bus IDs with: lspci | grep -E "(VGA|3D)"
+      intelBusId = "PCI:0:2:0";  # Verify this matches your Intel iGPU
+      nvidiaBusId = "PCI:1:0:0"; # Verify this matches your NVIDIA GPU
     };
   };
 }

@@ -16,10 +16,15 @@
   # ensure common packages are installed
   home.packages = with pkgs; [
     bitwarden
+    claude-code
     google-chrome
+    nodejs_20
     spotify
     thunderbird
   ];
+
+  # Stop the CLI’s auto-updater; Nix will handle upgrades.
+  home.sessionVariables.DISABLE_AUTOUPDATER = "1";
 
   xdg.mimeApps = {
     enable = true;

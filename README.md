@@ -1,153 +1,220 @@
-# NixOS Config
+# 🐧 Daniel's NixOS Configuration
 
-## Structure
+> A declarative NixOS configuration with Hyprland, featuring a modern development environment and seamless desktop experience.
 
-- `flake.nix`: The flake itself, defining inputs and outputs for NixOS, nix-darwin, and Home Manager configurations.
-- `hosts/`: NixOS and nix-darwin configurations for each machine (`energy`, `PL-OLX-KCGXHGK3PY`).
-- `home/`: Home Manager configurations for each user on each machine.
-- `files/`: Miscellaneous configuration files, scripts, avatars, and screenshots.
-- `modules/`: Reusable platform-specific modules:
-  - `nixos/`: NixOS-specific modules for system configuration.
-  - `home-manager/`: User-space configuration modules for applications and services.
-- `overlays/`: Custom Nix overlays for package modifications or additions.
-- `flake.lock`: Lock file ensuring reproducible builds by pinning input versions.
+## 📁 Repository Structure
 
-### Key Inputs
+- 📦 `flake.nix`: Main flake configuration defining inputs and outputs for NixOS and Home Manager
+- 🖥️ `hosts/`: Machine-specific NixOS configurations
+  - 🐛 `weepinbell/`: Primary workstation configuration
+- 🏠 `home/`: User-specific Home Manager configurations  
+- 📄 `files/`: Miscellaneous assets (avatars, scripts, etc.)
+- 🧩 `modules/`: Reusable configuration modules
+  - ⚙️ `nixos/`: System-level NixOS modules
+  - 👤 `home-manager/`: User-space application and service configurations
+- 🔧 `overlays/`: Custom Nix package overlays
+- 🔒 `flake.lock`: Reproducible build lock file
 
-- **nixpkgs**: Points to the `nixos-unstable` channel for access to the latest packages.
-- **nixpkgs-stable**: Points to the `nixos-25.05` channel for stable packages.
-- **home-manager**: Manages user-specific configurations.
-- **hardware**: Provides NixOS modules to optimize settings for different hardware.
-- **catppuccin**: Provides global Catppuccin theme integration.
-- **nix-flatpak**: Provides a declarative way to manage Flatpaks.
+## 🔗 Key Dependencies
 
-## Usage
+- 📦 **nixpkgs**: Latest packages from `nixos-unstable` channel
+- 🛡️ **nixpkgs-stable**: Stable packages from `nixos-25.05` channel  
+- 🏠 **home-manager**: Declarative user environment management
+- 🖥️ **nixos-hardware**: Hardware-optimized NixOS configurations
+- 🎨 **catppuccin**: Beautiful pastel theme system-wide
+- 📱 **nix-flatpak**: Declarative Flatpak application management
+- 🌊 **plasma-manager**: KDE Plasma configuration management
 
-### Adding a New Machine with a New User
+## ✨ Features
 
-To add a new machine with a new user to your NixOS or nix-darwin configuration, follow these steps:
+- 🪟 **Hyprland**: Modern Wayland compositor with smooth animations
+- 🎨 **Catppuccin Theme**: Consistent dark theme across all applications  
+- 🔧 **NVIDIA Prime**: Hybrid graphics with proper offloading support
+- 📋 **SwayNC**: Beautiful notification center
+- 🗃️ **Albert Launcher**: Fast application launcher
+- 📊 **Waybar**: Customizable status bar
+- 🔒 **Hyprlock**: Secure screen locking
+- 📸 **Screenshot Tools**: Built-in region and fullscreen capture
+- 🎥 **Screen Recording**: Integrated recording functionality
+- 👁️ **OCR Support**: Text recognition from images
 
-1. **Update `flake.nix`**:
+## ⌨️ Keyboard Shortcuts
 
-   a. Add the new user to the `users` attribute set:
+**Main Modifier:** `Super` (Windows key)
 
+### 🚀 Applications
+| Shortcut | Action |
+|----------|--------|
+| `Super + Shift + Enter` | 🖥️ Open terminal (Ghostty) |
+| `Super + Shift + F` | 📁 Open file manager (Nautilus) |
+| `Super + A` | 🗃️ Show applications menu |
+| `Ctrl + Space` | 🔍 Toggle Albert launcher |
+| `Super + N` | 📋 Toggle notifications (SwayNC) |
+
+### 🪟 Window Management  
+| Shortcut | Action |
+|----------|--------|
+| `Super + Q` | ❌ Kill active window |
+| `Ctrl + Alt + Q` | 🚪 Exit Hyprland |
+| `Super + F` | 📌 Toggle floating mode |
+| `Super + M` | 📺 Toggle fullscreen |
+| `Super + Return` | 🔄 Swap with master window |
+| `Super + O` | 🔄 Cycle layout orientation |
+
+### 🧭 Navigation (Vim-style)
+| Shortcut | Action |
+|----------|--------|
+| `Super + h/j/k/l` | 👆 Move focus (left/down/up/right) |
+| `Super + Shift + ←→↑↓` | 📏 Resize window |
+| `Super + 1-9,0` | 🏠 Switch to workspace 1-10 |
+| `Super + Shift + 1-9,0` | 📦 Move window to workspace 1-10 |
+
+### 📸 Screenshots & Tools
+| Shortcut | Action |
+|----------|--------|
+| `Super + Shift + S` | 📷 Screenshot region |
+| `Super + Ctrl + S` | 🖼️ Screenshot full screen |  
+| `Super + Shift + R` | 🎥 Start screen recording |
+| `Super + Shift + C` | 🎨 Color picker |
+| `Alt + Shift + 2` | 👁️ OCR text recognition |
+
+### 🎵 System Controls
+| Shortcut | Action |
+|----------|--------|
+| `Volume Keys` | 🔊 Adjust system volume |
+| `Brightness Keys` | 💡 Adjust screen brightness |
+| `Shift + Brightness` | ⌨️ Adjust keyboard backlight |
+| `Ctrl + Alt + L` | 🔒 Lock screen |
+
+## 🚀 Quick Start
+
+### Initial Setup
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/nixos-config.git
+cd nixos-config
+
+# Build and switch (requires sudo)
+sudo nixos-rebuild switch --flake .#weepinbell
+
+# Apply Home Manager configuration  
+home-manager switch --flake .#daniel@weepinbell
+```
+
+### 🔧 Adding a New Machine
+
+1. **📝 Update `flake.nix`**:
    ```nix
+   # Add to users configuration
    users = {
-     # Existing users...
+     daniel = { /* existing config */ };
      newuser = {
        avatar = ./files/avatar/face;
-       email = "newuser@example.com";
+       email = "user@example.com";
        fullName = "New User";
-       gitKey = "YOUR_GIT_KEY";
        name = "newuser";
      };
    };
-   ```
-
-   b. Add the new machine to the appropriate configuration set:
-
-   For NixOS:
-
-   ```nix
+   
+   # Add machine configurations
    nixosConfigurations = {
-     # Existing configurations...
+     weepinbell = mkNixosConfiguration "weepinbell" "daniel";
      newmachine = mkNixosConfiguration "newmachine" "newuser";
    };
-   ```
-
-   c. Add the new home configuration:
-
-   ```nix
+   
    homeConfigurations = {
-     # Existing configurations...
+     "daniel@weepinbell" = mkHomeConfiguration "x86_64-linux" "daniel" "weepinbell";  
      "newuser@newmachine" = mkHomeConfiguration "x86_64-linux" "newuser" "newmachine";
    };
    ```
 
-2. **Create System Configuration**:
-
-   a. Create a new directory under `hosts/` for your machine:
-
-   ```sh
+2. **🖥️ Create System Configuration**:
+   ```bash
    mkdir -p hosts/newmachine
+   sudo nixos-generate-config --show-hardware-config > hosts/newmachine/hardware-configuration.nix
    ```
-
-   b. Create `default.nix` in this directory:
-
-   ```sh
-   touch hosts/newmachine/default.nix
-   ```
-
-   c. Add the basic configuration to `default.nix`:
-
-   For NixOS:
-
+   
+   Create `hosts/newmachine/default.nix`:
    ```nix
-   { inputs, hostname, nixosModules, ... }:
+   { hostname, nixosModules, ... }:
    {
      imports = [
-       inputs.hardware.nixosModules.common-cpu-amd
        ./hardware-configuration.nix
        "${nixosModules}/common"
        "${nixosModules}/desktop/hyprland"
+       "${nixosModules}/nvidia"  # If needed
      ];
-
+     
      networking.hostName = hostname;
+     system.stateVersion = "25.05";
    }
    ```
 
-
-   d. For NixOS, generate `hardware-configuration.nix`:
-
-   ```sh
-   sudo nixos-generate-config --show-hardware-config > hosts/newmachine/hardware-configuration.nix
-   ```
-
-3. **Create Home Manager Configuration**:
-
-   a. Create a new directory for the user's host-specific configuration:
-
-   ```sh
+3. **🏠 Create Home Configuration**:
+   ```bash
    mkdir -p home/newuser/newmachine
-   touch home/newuser/newmachine/default.nix
    ```
-
-   b. Add basic home configuration:
-
+   
+   Create `home/newuser/newmachine/default.nix`:
    ```nix
    { nhModules, ... }:
    {
      imports = [
        "${nhModules}/common"
-       # Add other home-manager modules
+       "${nhModules}/desktop/hyprland"
      ];
+     
+     home.stateVersion = "25.05";
    }
    ```
 
-4. **Building and Applying Configurations**:
-
-   a. Commit new files to git:
-
-   ```sh
+4. **🚀 Deploy**:
+   ```bash
    git add .
-   ```
-
-   b. Build and switch to the new system configuration:
-
-   For NixOS:
-
-   ```sh
    sudo nixos-rebuild switch --flake .#newmachine
+   home-manager switch --flake .#newuser@newmachine
    ```
 
-   c. Build and switch to the new Home Manager configuration:
+## 🛠️ Troubleshooting
 
-> [!IMPORTANT]
-> On fresh systems, bootstrap Home Manager first:
+### 🖤 Black Applications (GTK rendering issues)
+If applications like pavucontrol or SwayNC appear black:
+- ✅ **Fixed**: GTK Wayland environment variables are configured
+- 🔄 **Solution**: Restart Hyprland after `nixos-rebuild switch`
 
-```sh
+### 🎮 NVIDIA Issues
+- ✅ **Configured**: NVIDIA Prime offloading enabled
+- 🔍 **Check GPUs**: `ls -la /sys/class/drm/` to verify graphics cards
+- 🔧 **Bus IDs**: Update `intelBusId` and `nvidiaBusId` in `modules/nixos/nvidia/default.nix`
+
+### 🏠 Home Manager Bootstrap
+On fresh systems:
+```bash
 nix-shell -p home-manager
-home-manager switch --flake .#newuser@newmachine
+home-manager switch --flake .#daniel@weepinbell
 ```
 
-After this initial setup, you can rebuild configurations separately and home-manager will be available without additional steps
+### 🔄 Configuration Updates  
+```bash
+# System updates
+sudo nixos-rebuild switch --flake .
+
+# User environment updates  
+home-manager switch --flake .
+```
+
+## 📚 Useful Commands
+
+```bash
+# Update flake inputs
+nix flake update
+
+# Check what will be built
+nixos-rebuild dry-build --flake .
+
+# Garbage collection
+sudo nix-collect-garbage -d
+
+# Show system generations
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+```

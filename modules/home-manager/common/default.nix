@@ -19,7 +19,6 @@
     ../programs/gpg
     ../programs/lazygit
     ../programs/neovim
-    ../programs/node
     ../programs/obs-studio
     ../programs/starship
     ../programs/tmux
@@ -64,7 +63,7 @@
     lazydocker
     nh
     openconnect
-    pavucontrol
+    # pavucontrol  # Removed duplicate - already installed in nixos module
     pipenv
     prusa-slicer
     python3
