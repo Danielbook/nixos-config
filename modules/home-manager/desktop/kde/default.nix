@@ -61,9 +61,9 @@
 
     hotkeys.commands = {
       launch-alacritty = {
-        name = "Launch Alacritty";
+        name = "Launch Ghostty";
         key = "Meta+Shift+Return";
-        command = "alacritty";
+        command = "ghostty";
       };
       launch-brave = {
         name = "Launch Brave";
@@ -131,10 +131,10 @@
       keyboard = {
         layouts = [
           {
-            layout = "pl";
+            layout = "en";
           }
           {
-            layout = "ru";
+            layout = "se";
           }
         ];
         repeatDelay = 250;

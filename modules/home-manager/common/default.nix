@@ -19,6 +19,7 @@
     ../programs/gpg
     ../programs/lazygit
     ../programs/neovim
+    ../programs/node
     ../programs/obs-studio
     ../programs/starship
     ../programs/tmux

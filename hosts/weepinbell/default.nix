@@ -15,6 +15,7 @@
     ./hardware-configuration.nix
     "${nixosModules}/common"
     "${nixosModules}/desktop/hyprland"
+    #"${nixosModules}/desktop/kde"
     "${nixosModules}/services/tlp"
     "${nixosModules}/nvidia"
   ];
