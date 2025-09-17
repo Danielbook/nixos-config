@@ -1,25 +1,6 @@
 {pkgs, ...}: {
   # SwayNC notification center for Wayland
-  home.packages = [pkgs.swaynotificationcenter];
-
-  # SwayNC systemd service
-  systemd.user.services.swaync = {
-    Unit = {
-      Description = "SwayNC notification daemon";
-      PartOf = ["graphical-session.target"];
-      After = ["graphical-session.target"];
-    };
-    Service = {
-      Type = "dbus";
-      BusName = "org.freedesktop.Notifications";
-      ExecStart = "${pkgs.swaynotificationcenter}/bin/swaync";
-      ExecReload = "${pkgs.swaynotificationcenter}/bin/swaync-client --reload-config";
-      Restart = "on-failure";
-      RestartSec = 1;
-      TimeoutStopSec = 10;
-    };
-    Install.WantedBy = ["graphical-session.target"];
-  };
+  services.swaync.enable = true;
 
   # SwayNC configuration files
   xdg.configFile = {

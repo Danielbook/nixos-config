@@ -144,6 +144,45 @@
 | `<leader>u` | 🌳 Toggle undo tree |
 | `Ctrl + c` | 🔄 Escape (insert mode) |
 
+## 📟 Tmux Keybindings
+
+**Prefix Key:** `Ctrl + Q`
+
+### 🪟 Window & Session Management
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + Q` then `c` | ➕ Create new window |
+| `Ctrl + Q` then `r` | ✏️ Rename current window |
+| `Ctrl + Q` then `R` | 🔄 Reload tmux config |
+| `Ctrl + Q` then `d` | 🚪 Detach from session |
+| `Ctrl + Q` then `n` | ➡️ Next window |
+| `Ctrl + Q` then `p` | ⬅️ Previous window |
+| `Ctrl + Q` then `1-9` | 🔢 Switch to window number |
+
+### 🔄 Pane Management
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + Q` then `v` | ↔️ Split pane vertically |
+| `Ctrl + Q` then `s` | ↕️ Split pane horizontally |
+| `Ctrl + h/j/k/l` | 🧭 Navigate panes (vim-style) |
+| `Shift + ←→↑↓` | 📏 Resize panes |
+| `Ctrl + Q` then `x` | ❌ Close current pane |
+
+### 🔧 Utilities
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + Q` then `Ctrl + L` | 🧹 Clear screen |
+| `Ctrl + F` | 📁 Open project selector |
+| Mouse scroll | 📜 Scroll through history |
+
+### 📋 Copy Mode (Vi-style)
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + Q` then `[` | 📋 Enter copy mode |
+| `Space` | 📍 Start selection (in copy mode) |
+| `Enter` | 📄 Copy selection (in copy mode) |
+| `Ctrl + Q` then `]` | 📥 Paste |
+
 ## 🚀 Quick Start
 
 ### Initial Setup
