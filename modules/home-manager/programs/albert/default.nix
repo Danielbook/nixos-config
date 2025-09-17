@@ -1,38 +1,36 @@
 {pkgs, ...}: {
-  # Albert package
+  # Albert application launcher package
   home.packages = [pkgs.albert];
 
-  # Make the launcher run Albert via XCB (Wayland stays default for everything else)
+  # Desktop entry for Albert launcher (native Wayland for stability)
   xdg.desktopEntries.albert = {
     name = "Albert";
-    genericName = "Launcher";
-    # Important bit: inject the env var just for Albert
-    exec = "env QT_QPA_PLATFORM=xcb ${pkgs.albert}/bin/albert %U";
+    genericName = "Application Launcher";
+    exec = "${pkgs.albert}/bin/albert %U";     # Native Wayland (no XCB forcing)
     icon = "albert";
     terminal = false;
     categories = ["Utility"];
-    # Optional: add Keywords, StartupWMClass, etc., if you want
   };
 
-  # Source albert configuration from the home-manager store
+  # Albert configuration file
   xdg.configFile."albert/config".text = ''
     [General]
-    frontend=widgetsboxmodel-ng
-    showTray=false
-    telemetry=false
+    frontend=widgetsboxmodel              # Stable frontend (not -ng)
+    showTray=false                        # Hide system tray icon
+    telemetry=false                       # Disable telemetry
 
     [applications]
-    enabled=true
+    enabled=true                          # Enable application search
     global_handler_enabled=true
 
     [chromium]
-    enabled=true
+    enabled=false                         # Disabled (problematic plugin)
     fuzzy=false
     global_handler_enabled=false
     trigger=bm
 
     [clipboard]
-    enabled=true
+    enabled=false                         # Disabled (causes crashes)
     persistent=true
     trigger=clipboard
 
@@ -53,7 +51,7 @@
     title_poweroff=Shutdown
     trigger=sys
 
-    [widgetsboxmodel-ng]
+    [widgetsboxmodel]
     alwaysOnTop=true
     clearOnHide=true
     debug=false
@@ -65,4 +63,19 @@
     quitOnClose=false
     showCentered=true
   '';
+
+  # Systemd service for Albert with crash recovery
+  systemd.user.services.albert = {
+    Unit = {
+      Description = "Albert application launcher";
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.albert}/bin/albert";
+      Restart = "on-failure";              # Restart if crashed
+      RestartSec = 2;                      # Wait 2 seconds before restart
+      Environment = [ "QT_QPA_PLATFORM=wayland" ];  # Force Wayland
+    };
+    Install.WantedBy = [ "default.target" ];
+  };
 }

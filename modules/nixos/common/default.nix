@@ -38,23 +38,23 @@
     auto-optimise-store = true;
   };
 
-  # Boot settings
+  # Boot configuration
   boot = {
-    kernelPackages = pkgs.linuxPackages;
-    consoleLogLevel = 0;
-    initrd.verbose = false;
+    kernelPackages = pkgs.linuxPackages;      # Use latest stable kernel
+    consoleLogLevel = 0;                      # Minimal boot messages
+    initrd.verbose = false;                   # Quiet initramfs
     kernelParams = [
-      "quiet"
-      "splash"
-      "rd.udev.log_level=3"
+      "quiet"                                 # Reduce kernel messages
+      "splash"                                # Show boot splash
+      "rd.udev.log_level=3"                  # Minimal udev logging
     ];
-    loader.efi.canTouchEfiVariables = true;
+    loader.efi.canTouchEfiVariables = true;  # Allow EFI variable modification
     loader.systemd-boot = {
-      enable = true;
-      configurationLimit = 10;
+      enable = true;                          # Use systemd-boot bootloader
+      configurationLimit = 10;               # Keep last 10 generations
     };
-    loader.timeout = 10;
-    plymouth.enable = true;
+    loader.timeout = 10;                     # Boot menu timeout (seconds)
+    plymouth.enable = true;                   # Graphical boot splash
 
     # v4l (virtual camera) module settings
     #kernelModules = ["v4l2loopback"];
@@ -107,14 +107,13 @@
     excludePackages = with pkgs; [xterm];
   };
 
-  # Wayland/NVIDIA-friendly env (system-wide)
+  # Wayland/NVIDIA compatibility environment variables
   environment.variables = {
-    NIXOS_OZONE_WL = "1"; # you already had this—keep it
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # make sure GLX points at NVIDIA
-    WLR_NO_HARDWARE_CURSORS = "1"; # KEY workaround for black/blank on NVIDIA
-    # Optional accel envs; harmless to keep:
-    LIBVA_DRIVER_NAME = "nvidia";
-    VDPAU_DRIVER = "nvidia";
+    NIXOS_OZONE_WL = "1";                     # Enable Wayland support in Chromium/Electron apps
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";     # Force GLX to use NVIDIA drivers
+    WLR_NO_HARDWARE_CURSORS = "1";           # Fix cursor issues on NVIDIA (prevents black screens)
+    LIBVA_DRIVER_NAME = "nvidia";             # Hardware video acceleration via NVIDIA
+    VDPAU_DRIVER = "nvidia";                  # Video decode acceleration via NVIDIA
   };
 
   # PATH configuration
@@ -126,31 +125,31 @@
   # Enable devmon for device management
   services.devmon.enable = true;
 
-  # Enable PipeWire for sound
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
+  # Modern audio system (replaces PulseAudio)
+  services.pulseaudio.enable = false;       # Disable legacy PulseAudio
+  security.rtkit.enable = true;             # Real-time scheduling for audio
   services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
+    enable = true;                          # Enable PipeWire audio server
+    alsa.enable = true;                     # ALSA compatibility layer
+    alsa.support32Bit = true;              # 32-bit app audio support
+    pulse.enable = true;                    # PulseAudio compatibility
+    jack.enable = true;                     # JACK audio system support
   };
 
   # Enable flatpak service
   services.flatpak.enable = true;
 
-  # User configuration
+  # User account configuration
   users.users.${userConfig.name} = {
     description = userConfig.fullName;
     extraGroups = [
-      "networkmanager"
-      "wheel"
-      "fuse"
-      "docker"
+      "networkmanager"     # Network configuration access
+      "wheel"              # Sudo privileges
+      "fuse"               # Filesystem mounting permissions
+      "docker"             # Docker daemon access
     ];
-    isNormalUser = true;
-    shell = pkgs.zsh;
+    isNormalUser = true;   # Standard user account (not system)
+    shell = pkgs.zsh;      # Default shell
   };
 
   # Set User's avatar
@@ -171,20 +170,20 @@
   # Passwordless sudo
   security.sudo.wheelNeedsPassword = false;
 
-  # System packages
+  # Essential system packages
   environment.systemPackages = with pkgs; [
-    fuse3
-    gcc
-    glib
-    gnumake
-    killall
-    mesa
+    fuse3       # Filesystem in userspace library
+    gcc         # GNU C compiler
+    glib        # Low-level system library
+    gnumake     # GNU make build tool
+    killall     # Process termination utility
+    mesa        # Open-source OpenGL implementation
   ];
 
-  # Docker configuration
-  virtualisation.docker.enable = true;
-  virtualisation.docker.rootless.enable = true;
-  virtualisation.docker.rootless.setSocketVariable = true;
+  # Docker containerization platform
+  virtualisation.docker.enable = true;                    # Enable Docker daemon
+  virtualisation.docker.rootless.enable = true;          # Rootless Docker for security
+  virtualisation.docker.rootless.setSocketVariable = true; # Set DOCKER_HOST variable
 
   # Allow user-level mounting
   programs.fuse.userAllowOther = true;
@@ -195,11 +194,11 @@
   # Zsh configuration
   programs.zsh.enable = true;
 
-  # Fonts configuration
+  # System fonts
   fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-    nerd-fonts.meslo-lg
-    roboto
+    nerd-fonts.jetbrains-mono   # Programming font with icons
+    nerd-fonts.meslo-lg         # Terminal font with powerline support
+    roboto                      # Modern sans-serif UI font
   ];
 
   # Additional services

@@ -2,30 +2,31 @@
   description = "My take on this NixOS thing";
 
   inputs = {
-    # Nixpkgs
+    # Core NixOS package repository (bleeding edge)
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # Stable NixOS packages for compatibility
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
 
-    # Home manager
+    # User environment and dotfile management
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Declarative flatpak manager
+    # Declarative Flatpak application management
     nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.6.0";
 
-    # Declarative kde plasma manager
+    # KDE Plasma desktop configuration management
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
 
-    # NixOS profiles to optimize settings for different hardware
+    # Hardware-specific optimizations and drivers
     hardware.url = "github:nixos/nixos-hardware";
 
-    # Global catppuccin theme
+    # Catppuccin color scheme for consistent theming
     catppuccin.url = "github:catppuccin/nix";
   };
 
