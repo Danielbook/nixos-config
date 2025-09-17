@@ -10,7 +10,10 @@
   config = lib.mkIf (!pkgs.stdenv.isDarwin) {
     services.flatpak = {
       enable = true;
-      packages = ["us.zoom.Zoom"];
+      packages = [
+        "us.zoom.Zoom"                   # Video conferencing
+        "com.spotify.Client"             # Music streaming (better Wayland support than Nix version)
+      ];
       uninstallUnmanaged = true;
       update.auto.enable = false;
     };

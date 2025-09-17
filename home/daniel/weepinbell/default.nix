@@ -13,14 +13,14 @@
     enable = true;
   };
 
-  # ensure common packages are installed
+  # Essential packages for this machine
   home.packages = with pkgs; [
-    bitwarden
-    claude-code
-    google-chrome
-    nodejs_20
-    spotify
-    thunderbird
+    bitwarden                           # Password manager
+    claude-code                         # Claude Code editor
+    google-chrome                       # Web browser
+    nodejs_20                           # Node.js runtime
+    # spotify                           # Moved to Flatpak for better Wayland support
+    thunderbird                         # Email client
   ];
 
   # Stop the CLI’s auto-updater; Nix will handle upgrades.
