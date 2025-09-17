@@ -11,11 +11,13 @@
             criteria = "Samsung Electric Company U28E850 HTPH300286";
             status = "enable";
             position = "0,0";
+            scale = 1.5; # Explicit 1.5x scaling
           }
           {
             criteria = "Philips Consumer Electronics Company Philips 272C4 AU41322000654";
             status = "enable";
-            position = "3840,0";
+            position = "2560,0"; # Position based on Samsung's logical width (3840/1.5=2560)
+            scale = 1.0; # No scaling for 2K monitor
           }
           {
             criteria = "eDP-1";

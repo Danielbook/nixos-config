@@ -19,7 +19,8 @@
       };
     };
     extraConfig = {
-      pull.rebase = "true";
+      pull.rebase = "true";                    # Always rebase when pulling
+      push.autoSetupRemote = "true";           # Auto-setup remote tracking for new branches
     };
   };
 
