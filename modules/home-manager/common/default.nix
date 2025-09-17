@@ -51,30 +51,52 @@
 
   # Essential user packages for daily workflow
   home.packages = with pkgs; [
-    anki-bin                      # Flashcard and spaced repetition learning app
-    awscli2                       # AWS command line interface v2
-    bash                          # Bash shell (fallback/compatibility)
-    dig                           # DNS lookup utility
-    du-dust                       # Modern disk usage analyzer (du replacement)
-    eza                           # Modern ls replacement with colors and icons
-    fd                            # Fast find alternative for files/directories
-    firefox                       # Mozilla Firefox web browser
-    jq                            # JSON processor and formatter
-    lazydocker                    # Docker container management TUI
-    nh                            # NixOS helper for rebuilding and managing generations
-    openconnect                   # Cisco AnyConnect VPN client
-    # pavucontrol               # PulseAudio volume control (installed in nixos module)
-    pipenv                        # Python virtual environment manager
-    prusa-slicer                  # 3D printer slicer for Prusa printers
-    python3                       # Python 3 interpreter
-    ripgrep                       # Fast grep alternative with better defaults
-    terraform                     # Infrastructure as code tool
-    tesseract                     # OCR engine for text recognition
-    unzip                         # Archive extraction utility
-    wl-clipboard                  # Wayland clipboard manager
-    xdg-desktop-portal            # Desktop integration portal
-    xdg-desktop-portal-hyprland   # Hyprland-specific desktop portal
-    xterm                         # X terminal emulator (fallback)
+    # Flashcard and spaced repetition learning app
+    anki-bin
+    # AWS command line interface v2
+    awscli2
+    # Bash shell (fallback/compatibility)
+    bash
+    # DNS lookup utility
+    dig
+    # Modern disk usage analyzer (du replacement)
+    du-dust
+    # Modern ls replacement with colors and icons
+    eza
+    # Fast find alternative for files/directories
+    fd
+    # Mozilla Firefox web browser
+    firefox
+    # JSON processor and formatter
+    jq
+    # Docker container management TUI
+    lazydocker
+    # NixOS helper for rebuilding and managing generations
+    nh
+    # Cisco AnyConnect VPN client
+    openconnect
+    # Python virtual environment manager
+    pipenv
+    # 3D printer slicer for Prusa printers
+    prusa-slicer
+    # Python 3 interpreter
+    python3
+    # Fast grep alternative with better defaults
+    ripgrep
+    # Infrastructure as code tool
+    terraform
+    # OCR engine for text recognition
+    tesseract
+    # Archive extraction utility
+    unzip
+    # Wayland clipboard manager
+    wl-clipboard
+    # Desktop integration portal
+    xdg-desktop-portal
+    # Hyprland-specific desktop portal
+    xdg-desktop-portal-hyprland
+    # X terminal emulator (fallback)
+    xterm
   ];
 
   # Catpuccin flavor and accent

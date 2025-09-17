@@ -86,6 +86,64 @@
 | `Shift + Brightness` | ⌨️ Adjust keyboard backlight |
 | `Ctrl + Alt + L` | 🔒 Lock screen |
 
+## 📝 Neovim Keybindings
+
+**Leader Key:** `Space`
+
+### 📁 File Management
+| Shortcut | Action |
+|----------|--------|
+| `<leader>pv` | 📂 Open file explorer (netrw) |
+| `<leader>ff` | 🔍 Find files (Telescope) |
+| `<leader>fb` | 📄 Find buffers (Telescope) |
+| `Ctrl + p` | 🗂️ Find git files (Telescope) |
+| `<leader>gw` | 🔎 Live grep search (Telescope) |
+| `<leader>fh` | ❓ Help tags (Telescope) |
+
+### 🪟 Window Navigation
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + h/j/k/l` | ↔️ Navigate between panes |
+| `<leader>w` | 💾 Save file |
+| `<leader>q` | 🚪 Quit |
+| `Ctrl + n` | 🌳 Toggle Neo-tree (left) |
+| `<leader>bf` | 📋 Show buffers (Neo-tree float) |
+
+### 🔍 Search & Replace
+| Shortcut | Action |
+|----------|--------|
+| `<leader>fw` | 🎯 Search word under cursor |
+| `<leader>fW` | 🎯 Search WORD under cursor |
+| `<leader>gd` | 🔗 Go to definition (LSP) |
+| `<leader>gr` | 📚 Find references (LSP) |
+
+### 📝 Text Editing
+| Shortcut | Action |
+|----------|--------|
+| `<leader>p` | 📋 Paste without overwriting register |
+| `<leader>y` | 📄 Yank to system clipboard |
+| `<leader>Y` | 📄 Yank line to system clipboard |
+| `Ctrl + d/u` | ⬇️⬆️ Half page down/up (centered) |
+| `Ctrl + f/b` | 📃 Full page down/up (centered) |
+
+### 🛠️ LSP & Development
+| Shortcut | Action |
+|----------|--------|
+| `K` | 📖 Show hover documentation |
+| `<leader>vws` | 🔍 Workspace symbol search |
+| `<leader>vd` | ⚠️ Open diagnostic float |
+| `<leader>ca` | ⚡ Code actions |
+| `<leader>rn` | ✏️ Rename symbol |
+| `Ctrl + h` | 📝 Signature help (insert mode) |
+| `[d` / `]d` | ⬅️➡️ Navigate diagnostics |
+| `<leader>bf` | 🎨 Format buffer |
+
+### 📚 Utilities
+| Shortcut | Action |
+|----------|--------|
+| `<leader>u` | 🌳 Toggle undo tree |
+| `Ctrl + c` | 🔄 Escape (insert mode) |
+
 ## 🚀 Quick Start
 
 ### Initial Setup

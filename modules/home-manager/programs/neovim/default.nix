@@ -48,47 +48,49 @@ in {
         ]);
     in
       with pkgs.vimPlugins; [
-        alpha-nvim
-        catppuccin-nvim
-        cmp-nvim-lsp
-        cmp_luasnip
-        friendly-snippets
-        lualine-nvim
-        luasnip
-        neo-tree-nvim
-        none-ls-nvim
-        nui-nvim
-        nvim-cmp
-        nvim-lspconfig
-        nvim-treesitter-with-plugins
-        nvim-ts-autotag
-        nvim-web-devicons
-        peek-nvim
-        plenary-nvim
-        telescope-fzf-native-nvim
-        telescope-nvim
-        telescope-ui-select-nvim
-        undotree
+        alpha-nvim                        # Startup screen with custom dashboard
+        catppuccin-nvim                   # Catppuccin colorscheme
+        cmp-nvim-lsp                      # LSP completion source for nvim-cmp
+        cmp_luasnip                       # LuaSnip completion source for nvim-cmp
+        friendly-snippets                 # Collection of useful snippets
+        lualine-nvim                      # Fast and customizable statusline
+        luasnip                           # Snippet engine for Neovim
+        neo-tree-nvim                     # File explorer tree
+        none-ls-nvim                      # Null-ls alternative for formatters/linters
+        nui-nvim                          # UI component library
+        nvim-cmp                          # Completion engine
+        nvim-lspconfig                    # LSP configuration helper
+        nvim-treesitter-with-plugins      # Syntax highlighting and parsing
+        nvim-ts-autotag                   # Auto close/rename HTML tags
+        nvim-web-devicons                 # File type icons
+        peek-nvim                         # Markdown preview
+        plenary-nvim                      # Lua utility library
+        telescope-fzf-native-nvim         # FZF integration for Telescope
+        telescope-nvim                    # Fuzzy finder
+        telescope-ui-select-nvim          # Use Telescope for vim.ui.select
+        undotree                          # Undo history visualizer
+        vim-fugitive                      # Git integration
+        vim-be-good                       # Vim practice game
       ];
 
     extraPackages = with pkgs; [
-      alejandra
-      gopls
-      isort
-      lua-language-server
-      markdownlint-cli
-      nil
-      nixd
-      nodePackages.bash-language-server
-      nodePackages.prettier
-      nodePackages.typescript-language-server
-      shellcheck
-      shfmt
-      stylua
-      tailwindcss-language-server
-      terraform-ls
-      vscode-langservers-extracted
-      yaml-language-server
+      alejandra                         # Nix code formatter
+      gopls                             # Go language server
+      isort                             # Python import sorter
+      lua-language-server               # Lua language server
+      markdownlint-cli                  # Markdown linter
+      nil                               # Nix language server
+      nixd                              # Alternative Nix language server
+      nodePackages.bash-language-server # Bash language server
+      nodePackages.prettier            # Code formatter for web languages
+      nodePackages.typescript-language-server # TypeScript/JavaScript language server
+      shellcheck                        # Shell script static analysis
+      shfmt                             # Shell script formatter
+      stylua                            # Lua code formatter
+      tailwindcss-language-server       # Tailwind CSS language server
+      terraform-ls                      # Terraform language server
+      vscode-langservers-extracted      # HTML/CSS/JSON language servers
+      yaml-language-server              # YAML language server
     ];
   };
 
