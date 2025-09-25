@@ -15,12 +15,12 @@
 
   # Essential packages for this machine
   home.packages = with pkgs; [
-    bitwarden                           # Password manager
-    claude-code                         # Claude Code editor
-    google-chrome                       # Web browser
-    nodejs_20                           # Node.js runtime
+    bitwarden # Password manager
+    claude-code # Claude Code editor
+    google-chrome # Web browser
+    nodejs_20 # Node.js runtime
     # spotify                           # Moved to Flatpak for better Wayland support
-    thunderbird                         # Email client
+    thunderbird # Email client
   ];
 
   # Stop the CLI’s auto-updater; Nix will handle upgrades.

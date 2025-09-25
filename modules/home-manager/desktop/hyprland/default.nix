@@ -13,6 +13,8 @@
     "${nhModules}/services/cliphist"
     "${nhModules}/services/kanshi"
     "${nhModules}/services/mako"
+    "${nhModules}/services/swww"
+    #"${nhModules}/services/hyprpaper"
     "${nhModules}/services/waybar"
   ];
 
@@ -30,12 +32,6 @@
     "hypr/hyprland.conf" = {
       source = ./hyprland.conf;
     };
-
-    "hypr/hyprpaper.conf".text = ''
-      splash = false
-      preload = ${config.wallpaper}
-      wallpaper = , ${config.wallpaper}
-    '';
 
     "hypr/hypridle.conf".text = ''
       general {
