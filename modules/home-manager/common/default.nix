@@ -87,6 +87,8 @@
     terraform
     # OCR engine for text recognition
     tesseract
+    # Wayland wallpaper daemon
+    swww
     # Archive extraction utility
     unzip
     # Wayland clipboard manager
