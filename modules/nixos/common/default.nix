@@ -67,6 +67,13 @@
   # Networking
   networking.networkmanager.enable = true;
 
+  # USB power management - disable autosuspend for ethernet adapters
+  services.udev.extraRules = ''
+    # Disable USB autosuspend for ethernet adapters (r8152 driver)
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8153", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="r8152", ATTR{power/autosuspend}="-1"
+  '';
+
   # Disable systemd services that are affecting the boot time
   systemd.services = {
     NetworkManager-wait-online.enable = false;
