@@ -2,6 +2,7 @@
   # Install git via home-manager module
   programs.git = {
     enable = true;
+    lfs.enable = true;
     userName = userConfig.fullName;
     userEmail = userConfig.email;
     #signing = {
