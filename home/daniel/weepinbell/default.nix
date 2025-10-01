@@ -19,6 +19,7 @@
     claude-code # Claude Code editor
     google-chrome # Web browser
     nodejs_20 # Node.js runtime
+    nixos-anywhere # Remote NixOS deployment tool
     # spotify                           # Moved to Flatpak for better Wayland support
     thunderbird # Email client
   ];

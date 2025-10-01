@@ -82,6 +82,7 @@
   in {
     nixosConfigurations = {
       weepinbell = mkNixosConfiguration "weepinbell" "daniel";
+      dagobah = mkNixosConfiguration "dagobah" "daniel";
     };
 
     homeConfigurations = {

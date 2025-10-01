@@ -1,0 +1,128 @@
+{
+  inputs,
+  outputs,
+  lib,
+  config,
+  userConfig,
+  pkgs,
+  ...
+}: {
+  # Import common server configuration
+  imports = [
+    "${inputs.self}/modules/nixos/common"
+  ];
+
+  # Override desktop-specific settings from common
+  # Disable X server components
+  services.xserver.enable = lib.mkForce false;
+
+  # Essential server packages only
+  environment.systemPackages = lib.mkForce (with pkgs; [
+    # Core system utilities
+    killall # Process termination utility
+    htop # Interactive process viewer
+    iotop # I/O monitoring tool
+    ncdu # Disk usage analyzer
+    rsync # File synchronization tool
+    wget # HTTP/FTP download utility
+    curl # Data transfer tool with URL syntax
+    vim # Text editor
+    tmux # Terminal multiplexer
+    git # Version control system
+    fuse3 # Filesystem in userspace (for mounting)
+  ]);
+
+  # Remove desktop fonts, keep minimal set
+  fonts.packages = lib.mkForce (with pkgs; [
+    dejavu_fonts # Basic font for any GUI tools
+  ]);
+
+  # Disable Bluetooth for servers
+  hardware.bluetooth.enable = lib.mkForce false;
+
+  # Remove desktop-specific environment variables
+  environment.variables = lib.mkForce {
+    # Keep essential server variables only
+  };
+
+  # Disable Plymouth boot splash for faster boot
+  boot.plymouth.enable = lib.mkForce false;
+
+  # Server-optimized kernel parameters
+  boot.kernelParams = [
+    "quiet"
+    "rd.udev.log_level=3"
+    # Server performance tuning
+    "transparent_hugepage=madvise"
+  ];
+
+  # Enhanced SSH configuration for servers
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+      X11Forwarding = false;
+    };
+    openFirewall = true;
+  };
+
+  # Server-specific systemd services
+  systemd.services = {
+    # Disable unnecessary services for headless operation
+    NetworkManager-wait-online.enable = lib.mkForce false;
+
+    # Enable automatic container startup
+    docker-compose-startup = {
+      description = "Start Docker Compose services";
+      after = ["docker.service" "network.target"];
+      wants = ["docker.service"];
+      wantedBy = ["multi-user.target"];
+      script = ''
+        # Wait for Docker to be ready
+        while ! ${pkgs.docker}/bin/docker info >/dev/null 2>&1; do
+          sleep 1
+        done
+
+        # Start all compose services in /srv
+        for compose_file in /srv/*/docker-compose.yaml; do
+          if [ -f "$compose_file" ]; then
+            dir=$(dirname "$compose_file")
+            echo "Starting services in $dir"
+            cd "$dir"
+            ${pkgs.docker-compose}/bin/docker-compose up -d
+          fi
+        done
+      '';
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = userConfig.name;
+      };
+    };
+  };
+
+  # Basic firewall configuration - specific ports defined per host
+  networking.firewall = {
+    enable = true;
+    # Only SSH open by default for headless servers
+    # Individual hosts should define their specific service ports
+  };
+
+  # Server monitoring and maintenance
+  services.logrotate.enable = true;
+
+  # Automatic system maintenance
+  system.autoUpgrade = {
+    enable = false; # Disable for now, enable manually
+    dates = "weekly";
+    allowReboot = false;
+  };
+
+  # Ensure /srv directory exists with correct permissions
+  system.activationScripts.srv-directory = ''
+    mkdir -p /srv
+    chown ${userConfig.name}:users /srv
+    chmod 755 /srv
+  '';
+}
