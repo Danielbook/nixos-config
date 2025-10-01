@@ -33,7 +33,7 @@
   services.gpg-agent = lib.mkIf (!pkgs.stdenv.isDarwin) {
     enable = true;
     defaultCacheTtl = 86400;
-    enableSshSupport = true;
+    enableSshSupport = false;  # Disabled to use Bitwarden SSH agent
     pinentry.package = pkgs.pinentry-gnome3;
   };
 }

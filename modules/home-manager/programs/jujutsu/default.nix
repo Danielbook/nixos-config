@@ -18,8 +18,7 @@
         # Default command when running jj with no args
         default-command = "log";
         
-        # Use delta for diffs (consistent with git config)
-        diff-formatter = "delta";
+        # Use delta for paging output
         pager = "delta";
         
         # Graph styling for better visualization
@@ -117,11 +116,11 @@
         git_push_bookmark = "\"push-\" ++ change_id.short()";
       };
       
-      # Merge tools configuration
+      # Merge tools configuration  
       merge-tools = {
         delta = {
           program = "delta";
-          diff-args = ["--color=always" "$left" "$right"];
+          diff-args = ["$left" "$right"];
         };
       };
       

@@ -21,6 +21,7 @@
     ../programs/lazygit
     ../programs/neovim
     ../programs/obs-studio
+    ../programs/ssh
     ../programs/starship
     ../programs/tmux
     ../programs/vscodium
