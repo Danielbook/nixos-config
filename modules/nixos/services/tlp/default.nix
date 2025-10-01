@@ -20,6 +20,12 @@
         USB_EXCLUDE_BTUSB = 1;
         USB_AUTOSUSPEND = 1;
         USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;
+        
+        # Exclude network devices from USB autosuspend
+        USB_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150";
+        
+        # Blacklist network devices from runtime power management
+        RUNTIME_PM_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150";
 
         AMDGPU_ABM_LEVEL_ON_AC = 0;
         AMDGPU_ABM_LEVEL_ON_BAT = 3;
@@ -28,12 +34,13 @@
         DISK_APM_LEVEL_ON_BAT = "1 1";
 
         SATA_LINKPWR_ON_BAT = "min_power";
-        PCIE_ASPM_ON_AC = "performance";
-        PCIE_ASPM_ON_BAT = "powersupersave";
+        PCIE_ASPM_ON_AC = "default";
+        PCIE_ASPM_ON_BAT = "powersave";
 
         RUNTIME_PM_ON_AC = "on";
         RUNTIME_PM_ON_BAT = "auto";
 
+        WIFI_PWR_ON_AC = "off";
         WIFI_PWR_ON_BAT = "on";
 
         SOUND_POWER_SAVE_ON_BAT = 1;

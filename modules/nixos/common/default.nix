@@ -40,21 +40,22 @@
 
   # Boot configuration
   boot = {
-    kernelPackages = pkgs.linuxPackages;      # Use latest stable kernel
-    consoleLogLevel = 0;                      # Minimal boot messages
-    initrd.verbose = false;                   # Quiet initramfs
+    kernelPackages = pkgs.linuxPackages; # Use latest stable kernel
+    consoleLogLevel = 0; # Minimal boot messages
+    initrd.verbose = false; # Quiet initramfs
     kernelParams = [
-      "quiet"                                 # Reduce kernel messages
-      "splash"                                # Show boot splash
-      "rd.udev.log_level=3"                  # Minimal udev logging
+      "quiet" # Reduce kernel messages
+      "splash" # Show boot splash
+      "rd.udev.log_level=3" # Minimal udev logging
+      "usbcore.autosuspend=-1" # Disable USB autosuspend globally as backup
     ];
-    loader.efi.canTouchEfiVariables = true;  # Allow EFI variable modification
+    loader.efi.canTouchEfiVariables = true; # Allow EFI variable modification
     loader.systemd-boot = {
-      enable = true;                          # Use systemd-boot bootloader
-      configurationLimit = 10;               # Keep last 10 generations
+      enable = true; # Use systemd-boot bootloader
+      configurationLimit = 10; # Keep last 10 generations
     };
-    loader.timeout = 10;                     # Boot menu timeout (seconds)
-    plymouth.enable = true;                   # Graphical boot splash
+    loader.timeout = 10; # Boot menu timeout (seconds)
+    plymouth.enable = true; # Graphical boot splash
 
     # v4l (virtual camera) module settings
     #kernelModules = ["v4l2loopback"];
@@ -65,18 +66,53 @@
   };
 
   # Networking
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+
+    # Network stability settings
+    settings = {
+      main = {
+        # Don't randomize MAC addresses (can cause connection issues)
+        "wifi.scan-rand-mac-address" = "no";
+
+        # Increase DHCP timeout
+        "dhcp" = "dhclient";
+      };
+
+      connection = {
+        # Connection stability settings
+        "connection.autoconnect-retries" = "0"; # Retry indefinitely
+        "ipv6.method" = "auto";
+      };
+
+      # Device-specific settings for better stability
+      device = {
+        # Disable WiFi powersave that can cause disconnections
+        "wifi.powersave" = "2"; # 2 = disable powersave
+      };
+    };
+  };
 
   # USB power management - disable autosuspend for ethernet adapters
   services.udev.extraRules = ''
     # Disable USB autosuspend for ethernet adapters (r8152 driver)
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8153", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8152", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8150", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="r8152", ATTR{power/autosuspend}="-1"
+
+    # Additional Realtek USB ethernet adapters
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8156", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8051", ATTR{power/autosuspend}="-1"
+
+    # Disable runtime power management for network interfaces
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{device/power/control}="on"
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="enp*", ATTR{device/power/control}="on"
   '';
 
   # Disable systemd services that are affecting the boot time
   systemd.services = {
-    NetworkManager-wait-online.enable = false;
+    NetworkManager-wait-online.enable = true;
     plymouth-quit-wait.enable = false;
   };
 
@@ -116,11 +152,11 @@
 
   # Wayland/NVIDIA compatibility environment variables
   environment.variables = {
-    NIXOS_OZONE_WL = "1";                     # Enable Wayland support in Chromium/Electron apps
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia";     # Force GLX to use NVIDIA drivers
-    WLR_NO_HARDWARE_CURSORS = "1";           # Fix cursor issues on NVIDIA (prevents black screens)
-    LIBVA_DRIVER_NAME = "nvidia";             # Hardware video acceleration via NVIDIA
-    VDPAU_DRIVER = "nvidia";                  # Video decode acceleration via NVIDIA
+    NIXOS_OZONE_WL = "1"; # Enable Wayland support in Chromium/Electron apps
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # Force GLX to use NVIDIA drivers
+    WLR_NO_HARDWARE_CURSORS = "1"; # Fix cursor issues on NVIDIA (prevents black screens)
+    LIBVA_DRIVER_NAME = "nvidia"; # Hardware video acceleration via NVIDIA
+    VDPAU_DRIVER = "nvidia"; # Video decode acceleration via NVIDIA
   };
 
   # PATH configuration
@@ -133,14 +169,14 @@
   services.devmon.enable = true;
 
   # Modern audio system (replaces PulseAudio)
-  services.pulseaudio.enable = false;       # Disable legacy PulseAudio
-  security.rtkit.enable = true;             # Real-time scheduling for audio
+  services.pulseaudio.enable = false; # Disable legacy PulseAudio
+  security.rtkit.enable = true; # Real-time scheduling for audio
   services.pipewire = {
-    enable = true;                          # Enable PipeWire audio server
-    alsa.enable = true;                     # ALSA compatibility layer
-    alsa.support32Bit = true;              # 32-bit app audio support
-    pulse.enable = true;                    # PulseAudio compatibility
-    jack.enable = true;                     # JACK audio system support
+    enable = true; # Enable PipeWire audio server
+    alsa.enable = true; # ALSA compatibility layer
+    alsa.support32Bit = true; # 32-bit app audio support
+    pulse.enable = true; # PulseAudio compatibility
+    jack.enable = true; # JACK audio system support
   };
 
   # Enable flatpak service
@@ -150,13 +186,13 @@
   users.users.${userConfig.name} = {
     description = userConfig.fullName;
     extraGroups = [
-      "networkmanager"     # Network configuration access
-      "wheel"              # Sudo privileges
-      "fuse"               # Filesystem mounting permissions
-      "docker"             # Docker daemon access
+      "networkmanager" # Network configuration access
+      "wheel" # Sudo privileges
+      "fuse" # Filesystem mounting permissions
+      "docker" # Docker daemon access
     ];
-    isNormalUser = true;   # Standard user account (not system)
-    shell = pkgs.zsh;      # Default shell
+    isNormalUser = true; # Standard user account (not system)
+    shell = pkgs.zsh; # Default shell
   };
 
   # Set User's avatar
@@ -179,17 +215,22 @@
 
   # Essential system packages
   environment.systemPackages = with pkgs; [
-    fuse3       # Filesystem in userspace library
-    gcc         # GNU C compiler
-    glib        # Low-level system library
-    gnumake     # GNU make build tool
-    killall     # Process termination utility
-    mesa        # Open-source OpenGL implementation
+    fuse3 # Filesystem in userspace library
+    gcc # GNU C compiler
+    glib # Low-level system library
+    gnumake # GNU make build tool
+    killall # Process termination utility
+    mesa # Open-source OpenGL implementation
+    ethtool # Ethernet device configuration utility
+    usbutils # USB device utilities (lsusb)
   ];
 
+  # Enable firmware for better hardware support
+  hardware.enableRedistributableFirmware = true;
+
   # Docker containerization platform
-  virtualisation.docker.enable = true;                    # Enable Docker daemon
-  virtualisation.docker.rootless.enable = true;          # Rootless Docker for security
+  virtualisation.docker.enable = true; # Enable Docker daemon
+  virtualisation.docker.rootless.enable = true; # Rootless Docker for security
   virtualisation.docker.rootless.setSocketVariable = true; # Set DOCKER_HOST variable
 
   # Allow user-level mounting
@@ -203,9 +244,9 @@
 
   # System fonts
   fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono   # Programming font with icons
-    nerd-fonts.meslo-lg         # Terminal font with powerline support
-    roboto                      # Modern sans-serif UI font
+    nerd-fonts.jetbrains-mono # Programming font with icons
+    nerd-fonts.meslo-lg # Terminal font with powerline support
+    roboto # Modern sans-serif UI font
   ];
 
   # Additional services

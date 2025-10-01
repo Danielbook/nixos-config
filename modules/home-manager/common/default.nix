@@ -17,6 +17,7 @@
     ../programs/git
     ../programs/go
     ../programs/gpg
+    ../programs/jujutsu
     ../programs/lazygit
     ../programs/neovim
     ../programs/obs-studio
