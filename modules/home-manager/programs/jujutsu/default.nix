@@ -43,9 +43,6 @@
         # Don't automatically create local bookmarks for remote branches
         auto-local-bookmark = false;
         
-        # Prefix for push bookmarks to organize remote branches
-        push-bookmark-prefix = "push-";
-        
         # Prevent accidentally pushing work-in-progress commits
         private-commits = "description(glob:'wip:*') | description(glob:'draft:*') | description(glob:'tmp:*')";
         
