@@ -40,6 +40,9 @@
   # Disable Bluetooth for servers
   hardware.bluetooth.enable = lib.mkForce false;
 
+  # Disable Flatpak for headless servers
+  services.flatpak.enable = lib.mkForce false;
+
   # Remove desktop-specific environment variables
   environment.variables = lib.mkForce {
     # Keep essential server variables only
