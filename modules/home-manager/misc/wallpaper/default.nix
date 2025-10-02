@@ -1,7 +1,7 @@
 {lib, ...}: {
   options.wallpaper = lib.mkOption {
     type = lib.types.path;
-    default = ./wallpaper2.gif;
+    default = ./wallpaper.jpg;
     readOnly = true;
     description = "Path to default wallpaper";
   };

@@ -2,6 +2,18 @@
 
 > A declarative NixOS configuration with Hyprland, featuring a modern development environment and seamless desktop experience.
 
+## 📚 Table of Contents
+
+- [Repository Structure](#-repository-structure)
+- [Key Dependencies](#-key-dependencies)
+- [Features](#-features)
+- [Keyboard Shortcuts](#️-keyboard-shortcuts)
+- [Neovim Keybindings](#-neovim-keybindings)
+- [Tmux Keybindings](#-tmux-keybindings)
+- [Quick Start](#-quick-start)
+- [Server Deployment](#-server-deployment)
+- [Makefile Commands](#-makefile-commands)
+
 ## 📁 Repository Structure
 
 - 📦 `flake.nix`: Main flake configuration defining inputs and outputs for NixOS and Home Manager
@@ -272,46 +284,78 @@ home-manager switch --flake .#daniel@weepinbell
    home-manager switch --flake .#newuser@newmachine
    ```
 
-## 🛠️ Troubleshooting
+## 🖥️ Server Deployment
 
-### 🖤 Black Applications (GTK rendering issues)
-If applications like pavucontrol or SwayNC appear black:
-- ✅ **Fixed**: GTK Wayland environment variables are configured
-- 🔄 **Solution**: Restart Hyprland after `nixos-rebuild switch`
+This configuration supports both desktop workstations and headless servers. Servers use a Star Wars naming theme.
 
-### 🎮 NVIDIA Issues
-- ✅ **Configured**: NVIDIA Prime offloading enabled
-- 🔍 **Check GPUs**: `ls -la /sys/class/drm/` to verify graphics cards
-- 🔧 **Bus IDs**: Update `intelBusId` and `nvidiaBusId` in `modules/nixos/nvidia/default.nix`
+### 🌟 Available Server Configurations
 
-### 🏠 Home Manager Bootstrap
-On fresh systems:
+- **🌿 Dagobah**: Home automation and monitoring server (Home Assistant, Grafana, Traefik)
+- **🏜️ Tatooine**: Coming soon...  
+- **❄️ Hoth**: Coming soon...
+
+### 🚀 Remote Deployment
+
+Deploy NixOS servers remotely using `nixos-anywhere`:
+
+1. **🖥️ Create VM/Server** with NixOS minimal ISO
+2. **🔧 Enable SSH** on target machine:
+   ```bash
+   # On the target machine console
+   sudo systemctl start sshd
+   passwd  # Set temporary password for nixos user
+   ip addr show  # Get IP address
+   ```
+
+3. **🚢 Deploy from your machine**:
+   ```bash
+   # Deploy Dagobah server (using Makefile)
+   make deploy-dagobah
+   
+   # Or manually
+   nixos-anywhere --flake .#dagobah nixos@<TARGET_IP>
+   ```
+
+4. **📦 Migrate container data** (if replacing existing server):
+   ```bash
+   # Stop services on old server
+   ssh old-server "cd /srv && for dir in */; do cd \$dir && docker-compose down && cd ..; done"
+   
+   # Backup and transfer data
+   ssh old-server "tar czf /tmp/srv-backup.tar.gz /srv/"
+   scp old-server:/tmp/srv-backup.tar.gz .
+   scp srv-backup.tar.gz new-server:/tmp/
+   ssh new-server "cd / && sudo tar xzf /tmp/srv-backup.tar.gz"
+   
+   # Services will auto-start on boot
+   ```
+
+### ⚙️ Server Features
+
+- **🔒 Secure by default**: Only SSH open, no desktop components
+- **🐳 Docker integration**: Auto-starts all `/srv/*/docker-compose.yaml` services
+- **🔥 Host-specific firewalls**: Each server defines its own required ports
+- **📊 Monitoring ready**: Log rotation and system maintenance tools
+- **🎯 Minimal footprint**: Essential server tools only
+
+## 🔧 Makefile Commands
+
+This repository includes a Makefile for common operations:
+
 ```bash
-nix-shell -p home-manager
-home-manager switch --flake .#daniel@weepinbell
+# Show all available commands
+make help
+
+# System management
+make nixos-rebuild          # Rebuild NixOS configuration
+make home-manager-switch    # Switch Home Manager configuration
+make flake-update          # Update all flake inputs
+make flake-check           # Validate flake configuration
+make nix-gc                # Run garbage collection
+
+# Server deployment
+make deploy-dagobah        # Deploy Dagobah server (prompts for IP)
+make deploy-tatooine       # Deploy Tatooine server (coming soon)
+make deploy-hoth           # Deploy Hoth server (coming soon)
 ```
 
-### 🔄 Configuration Updates  
-```bash
-# System updates
-sudo nixos-rebuild switch --flake .
-
-# User environment updates  
-home-manager switch --flake .
-```
-
-## 📚 Useful Commands
-
-```bash
-# Update flake inputs
-nix flake update
-
-# Check what will be built
-nixos-rebuild dry-build --flake .
-
-# Garbage collection
-sudo nix-collect-garbage -d
-
-# Show system generations
-sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
-```

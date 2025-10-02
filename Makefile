@@ -5,7 +5,8 @@ HOME_TARGET ?= $(FLAKE)
 EXPERIMENTAL ?= --extra-experimental-features "nix-command flakes"
 
 .PHONY: help install-nix install-nix-darwin darwin-rebuild nixos-rebuild \
-	home-manager-switch nix-gc flake-update flake-check bootstrap-mac
+	home-manager-switch nix-gc flake-update flake-check bootstrap-mac \
+	deploy-dagobah deploy-tatooine deploy-hoth
 
 help:
 	@echo "Available targets:"
@@ -15,6 +16,11 @@ help:
 	@echo "  nix-gc               - Run Nix garbage collection"
 	@echo "  flake-update         - Update flake inputs"
 	@echo "  flake-check          - Check the flake for issues"
+	@echo ""
+	@echo "Server deployment targets:"
+	@echo "  deploy-dagobah       - Deploy Dagobah server (home automation/monitoring)"
+	@echo "  deploy-tatooine      - Deploy Tatooine server (coming soon)"
+	@echo "  deploy-hoth          - Deploy Hoth server (coming soon)"
 
 install-nix:
 	@echo "Installing Nix..."
@@ -45,3 +51,18 @@ flake-check:
 	@echo "Checking flake..."
 	@nix flake check
 	@echo "Flake check complete."
+
+# Server deployment targets
+deploy-dagobah:
+	@echo "Deploying Dagobah server..."
+	@read -p "Enter target IP address: " target_ip && \
+	nixos-anywhere --flake .#dagobah nixos@$$target_ip
+	@echo "Dagobah deployment complete."
+
+deploy-tatooine:
+	@echo "Tatooine server deployment not yet implemented"
+	@echo "Coming soon..."
+
+deploy-hoth:
+	@echo "Hoth server deployment not yet implemented"
+	@echo "Coming soon..."
