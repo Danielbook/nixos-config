@@ -47,6 +47,21 @@
       terraform = {
         symbol = " ";
       };
+      # Kubernetes context display
+      kubernetes = {
+        disabled = false;
+        style = "bold pink";
+        symbol = "󱃾 ";
+        format = "[$symbol$context( \\($namespace\\))]($style) ";
+      };
+
+      # Enhanced character prompt
+      character = {
+        success_symbol = "[❯](purple)";
+        error_symbol = "[❯](red)";
+        vimcmd_symbol = "[❮](green)";
+      };
+
       right_format = "$kubernetes";
     };
   };

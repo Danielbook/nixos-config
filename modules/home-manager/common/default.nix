@@ -2,9 +2,11 @@
   outputs,
   userConfig,
   pkgs,
+  lib,
   ...
 }: {
   imports = [
+    ../programs/aerospace
     ../programs/alacritty
     ../programs/albert
     ../programs/atuin
@@ -42,66 +44,56 @@
     };
   };
 
-  # Nicely reload system units when changing configs
-  systemd.user.startServices = "sd-switch";
+  # Nicely reload system units when changing configs (Linux only)
+  systemd.user.startServices = lib.mkIf (!pkgs.stdenv.isDarwin) "sd-switch";
 
   # Home-Manager configuration for the user's home environment
   home = {
-    username = "${userConfig.name}";
-    homeDirectory = "/home/${userConfig.name}";
+    username = userConfig.name;
+    homeDirectory = 
+      if pkgs.stdenv.isDarwin then "/Users/${userConfig.name}" else "/home/${userConfig.name}";
   };
 
   # Essential user packages for daily workflow
-  home.packages = with pkgs; [
-    # Flashcard and spaced repetition learning app
-    anki-bin
-    # AWS command line interface v2
-    awscli2
-    # Bash shell (fallback/compatibility)
-    bash
-    # DNS lookup utility
-    dig
-    # Modern disk usage analyzer (du replacement)
-    du-dust
-    # Modern ls replacement with colors and icons
-    eza
-    # Fast find alternative for files/directories
-    fd
-    # Mozilla Firefox web browser
-    firefox
-    # JSON processor and formatter
-    jq
-    # Docker container management TUI
-    lazydocker
-    # NixOS helper for rebuilding and managing generations
-    nh
-    # Cisco AnyConnect VPN client
-    openconnect
-    # Python virtual environment manager
-    pipenv
-    # 3D printer slicer for Prusa printers
-    prusa-slicer
-    # Python 3 interpreter
-    python3
-    # Fast grep alternative with better defaults
-    ripgrep
-    # Infrastructure as code tool
-    terraform
-    # OCR engine for text recognition
-    tesseract
-    # Wayland wallpaper daemon
-    swww
-    # Archive extraction utility
-    unzip
-    # Wayland clipboard manager
-    wl-clipboard
-    # Desktop integration portal
-    xdg-desktop-portal
-    # Hyprland-specific desktop portal
-    xdg-desktop-portal-hyprland
-    # X terminal emulator (fallback)
-    xterm
-  ];
+  home.packages = 
+    with pkgs; [
+      # Cross-platform packages
+      awscli2         # AWS command line interface v2
+      bash            # Bash shell (fallback/compatibility)
+      dig             # DNS lookup utility
+      du-dust         # Modern disk usage analyzer (du replacement)
+      eza             # Modern ls replacement with colors and icons
+      fd              # Fast find alternative for files/directories
+      firefox         # Mozilla Firefox web browser
+      jq              # JSON processor and formatter
+      lazydocker      # Docker container management TUI
+      nh              # NixOS helper for rebuilding and managing generations
+      openconnect     # Cisco AnyConnect VPN client
+      pipenv          # Python virtual environment manager
+      python3         # Python 3 interpreter
+      ripgrep         # Fast grep alternative with better defaults
+      terraform       # Infrastructure as code tool
+      unzip           # Archive extraction utility
+    ]
+    ++ lib.optionals stdenv.isDarwin [
+      # macOS-specific packages
+      aerospace       # Tiling window manager for macOS
+      colima          # Container runtimes on macOS with minimal setup
+      hidden-bar      # Hide menu bar items on macOS
+      raycast         # Spotlight replacement for macOS
+      rectangle       # Window management utility for macOS
+    ]
+    ++ lib.optionals (!stdenv.isDarwin) [
+      # Linux-specific packages
+      anki-bin        # Flashcard and spaced repetition learning app
+      prusa-slicer    # 3D printer slicer for Prusa printers
+      swww            # Wayland wallpaper daemon
+      tesseract       # OCR engine for text recognition
+      wl-clipboard    # Wayland clipboard manager
+      xdg-desktop-portal # Desktop integration portal
+      xdg-desktop-portal-hyprland # Hyprland-specific desktop portal
+      xterm           # X terminal emulator (fallback)
+    ];
 
   # Catpuccin flavor and accent
   catppuccin = {

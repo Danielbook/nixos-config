@@ -49,7 +49,6 @@
       "rd.udev.log_level=3" # Minimal udev logging
       "usbcore.autosuspend=-1" # Disable USB autosuspend globally as backup
       "mem_sleep_default=deep" # Prefer S3 suspend-to-RAM over S0ix
-      "nvidia.NVreg_EnableS0ixPowerManagement=0" # Disable NVIDIA S0ix power management
     ];
     loader.efi.canTouchEfiVariables = true; # Allow EFI variable modification
     loader.systemd-boot = {

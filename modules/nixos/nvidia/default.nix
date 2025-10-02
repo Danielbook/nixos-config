@@ -59,8 +59,7 @@
 
   # NVIDIA-specific kernel module configuration for suspend/resume
   boot.extraModprobeConfig = ''
-    # NVIDIA suspend/resume support
-    options nvidia NVreg_PreserveVideoMemoryAllocations=1 NVreg_TemporaryFilePath=/var/tmp
+    # NVIDIA suspend/resume support - simplified for compatibility
     options nvidia_modeset vblank_sem_control=0
   '';
 

@@ -45,10 +45,13 @@
     command_logout="[ \"$DESKTOP_SESSION\" = \"hyprland\" ] && { hyprctl -j clients 2>/dev/null | jq -j '.[] | \"dispatch closewindow address:\\(.address); \"' | xargs -r hyprctl --batch 2>/dev/null; } || [ \"$DESKTOP_SESSION\" = \"plasma\" ] && kdotool search '.*' windowclose %@ || true"
     command_poweroff=systemctl poweroff -i
     command_reboot=systemctl reboot -i
+    command_suspend=systemctl suspend
     enabled=true
     logout_enabled=true
+    suspend_enabled=true
     title_logout=Quit All Applications
     title_poweroff=Shutdown
+    title_suspend=Suspend
     trigger=sys
 
     [widgetsboxmodel]
