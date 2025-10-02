@@ -12,7 +12,7 @@
     "${nhModules}/misc/xdg"
     "${nhModules}/services/cliphist"
     "${nhModules}/services/kanshi"
-    "${nhModules}/services/mako"
+    "${nhModules}/services/swaync"
     "${nhModules}/services/swww"
     #"${nhModules}/services/hyprpaper"
     "${nhModules}/services/waybar"
