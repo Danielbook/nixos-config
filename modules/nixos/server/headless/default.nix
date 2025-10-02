@@ -10,6 +10,7 @@
   # Import common server configuration
   imports = [
     "${inputs.self}/modules/nixos/common"
+    "${inputs.self}/modules/home-manager/programs/neovim"
   ];
 
   # Override desktop-specific settings from common
@@ -21,6 +22,7 @@
     # Core system utilities
     bash # Ensure bash is available for system scripts
     zsh # Z shell for better user experience
+    util-linux # Mount, umount, and other essential system utilities
     killall # Process termination utility
     htop # Interactive process viewer
     iotop # I/O monitoring tool
