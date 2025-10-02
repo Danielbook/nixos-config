@@ -1,6 +1,6 @@
-# 🐧 Daniel's NixOS Configuration
+# 🐧 Daniel's Nix Configuration
 
-> A declarative NixOS configuration with Hyprland, featuring a modern development environment and seamless desktop experience.
+> A declarative, cross-platform Nix configuration supporting both NixOS (Linux) and nix-darwin (macOS), featuring modern development environments and seamless desktop experiences across workstations and servers.
 
 ## 📚 Table of Contents
 
@@ -11,19 +11,23 @@
 - [Neovim Keybindings](#-neovim-keybindings)
 - [Tmux Keybindings](#-tmux-keybindings)
 - [Quick Start](#-quick-start)
+- [Darwin (macOS) Setup](#-darwin-macos-setup)
 - [Server Deployment](#-server-deployment)
 - [Makefile Commands](#-makefile-commands)
 
 ## 📁 Repository Structure
 
-- 📦 `flake.nix`: Main flake configuration defining inputs and outputs for NixOS and Home Manager
-- 🖥️ `hosts/`: Machine-specific NixOS configurations
-  - 🐛 `weepinbell/`: Primary workstation configuration
+- 📦 `flake.nix`: Main flake configuration defining inputs and outputs for NixOS, nix-darwin, and Home Manager
+- 🖥️ `hosts/`: Machine-specific configurations
+  - 🐛 `weepinbell/`: Primary NixOS workstation configuration
+  - 🍎 `coruscant/`: MacBook Pro (nix-darwin) configuration
+  - 🌍 `dagobah/`: Home server configuration
 - 🏠 `home/`: User-specific Home Manager configurations  
 - 📄 `files/`: Miscellaneous assets (avatars, scripts, etc.)
 - 🧩 `modules/`: Reusable configuration modules
-  - ⚙️ `nixos/`: System-level NixOS modules
-  - 👤 `home-manager/`: User-space application and service configurations
+  - ⚙️ `nixos/`: System-level NixOS modules (Linux)
+  - 🍎 `darwin/`: System-level nix-darwin modules (macOS)
+  - 👤 `home-manager/`: User-space application and service configurations (cross-platform)
 - 🔧 `overlays/`: Custom Nix package overlays
 - 🔒 `flake.lock`: Reproducible build lock file
 
@@ -31,16 +35,17 @@
 
 - 📦 **nixpkgs**: Latest packages from `nixos-unstable` channel
 - 🛡️ **nixpkgs-stable**: Stable packages from `nixos-25.05` channel  
-- 🏠 **home-manager**: Declarative user environment management
+- 🏠 **home-manager**: Declarative user environment management (cross-platform)
+- 🍎 **nix-darwin**: Declarative macOS system configuration
 - 🖥️ **nixos-hardware**: Hardware-optimized NixOS configurations
 - 🎨 **catppuccin**: Beautiful pastel theme system-wide
-- 📱 **nix-flatpak**: Declarative Flatpak application management
-- 🌊 **plasma-manager**: KDE Plasma configuration management
+- 📱 **nix-flatpak**: Declarative Flatpak application management (Linux)
+- 🌊 **plasma-manager**: KDE Plasma configuration management (Linux)
 
 ## ✨ Features
 
+### 🐧 Linux (NixOS) Features
 - 🪟 **Hyprland**: Modern Wayland compositor with smooth animations
-- 🎨 **Catppuccin Theme**: Consistent dark theme across all applications  
 - 🔧 **NVIDIA Prime**: Hybrid graphics with proper offloading support
 - 📋 **SwayNC**: Beautiful notification center
 - 🗃️ **Albert Launcher**: Fast application launcher
@@ -49,6 +54,21 @@
 - 📸 **Screenshot Tools**: Built-in region and fullscreen capture
 - 🎥 **Screen Recording**: Integrated recording functionality
 - 👁️ **OCR Support**: Text recognition from images
+
+### 🍎 macOS (Darwin) Features
+- 🏗️ **AeroSpace**: Tiling window manager with vim-style navigation
+- ⚙️ **System Defaults**: Automated macOS preferences (Dock, Finder, Trackpad)
+- 🔐 **TouchID Integration**: TouchID for sudo authentication
+- 🍺 **Homebrew Management**: Declarative GUI application installation
+- 🖥️ **Multi-monitor Support**: Kanshi display configuration
+- 🚀 **Raycast Integration**: Enhanced Spotlight replacement
+
+### 🌐 Cross-Platform Features
+- 🎨 **Catppuccin Theme**: Consistent dark theme across all applications
+- 📟 **Tmux**: Terminal multiplexer with vim-aware navigation
+- 👻 **Ghostty**: Modern terminal emulator with crisp rendering
+- ⭐ **Starship**: Beautiful cross-shell prompt
+- 🏠 **Home Manager**: Declarative user environment management
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -284,6 +304,131 @@ home-manager switch --flake .#daniel@weepinbell
    home-manager switch --flake .#newuser@newmachine
    ```
 
+## 🍎 Darwin (macOS) Setup
+
+This configuration supports macOS through nix-darwin, providing declarative system management for your MacBook Pro.
+
+### Prerequisites
+
+1. **macOS Requirements**: Ensure you're running macOS 10.15 (Catalina) or later
+2. **Xcode Command Line Tools**: Install if not already present:
+   ```bash
+   xcode-select --install
+   ```
+3. **Admin Privileges**: Ensure you have administrator access
+
+### 🚀 Quick Bootstrap (Recommended)
+
+1. **Clone this repository**:
+   ```bash
+   git clone https://github.com/Danielbook/nixos-config.git
+   cd nixos-config
+   ```
+
+2. **Set your hostname** (optional, if different from `coruscant`):
+   ```bash
+   sudo scutil --set HostName coruscant
+   sudo scutil --set LocalHostName coruscant
+   sudo scutil --set ComputerName "Coruscant"
+   ```
+
+3. **Run the automated bootstrap**:
+   ```bash
+   make bootstrap-mac
+   ```
+
+4. **Restart your terminal** and verify installation:
+   ```bash
+   darwin-rebuild --version
+   home-manager --version
+   ```
+
+### 🛠️ Manual Setup
+
+If you prefer manual installation or encounter issues with the bootstrap:
+
+1. **Install Nix**:
+   ```bash
+   curl -L https://nixos.org/nix/install | sh -s -- --daemon
+   ```
+
+2. **Source Nix profile** (or restart terminal):
+   ```bash
+   . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+   ```
+
+3. **Install nix-darwin**:
+   ```bash
+   make install-nix-darwin
+   ```
+
+4. **Install Home Manager**:
+   ```bash
+   make home-manager-switch
+   ```
+
+### 📱 Daily Usage
+
+- **Update system configuration**: `make darwin-rebuild`
+- **Update user environment**: `make home-manager-switch`  
+- **Update all packages**: `make flake-update`
+
+### 📁 Configuration Structure
+
+```
+├── hosts/coruscant/            # MacBook Pro system configuration
+├── modules/darwin/             # Darwin-specific modules
+│   ├── common/                 # Base macOS system settings
+│   └── desktop/                # Desktop environment setup
+├── home/daniel/coruscant/      # Home Manager configuration
+└── modules/home-manager/       # Cross-platform user configurations
+```
+
+### 🍺 Installed Applications
+
+**Via Nix**: Development tools (git, neovim, tmux), terminal utilities, programming languages
+
+**Via Homebrew**: 
+- Raycast (Enhanced Spotlight)
+- Spotify (Music streaming)
+- Discord (Communication)
+- Obsidian (Note taking)
+- Visual Studio Code (Code editor)
+
+### ⚙️ Automated System Preferences
+
+The configuration automatically configures:
+- **Dock**: Auto-hide, no recent apps, optimal tile size
+- **Finder**: Show extensions, path bar, status bar
+- **Trackpad**: Tap to click, three-finger drag
+- **Keyboard**: Caps Lock → Escape mapping
+- **Security**: TouchID for sudo authentication
+- **Interface**: Dark mode, reduced motion
+- **Screenshots**: Saved to Desktop as PNG
+
+### 🪟 AeroSpace Window Management
+
+- **Alt + Shift + Enter**: Open terminal
+- **Alt + h/j/k/l**: Navigate windows (vim-style)
+- **Alt + Shift + h/j/k/l**: Move windows
+- **Alt + 1-9**: Switch workspaces
+- **Alt + Shift + 1-9**: Move window to workspace
+
+### 🔧 Troubleshooting
+
+**"command not found" after installation**: Restart terminal or source nix profile
+
+**Permission denied errors**: Ensure admin privileges and try with `sudo` for system operations
+
+**Build failures**: Verify hostname matches configuration and check macOS compatibility
+
+### 🎨 Customization
+
+- **System packages**: Add to `modules/darwin/common/default.nix`
+- **User packages**: Add to `home/daniel/coruscant/default.nix`
+- **Homebrew apps**: Add to `hosts/coruscant/default.nix`
+- **System preferences**: Modify `system.defaults` in Darwin modules
+
 ## 🖥️ Server Deployment
 
 This configuration supports both desktop workstations and headless servers. Servers use a Star Wars naming theme.
@@ -346,12 +491,18 @@ This repository includes a Makefile for common operations:
 # Show all available commands
 make help
 
-# System management
+# System management (NixOS)
 make nixos-rebuild          # Rebuild NixOS configuration
 make home-manager-switch    # Switch Home Manager configuration
 make flake-update          # Update all flake inputs
 make flake-check           # Validate flake configuration
 make nix-gc                # Run garbage collection
+
+# macOS (Darwin) management
+make bootstrap-mac          # Complete macOS setup (install Nix + nix-darwin)
+make install-nix           # Install Nix package manager
+make install-nix-darwin    # Install nix-darwin system
+make darwin-rebuild        # Rebuild Darwin (macOS) configuration
 
 # Server deployment
 make deploy-dagobah        # Deploy Dagobah server (prompts for IP)
