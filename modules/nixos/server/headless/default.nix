@@ -10,7 +10,6 @@
   # Import common server configuration
   imports = [
     "${inputs.self}/modules/nixos/common"
-    "${inputs.self}/modules/home-manager/programs/neovim"
   ];
 
   # Override desktop-specific settings from common
