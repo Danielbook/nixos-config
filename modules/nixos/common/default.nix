@@ -94,7 +94,7 @@
     };
   };
 
-  # USB power management - disable autosuspend for ethernet adapters
+  # USB power management and wake configuration
   services.udev.extraRules = ''
     # Disable USB autosuspend for ethernet adapters (r8152 driver)
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8153", ATTR{power/autosuspend}="-1"
@@ -110,9 +110,14 @@
     ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{device/power/control}="on"
     ACTION=="add", SUBSYSTEM=="net", KERNEL=="enp*", ATTR{device/power/control}="on"
     
-    # Disable wakeup for problematic devices that can cause immediate wake from suspend
+    # Enable USB wake for keyboards and mice (allow wake from suspend)
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceSubClass}=="01", ATTR{bInterfaceProtocol}=="01", ATTR{power/wakeup}="enabled"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceSubClass}=="01", ATTR{bInterfaceProtocol}=="02", ATTR{power/wakeup}="enabled"
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usbhid", ATTR{power/wakeup}="enabled"
+
+    # Disable wakeup for other problematic devices that can cause immediate wake from suspend
     ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{power/wakeup}="disabled"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="*", ATTR{power/wakeup}="disabled"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{bDeviceClass}=="09", ATTR{power/wakeup}="disabled"
   '';
 
   # Disable systemd services that are affecting the boot time
@@ -162,13 +167,12 @@
     excludePackages = with pkgs; [xterm];
   };
 
-  # Wayland/NVIDIA compatibility environment variables
+  # Wayland environment variables for Intel graphics
   environment.variables = {
     NIXOS_OZONE_WL = "1"; # Enable Wayland support in Chromium/Electron apps
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # Force GLX to use NVIDIA drivers
-    WLR_NO_HARDWARE_CURSORS = "1"; # Fix cursor issues on NVIDIA (prevents black screens)
-    LIBVA_DRIVER_NAME = "nvidia"; # Hardware video acceleration via NVIDIA
-    VDPAU_DRIVER = "nvidia"; # Video decode acceleration via NVIDIA
+    # Using Intel graphics - NVIDIA variables removed
+    LIBVA_DRIVER_NAME = "iHD"; # Hardware video acceleration via Intel
+    VDPAU_DRIVER = "va_gl"; # Video decode acceleration via VA-API
   };
 
   # PATH configuration
@@ -235,6 +239,7 @@
     mesa # Open-source OpenGL implementation
     ethtool # Ethernet device configuration utility
     usbutils # USB device utilities (lsusb)
+    socat # Socket communication tool for Hyprland IPC
   ];
 
   # Enable firmware for better hardware support

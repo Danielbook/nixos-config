@@ -68,8 +68,7 @@ flake-check:
 # Server deployment targets
 deploy-dagobah:
 	@echo "Deploying Dagobah server..."
-	@read -p "Enter target IP address: " target_ip && \
-	nixos-anywhere --flake .#dagobah nixos@$$target_ip
+	nixos-anywhere --flake .#dagobah nixos@10.10.40.20
 	@echo "Dagobah deployment complete."
 
 deploy-tatooine:

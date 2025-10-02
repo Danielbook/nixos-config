@@ -11,7 +11,7 @@
             criteria = "Samsung Electric Company U28E850 HTPH300286";
             status = "enable";
             position = "0,0";
-            scale = 1.5; # Explicit 1.5x scaling
+            scale = 1.5; # Original 4K scaling
           }
           {
             criteria = "Philips Consumer Electronics Company Philips 272C4 AU41322000654";

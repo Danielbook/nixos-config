@@ -18,7 +18,7 @@
     Unit = {
       Description = "Swww wallpaper daemon";
       PartOf = ["hyprland-session.target"];
-      After = ["hyprland-session.target"];
+      After = ["graphical-session.target"];
     };
     Service = {
       Type = "simple";

@@ -21,8 +21,15 @@
         USB_AUTOSUSPEND = 1;
         USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;
         
-        # Exclude network devices from USB autosuspend
+        # Exclude network devices and problematic USB devices from autosuspend
+        # Network adapters and devices that fail resume with error -5
         USB_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150";
+        
+        # Disable autosuspend for all USB hubs to prevent cascade failures
+        USB_BLACKLIST_BTUSB = 1;
+        USB_BLACKLIST_PHONE = 1;
+        USB_BLACKLIST_PRINTER = 1;
+        USB_BLACKLIST_WWAN = 1;
         
         # Blacklist network devices and NVIDIA GPU from runtime power management
         RUNTIME_PM_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150 10de:*";
