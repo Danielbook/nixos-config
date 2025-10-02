@@ -24,8 +24,8 @@
         # Exclude network devices from USB autosuspend
         USB_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150";
         
-        # Blacklist network devices from runtime power management
-        RUNTIME_PM_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150";
+        # Blacklist network devices and NVIDIA GPU from runtime power management
+        RUNTIME_PM_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150 10de:*";
 
         AMDGPU_ABM_LEVEL_ON_AC = 0;
         AMDGPU_ABM_LEVEL_ON_BAT = 3;
@@ -35,7 +35,7 @@
 
         SATA_LINKPWR_ON_BAT = "min_power";
         PCIE_ASPM_ON_AC = "default";
-        PCIE_ASPM_ON_BAT = "powersave";
+        PCIE_ASPM_ON_BAT = "default"; # Conservative setting for NVIDIA compatibility
 
         RUNTIME_PM_ON_AC = "on";
         RUNTIME_PM_ON_BAT = "auto";

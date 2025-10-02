@@ -48,6 +48,7 @@
       "splash" # Show boot splash
       "rd.udev.log_level=3" # Minimal udev logging
       "usbcore.autosuspend=-1" # Disable USB autosuspend globally as backup
+      "mem_sleep_default=deep" # Prefer S3 suspend-to-RAM over S0ix
     ];
     loader.efi.canTouchEfiVariables = true; # Allow EFI variable modification
     loader.systemd-boot = {
@@ -108,6 +109,10 @@
     # Disable runtime power management for network interfaces
     ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{device/power/control}="on"
     ACTION=="add", SUBSYSTEM=="net", KERNEL=="enp*", ATTR{device/power/control}="on"
+    
+    # Disable wakeup for problematic devices that can cause immediate wake from suspend
+    ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{power/wakeup}="disabled"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="*", ATTR{power/wakeup}="disabled"
   '';
 
   # Disable systemd services that are affecting the boot time
@@ -115,6 +120,13 @@
     NetworkManager-wait-online.enable = true;
     plymouth-quit-wait.enable = false;
   };
+
+  # Systemd sleep configuration for better suspend/resume reliability
+  systemd.sleep.extraConfig = ''
+    # Suspend-to-RAM configuration
+    HibernateDelaySec=30min
+    SuspendEstimationSec=5s
+  '';
 
   # Timezone (Sweden)
   time.timeZone = "Europe/Stockholm";
