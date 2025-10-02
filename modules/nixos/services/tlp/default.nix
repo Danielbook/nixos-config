@@ -23,7 +23,8 @@
         
         # Exclude network devices and problematic USB devices from autosuspend
         # Network adapters and devices that fail resume with error -5
-        USB_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150";
+        # Also exclude USB hubs to prevent cascade failures
+        USB_BLACKLIST = "0bda:8153 0bda:8152 0bda:8150 05e3:0610 05e3:0625 2109:2817 2109:0817 0409:005a";
         
         # Disable autosuspend for all USB hubs to prevent cascade failures
         USB_BLACKLIST_BTUSB = 1;
@@ -64,4 +65,19 @@
 
   # Disable fingerprint reader
   services.fprintd.enable = false;
+
+  # Add udev rules to prevent USB hub and ethernet adapter suspension
+  services.udev.extraRules = ''
+    # Disable autosuspend for Realtek ethernet adapters
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8153", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8152", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8150", ATTR{power/autosuspend}="-1"
+    
+    # Disable autosuspend for USB hubs
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05e3", ATTR{idProduct}=="0610", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05e3", ATTR{idProduct}=="0625", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="2817", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="0817", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0409", ATTR{idProduct}=="005a", ATTR{power/autosuspend}="-1"
+  '';
 }
