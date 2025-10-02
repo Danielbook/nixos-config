@@ -17,10 +17,8 @@
     modesetting.enable = true;
 
     # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
-    # Enable this if you have graphical corruption issues or application crashes after waking
-    # up from sleep. This fixes it by saving the entire VRAM memory to /tmp/ instead
-    # of just the bare essentials.
-    powerManagement.enable = true;
+    # Disabled due to suspend/resume issues - use systemd configuration instead
+    powerManagement.enable = false;
 
     # Fine-grained power management. Turns off GPU when not in use.
     # Experimental and only works on modern Nvidia GPUs (Turing or newer).
@@ -51,4 +49,23 @@
       nvidiaBusId = "PCI:1:0:0"; # Verify this matches your NVIDIA GPU
     };
   };
+
+  # Systemd configuration for better suspend/resume with NVIDIA
+  systemd.services."systemd-suspend" = {
+    serviceConfig = {
+      Environment = "SYSTEMD_SLEEP_FREEZE_USER_SESSIONS=false";
+    };
+  };
+
+  # NVIDIA-specific kernel module configuration for suspend/resume
+  boot.extraModprobeConfig = ''
+    # NVIDIA suspend/resume support - simplified for compatibility
+    options nvidia_modeset vblank_sem_control=0
+  '';
+
+  # Power management resume commands for NVIDIA
+  powerManagement.resumeCommands = ''
+    # Reload NVIDIA modules after resume
+    ${lib.getBin config.boot.kernelPackages.nvidia_x11}/bin/nvidia-smi || true
+  '';
 }

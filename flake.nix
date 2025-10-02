@@ -13,6 +13,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # macOS system configuration management
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Declarative Flatpak application management
     nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.6.0";
 
@@ -34,6 +40,7 @@
     self,
     catppuccin,
     home-manager,
+    nix-darwin,
     nixpkgs,
     ...
   } @ inputs: let
@@ -79,14 +86,31 @@
           catppuccin.homeModules.catppuccin
         ];
       };
+
+    # Function for Darwin system configuration
+    mkDarwinConfiguration = system: hostname: username:
+      nix-darwin.lib.darwinSystem {
+        inherit system;
+        specialArgs = {
+          inherit inputs outputs hostname;
+          userConfig = users.${username};
+          darwinModules = "${self}/modules/darwin";
+        };
+        modules = [./hosts/${hostname}];
+      };
   in {
     nixosConfigurations = {
       weepinbell = mkNixosConfiguration "weepinbell" "daniel";
       dagobah = mkNixosConfiguration "dagobah" "daniel";
     };
 
+    darwinConfigurations = {
+      coruscant = mkDarwinConfiguration "x86_64-darwin" "coruscant" "daniel";
+    };
+
     homeConfigurations = {
       "daniel@weepinbell" = mkHomeConfiguration "x86_64-linux" "daniel" "weepinbell";
+      "daniel@coruscant" = mkHomeConfiguration "x86_64-darwin" "daniel" "coruscant";
     };
 
     overlays = import ./overlays {inherit inputs;};

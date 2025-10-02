@@ -11,8 +11,11 @@ EXPERIMENTAL ?= --extra-experimental-features "nix-command flakes"
 help:
 	@echo "Available targets:"
 	@echo "  install-nix          - Install the Nix package manager"
+	@echo "  install-nix-darwin   - Install nix-darwin (macOS only)"
+	@echo "  darwin-rebuild       - Rebuild the Darwin configuration (macOS only)"
 	@echo "  nixos-rebuild        - Rebuild the NixOS configuration"
 	@echo "  home-manager-switch  - Switch the Home Manager configuration using flake $(HOME_TARGET)"
+	@echo "  bootstrap-mac        - Bootstrap a fresh macOS system"
 	@echo "  nix-gc               - Run Nix garbage collection"
 	@echo "  flake-update         - Update flake inputs"
 	@echo "  flake-check          - Check the flake for issues"
@@ -26,6 +29,16 @@ install-nix:
 	@echo "Installing Nix..."
 	@sudo curl -L https://nixos.org/nix/install | sh -s -- --daemon --yes
 	@echo "Nix installation complete."
+
+install-nix-darwin:
+	@echo "Installing nix-darwin..."
+	@nix run nix-darwin -- switch --flake .#$(HOSTNAME)
+	@echo "nix-darwin installation complete."
+
+darwin-rebuild:
+	@echo "Rebuilding Darwin configuration..."
+	@darwin-rebuild switch --flake .#$(HOSTNAME)
+	@echo "Darwin rebuild complete."
 
 nixos-rebuild:
 	@echo "Rebuilding NixOS configuration..."
@@ -66,3 +79,15 @@ deploy-tatooine:
 deploy-hoth:
 	@echo "Hoth server deployment not yet implemented"
 	@echo "Coming soon..."
+
+bootstrap-mac:
+	@echo "Bootstrapping macOS system..."
+	@echo "1. Installing Nix..."
+	@curl -L https://nixos.org/nix/install | sh -s -- --daemon
+	@echo "2. Sourcing Nix profile..."
+	@. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+	@echo "3. Installing nix-darwin..."
+	@nix run nix-darwin -- switch --flake .#$(HOSTNAME)
+	@echo "4. Installing Home Manager..."
+	@nix run home-manager/master -- switch --flake .#daniel@$(HOSTNAME)
+	@echo "Bootstrap complete! Please restart your terminal."

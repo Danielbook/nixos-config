@@ -39,6 +39,11 @@
       # Open a project in a separate window
       bind-key -n C-f run-shell "tmux new-window -t 10 -n project-selector cd-to-project"
 
+      # Copy mode improvements
+      bind-key -T copy-mode-vi v send-keys -X begin-selection
+      bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+      bind-key -T copy-mode-vi r send-keys -X rectangle-toggle
+
       # Apply Tc
       set -ga terminal-overrides ",xterm-256color:RGB:smcup@:rmcup@"
 
