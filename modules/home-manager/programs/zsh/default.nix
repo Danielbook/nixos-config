@@ -14,6 +14,9 @@
       ggl = "git pull";
       ggp = "git push";
 
+      # jujutsu
+      jjpush = "jj bookmark set main -r @ && jj push";
+
       ld = "lazydocker";
       lg = "lazygit";
 
