@@ -2,11 +2,14 @@
   hostname,
   nixosModules,
   pkgs,
+  inputs,
   ...
 }: {
   imports = [
     ./hardware-configuration.nix
     "${nixosModules}/server/headless"
+    inputs.disko.nixosModules.disko
+    ./disko.nix
   ];
 
   # Set hostname to our Star Wars theme

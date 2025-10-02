@@ -32,6 +32,12 @@
     # Hardware-specific optimizations and drivers
     hardware.url = "github:nixos/nixos-hardware";
 
+    # Declarative disk partitioning for automated deployment
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Catppuccin color scheme for consistent theming
     catppuccin.url = "github:catppuccin/nix";
   };
@@ -39,6 +45,7 @@
   outputs = {
     self,
     catppuccin,
+    disko,
     home-manager,
     nix-darwin,
     nixpkgs,
