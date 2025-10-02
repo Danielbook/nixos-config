@@ -15,6 +15,10 @@
   # Set hostname to our Star Wars theme
   networking.hostName = hostname;
 
+  # Boot configuration for UEFI systems
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
   # Dagobah-specific configuration
   # This swampy planet runs our home automation and monitoring services
   
