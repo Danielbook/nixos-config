@@ -9,14 +9,7 @@
   ...
 }: {
   imports = [
-    "${nhModules}/common"
-    "${nhModules}/programs/git"
-    "${nhModules}/programs/gpg"
-    "${nhModules}/programs/ssh"
-    "${nhModules}/programs/tmux"
-    "${nhModules}/programs/zsh"
-    "${nhModules}/programs/neovim"
-    "${nhModules}/scripts"
+    "${nhModules}/common-darwin"
   ];
 
   # User information
@@ -31,28 +24,16 @@
     # Development tools
     gh
     jq
-    
+
     # Utilities
     rectangle # Window management
     raycast    # Spotlight replacement
   ];
 
-  # macOS-specific programs
-  programs = {
-    # Terminal
-    alacritty = {
-      enable = true;
-      settings = {
-        window = {
-          decorations = "buttonless";
-          opacity = 0.95;
-        };
-        font = {
-          normal.family = "JetBrains Mono Nerd Font";
-          size = 14;
-        };
-      };
-    };
+  # macOS-specific overrides for Alacritty
+  programs.alacritty.settings = {
+    window.decorations = lib.mkForce "buttonless";
+    font.size = lib.mkForce 14;
   };
 
   # Enable Home Manager

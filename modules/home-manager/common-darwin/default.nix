@@ -8,7 +8,6 @@
   imports = [
     ../programs/aerospace
     ../programs/alacritty
-    ../programs/albert
     ../programs/atuin
     ../programs/bat
     ../programs/brave
@@ -22,15 +21,12 @@
     ../programs/jujutsu
     ../programs/lazygit
     ../programs/neovim
-    ../programs/obs-studio
     ../programs/ssh
     ../programs/starship
     ../programs/tmux
     ../programs/vscodium
     ../programs/zsh
     ../scripts
-    ../services/easyeffects
-    ../services/flatpak
   ];
 
   # Nixpkgs configuration
@@ -44,16 +40,13 @@
     };
   };
 
-  # Nicely reload system units when changing configs
-  systemd.user.startServices = "sd-switch";
-
   # Home-Manager configuration for the user's home environment
   home = {
     username = userConfig.name;
-    homeDirectory = "/home/${userConfig.name}";
+    homeDirectory = "/Users/${userConfig.name}";
   };
 
-  # Essential user packages for daily workflow (Linux)
+  # Essential user packages for daily workflow (macOS)
   home.packages = with pkgs; [
     # Cross-platform packages
     awscli2         # AWS command line interface v2
@@ -65,7 +58,6 @@
     firefox         # Mozilla Firefox web browser
     jq              # JSON processor and formatter
     lazydocker      # Docker container management TUI
-    nh              # NixOS helper for rebuilding and managing generations
     openconnect     # Cisco AnyConnect VPN client
     pipenv          # Python virtual environment manager
     python3         # Python 3 interpreter
@@ -73,15 +65,12 @@
     terraform       # Infrastructure as code tool
     unzip           # Archive extraction utility
 
-    # Linux-specific packages
-    anki-bin        # Flashcard and spaced repetition learning app
-    prusa-slicer    # 3D printer slicer for Prusa printers
-    swww            # Wayland wallpaper daemon
-    tesseract       # OCR engine for text recognition
-    wl-clipboard    # Wayland clipboard manager
-    xdg-desktop-portal # Desktop integration portal
-    xdg-desktop-portal-hyprland # Hyprland-specific desktop portal
-    xterm           # X terminal emulator (fallback)
+    # macOS-specific packages
+    aerospace       # Tiling window manager for macOS
+    colima          # Container runtimes on macOS with minimal setup
+    hidden-bar      # Hide menu bar items on macOS
+    raycast         # Spotlight replacement for macOS
+    rectangle       # Window management utility for macOS
   ];
 
   # Catpuccin flavor and accent

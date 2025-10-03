@@ -32,7 +32,7 @@ install-nix:
 
 install-nix-darwin:
 	@echo "Installing nix-darwin..."
-	@nix run nix-darwin -- switch --flake .#$(HOSTNAME)
+	@nix $(EXPERIMENTAL) run nix-darwin -- switch --flake .#$(HOSTNAME)
 	@echo "nix-darwin installation complete."
 
 darwin-rebuild:
@@ -47,7 +47,7 @@ nixos-rebuild:
 
 home-manager-switch:
 	@echo "Switching Home Manager configuration..."
-	@home-manager switch --flake $(HOME_TARGET)
+	@home-manager $(EXPERIMENTAL) switch --flake $(HOME_TARGET)
 	@echo "Home Manager switch complete."
 
 nix-gc:
@@ -57,12 +57,12 @@ nix-gc:
 
 flake-update:
 	@echo "Updating flake inputs..."
-	@nix flake update
+	@nix $(EXPERIMENTAL) flake update
 	@echo "Flake update complete."
 
 flake-check:
 	@echo "Checking flake..."
-	@nix flake check
+	@nix $(EXPERIMENTAL) flake check
 	@echo "Flake check complete."
 
 # Server deployment targets
@@ -87,7 +87,7 @@ bootstrap-mac:
 	@echo "2. Sourcing Nix profile..."
 	@. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 	@echo "3. Installing nix-darwin..."
-	@nix run nix-darwin -- switch --flake .#$(HOSTNAME)
+	@nix $(EXPERIMENTAL) run nix-darwin -- switch --flake .#$(HOSTNAME)
 	@echo "4. Installing Home Manager..."
-	@nix run home-manager/master -- switch --flake .#daniel@$(HOSTNAME)
+	@nix $(EXPERIMENTAL) run home-manager/master -- switch --flake .#daniel@$(HOSTNAME)
 	@echo "Bootstrap complete! Please restart your terminal."

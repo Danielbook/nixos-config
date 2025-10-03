@@ -1,9 +1,16 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }: {
-  config = {
+  options = {
+    programs.ghostty.enableConfig = lib.mkEnableOption "Ghostty configuration" // {
+      default = false;
+    };
+  };
+
+  config = lib.mkIf config.programs.ghostty.enableConfig {
     # Enable Ghostty via Home Manager
     programs.ghostty = {
       enable = true;

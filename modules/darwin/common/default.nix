@@ -21,10 +21,12 @@
   nix = {
     settings = {
       experimental-features = "nix-command flakes";
-      auto-optimise-store = true;
       trusted-users = ["root" userConfig.name];
     };
-    
+
+    # Automatic store optimization
+    optimise.automatic = true;
+
     # Automatic garbage collection
     gc = {
       automatic = true;
@@ -247,19 +249,18 @@
     bash.enable = true;
   };
 
-  # Services
-  services = {
-    nix-daemon.enable = true;
-  };
+  # Services are managed automatically by nix-darwin
 
   # System fonts
   fonts = {
     packages = with pkgs; [
       # Programming fonts with Nerd Font variants
-      (nerdfonts.override {fonts = ["FiraCode" "JetBrainsMono" "Meslo"];})
+      nerd-fonts.fira-code
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.meslo-lg
       fira-code
       jetbrains-mono
-      
+
       # System fonts
       inter
       source-sans-pro
