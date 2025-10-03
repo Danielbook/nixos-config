@@ -241,6 +241,7 @@
     # Development tools
     vim
     neovim
+    docker
 
     # Archive tools
     unzip
@@ -254,6 +255,14 @@
   };
 
   # Services are managed automatically by nix-darwin
+
+  # Homebrew configuration for GUI apps
+  homebrew = {
+    enable = true;
+    casks = [
+      "docker" # Docker Desktop
+    ];
+  };
 
   # System fonts
   fonts = {

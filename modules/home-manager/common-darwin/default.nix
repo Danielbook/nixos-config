@@ -3,6 +3,7 @@
   userConfig,
   pkgs,
   lib,
+  config,
   ...
 }: {
   imports = [
@@ -27,6 +28,7 @@
     ../programs/vscodium
     ../programs/zsh
     ../scripts
+    ../misc/wallpaper
   ];
 
   # Nixpkgs configuration
@@ -82,4 +84,18 @@
 
   # Enable Ghostty configuration (works with Homebrew Ghostty)
   programs.ghostty.enableConfig = true;
+
+  # Set wallpaper on Darwin using osascript
+  launchd.agents.wallpaper = {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "/usr/bin/osascript"
+        "-e"
+        "tell application \"Finder\" to set desktop picture to POSIX file \"${config.wallpaper}\""
+      ];
+      RunAtLoad = true;
+      Label = "wallpaper";
+    };
+  };
 }
