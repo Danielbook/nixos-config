@@ -23,9 +23,15 @@
         font-style-italic = "italic";
         font-style-bold-italic = "bold-italic";
 
-        # Theme and appearance
-        theme = "catppuccin-macchiato";
-        background = "#24273a";  # Catppuccin Macchiato base color
+        # Theme and appearance (manual Catppuccin Macchiato colors)
+        background = "#24273a";
+        foreground = "#cad3f5";
+        cursor-color = "#f4dbd6";
+        selection-background = "#5b6078";
+        selection-foreground = "#cad3f5";
+        
+        # Catppuccin Macchiato palette - remove this since we need individual palette entries
+        
         background-opacity = 0.9;
 
         # Terminal settings
@@ -135,9 +141,30 @@
             ])
           else
             "${name} = ${formatValue value}";
+            
+        # Catppuccin Macchiato palette entries
+        paletteEntries = [
+          "palette = 0=#494d64"   # black
+          "palette = 1=#ed8796"   # red
+          "palette = 2=#a6da95"   # green
+          "palette = 3=#eed49f"   # yellow
+          "palette = 4=#8aadf4"   # blue
+          "palette = 5=#f5bde6"   # magenta
+          "palette = 6=#8bd5ca"   # cyan
+          "palette = 7=#b8c0e0"   # white
+          "palette = 8=#5b6078"   # bright black
+          "palette = 9=#ed8796"   # bright red
+          "palette = 10=#a6da95"  # bright green
+          "palette = 11=#eed49f"  # bright yellow
+          "palette = 12=#8aadf4"  # bright blue
+          "palette = 13=#f5bde6"  # bright magenta
+          "palette = 14=#8bd5ca"  # bright cyan
+          "palette = 15=#a5adcb"  # bright white
+        ];
       in
         lib.concatStringsSep "\n" (lib.mapAttrsToList formatSetting (builtins.removeAttrs allSettings ["keybind"])) + "\n" +
-        formatSetting "keybind" null;
+        formatSetting "keybind" null + "\n" +
+        lib.concatStringsSep "\n" paletteEntries;
     };
   };
 }
