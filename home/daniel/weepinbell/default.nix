@@ -16,7 +16,6 @@
   # Essential packages for this machine
   home.packages = with pkgs; [
     bitwarden # Password manager
-    claude-code # Claude Code editor
     google-chrome # Web browser
     nodejs_20 # Node.js runtime
     nixos-anywhere # Remote NixOS deployment tool

@@ -49,28 +49,29 @@
   # Essential user packages for daily workflow (macOS)
   home.packages = with pkgs; [
     # Cross-platform packages
-    awscli2         # AWS command line interface v2
-    bash            # Bash shell (fallback/compatibility)
-    dig             # DNS lookup utility
-    du-dust         # Modern disk usage analyzer (du replacement)
-    eza             # Modern ls replacement with colors and icons
-    fd              # Fast find alternative for files/directories
-    firefox         # Mozilla Firefox web browser
-    jq              # JSON processor and formatter
-    lazydocker      # Docker container management TUI
-    openconnect     # Cisco AnyConnect VPN client
-    pipenv          # Python virtual environment manager
-    python3         # Python 3 interpreter
-    ripgrep         # Fast grep alternative with better defaults
-    terraform       # Infrastructure as code tool
-    unzip           # Archive extraction utility
+    awscli2 # AWS command line interface v2
+    bash # Bash shell (fallback/compatibility)
+    dig # DNS lookup utility
+    nodejs_24 # Node.js runtime
+    du-dust # Modern disk usage analyzer (du replacement)
+    eza # Modern ls replacement with colors and icons
+    fd # Fast find alternative for files/directories
+    firefox # Mozilla Firefox web browser
+    jq # JSON processor and formatter
+    lazydocker # Docker container management TUI
+    openconnect # Cisco AnyConnect VPN client
+    pipenv # Python virtual environment manager
+    python3 # Python 3 interpreter
+    ripgrep # Fast grep alternative with better defaults
+    terraform # Infrastructure as code tool
+    claude-code # Claude Code CLI
 
     # macOS-specific packages
-    aerospace       # Tiling window manager for macOS
-    colima          # Container runtimes on macOS with minimal setup
-    hidden-bar      # Hide menu bar items on macOS
-    raycast         # Spotlight replacement for macOS
-    rectangle       # Window management utility for macOS
+    aerospace # Tiling window manager for macOS
+    colima # Container runtimes on macOS with minimal setup
+    hidden-bar # Hide menu bar items on macOS
+    raycast # Spotlight replacement for macOS
+    rectangle # Window management utility for macOS
   ];
 
   # Catpuccin flavor and accent

@@ -32,12 +32,12 @@ install-nix:
 
 install-nix-darwin:
 	@echo "Installing nix-darwin..."
-	@nix $(EXPERIMENTAL) run nix-darwin -- switch --flake .#$(HOSTNAME)
+	@sudo -H nix $(EXPERIMENTAL) run nix-darwin -- switch --flake .#$(HOSTNAME)
 	@echo "nix-darwin installation complete."
 
 darwin-rebuild:
 	@echo "Rebuilding Darwin configuration..."
-	@darwin-rebuild switch --flake .#$(HOSTNAME)
+	@sudo -H nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake .#$(HOSTNAME)
 	@echo "Darwin rebuild complete."
 
 nixos-rebuild:

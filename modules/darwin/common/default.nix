@@ -50,7 +50,7 @@
   security = {
     # Enable TouchID for sudo
     pam.services.sudo_local.touchIdAuth = true;
-    
+
     # Passwordless sudo for user
     sudo.extraConfig = "${userConfig.name} ALL = (ALL) NOPASSWD: ALL";
   };
@@ -70,18 +70,18 @@
         "com.apple.sound.beep.volume" = 0.0;
         AppleInterfaceStyle = "Dark";
         AppleShowAllExtensions = true;
-        
+
         # Keyboard settings
         ApplePressAndHoldEnabled = false; # Disable press-and-hold for accent characters
         InitialKeyRepeat = 20; # Fast key repeat
         KeyRepeat = 2; # Very fast key repeat
-        
+
         # Text and autocorrect
         NSAutomaticCapitalizationEnabled = false;
         NSAutomaticDashSubstitutionEnabled = false;
         NSAutomaticQuoteSubstitutionEnabled = false;
         NSAutomaticSpellingCorrectionEnabled = false;
-        
+
         # Window and file behavior
         NSAutomaticWindowAnimationsEnabled = false; # Disable window animations
         NSDocumentSaveNewDocumentsToCloud = false; # Don't save to iCloud by default
@@ -222,6 +222,10 @@
 
     # Set primary user
     primaryUser = userConfig.name;
+
+    # Disable app activation for tmux/non-Aqua sessions
+    # This allows darwin-rebuild to work from tmux without requiring Aqua context
+    activationScripts.applications.text = lib.mkForce "";
   };
 
   # Essential system packages
@@ -233,11 +237,11 @@
     jq
     tree
     htop
-    
+
     # Development tools
     vim
     neovim
-    
+
     # Archive tools
     unzip
     p7zip
