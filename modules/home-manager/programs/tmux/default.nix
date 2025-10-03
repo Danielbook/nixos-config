@@ -11,6 +11,9 @@
     terminal = "screen-256color";
 
     extraConfig = ''
+      # Automatically renumber windows when one is closed
+      set -g renumber-windows on
+
       # Set the prefix to `ctrl + q` instead of `ctrl + b`
       set -g prefix C-q
       unbind C-b

@@ -79,4 +79,7 @@
     flavor = "macchiato";
     accent = "lavender";
   };
+
+  # Enable Ghostty configuration (works with Homebrew Ghostty)
+  programs.ghostty.enableConfig = true;
 }
