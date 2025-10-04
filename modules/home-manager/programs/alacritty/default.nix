@@ -24,4 +24,7 @@
       window.opacity = 0.9;
     };
   };
+
+  # Enable Catppuccin theme for Alacritty
+  catppuccin.alacritty.enable = true;
 }

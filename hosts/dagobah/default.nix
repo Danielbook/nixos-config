@@ -2,15 +2,22 @@
   hostname,
   nixosModules,
   pkgs,
+  inputs,
   ...
 }: {
   imports = [
     ./hardware-configuration.nix
     "${nixosModules}/server/headless"
+    inputs.disko.nixosModules.disko
+    ./disko.nix
   ];
 
   # Set hostname to our Star Wars theme
   networking.hostName = hostname;
+
+  # Boot configuration for UEFI systems
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
   # Dagobah-specific configuration
   # This swampy planet runs our home automation and monitoring services

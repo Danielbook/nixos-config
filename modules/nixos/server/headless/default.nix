@@ -19,6 +19,9 @@
   # Essential server packages only
   environment.systemPackages = lib.mkForce (with pkgs; [
     # Core system utilities
+    bash # Ensure bash is available for system scripts
+    zsh # Z shell for better user experience
+    util-linux # Mount, umount, and other essential system utilities
     killall # Process termination utility
     htop # Interactive process viewer
     iotop # I/O monitoring tool
@@ -27,6 +30,7 @@
     wget # HTTP/FTP download utility
     curl # Data transfer tool with URL syntax
     vim # Text editor
+    neovim # Modern Vim-based editor
     tmux # Terminal multiplexer
     git # Version control system
     fuse3 # Filesystem in userspace (for mounting)
@@ -40,9 +44,21 @@
   # Disable Bluetooth for servers
   hardware.bluetooth.enable = lib.mkForce false;
 
-  # Remove desktop-specific environment variables
+  # Disable Flatpak for headless servers
+  services.flatpak.enable = lib.mkForce false;
+
+  # Enable neovim as default editor system-wide
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+  };
+
+  # Remove desktop-specific environment variables but keep essential ones
   environment.variables = lib.mkForce {
-    # Keep essential server variables only
+    EDITOR = "nvim";
+    VISUAL = "nvim";
   };
 
   # Disable Plymouth boot splash for faster boot

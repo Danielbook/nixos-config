@@ -19,16 +19,7 @@
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
 
-  # Placeholder filesystem configuration - will be replaced during installation
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/PLACEHOLDER-ROOT-UUID";
-    fsType = "ext4";
-  };
-
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/PLACEHOLDER-BOOT-UUID";
-    fsType = "vfat";
-  };
+  # Filesystem configuration is handled by disko.nix
 
   swapDevices = [ ];
 

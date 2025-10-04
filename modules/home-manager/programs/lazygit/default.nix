@@ -12,4 +12,7 @@
       };
     };
   };
+
+  # Enable Catppuccin theme for Lazygit
+  catppuccin.lazygit.enable = true;
 }
