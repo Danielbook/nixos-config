@@ -1,19 +1,21 @@
 # 🐧 Daniel's Nix Configuration
 
-> A declarative, cross-platform Nix configuration supporting both NixOS (Linux) and nix-darwin (macOS), featuring modern development environments and seamless desktop experiences across workstations and servers.
+> A declarative, cross-platform Nix configuration supporting both NixOS (Linux) and nix-darwin (macOS), featuring modern development environments, encrypted secrets management, and comprehensive server deployment infrastructure.
 
 ## 📚 Table of Contents
 
 - [Repository Structure](#-repository-structure)
 - [Key Dependencies](#-key-dependencies)
 - [Features](#-features)
+- [🔐 Secrets Management](#-secrets-management)
 - [Keyboard Shortcuts](#️-keyboard-shortcuts)
 - [Neovim Keybindings](#-neovim-keybindings)
 - [Tmux Keybindings](#-tmux-keybindings)
 - [Quick Start](#-quick-start)
 - [Darwin (macOS) Setup](#-darwin-macos-setup)
+- [🌊 Kamino Server Infrastructure](#-kamino-server-infrastructure)
 - [Server Deployment](#-server-deployment)
-- [Makefile Commands](#-makefile-commands)
+- [🚀 Deployment Commands](#-deployment-commands)
 
 ## 📁 Repository Structure
 
@@ -21,14 +23,16 @@
 - 🖥️ `hosts/`: Machine-specific configurations
   - 🐛 `weepinbell/`: Primary NixOS workstation configuration
   - 🍎 `coruscant/`: MacBook Pro (nix-darwin) configuration
-  - 🌊 `kamino/`: Home server configuration
+  - 🌊 `kamino/`: Home automation and monitoring server
 - 🏠 `home/`: User-specific Home Manager configurations  
-- 📄 `files/`: Miscellaneous assets (avatars, scripts, etc.)
+- 📄 `files/`: Miscellaneous assets and configurations
+  - 🐳 `docker-services/kamino/`: Complete Docker stack for home automation
 - 🧩 `modules/`: Reusable configuration modules
   - ⚙️ `nixos/`: System-level NixOS modules (Linux)
   - 🍎 `darwin/`: System-level nix-darwin modules (macOS)
   - 👤 `home-manager/`: User-space application and service configurations (cross-platform)
 - 🔧 `overlays/`: Custom Nix package overlays
+- 🚀 `justfile`: Modern task runner for deployment and system management
 - 🔒 `flake.lock`: Reproducible build lock file
 
 ## 🔗 Key Dependencies
@@ -38,6 +42,7 @@
 - 🏠 **home-manager**: Declarative user environment management (cross-platform)
 - 🍎 **nix-darwin**: Declarative macOS system configuration
 - 🖥️ **nixos-hardware**: Hardware-optimized NixOS configurations
+- 🔐 **sops-nix**: Encrypted secrets management with Age encryption
 - 🎨 **catppuccin**: Beautiful pastel theme system-wide
 - 📱 **nix-flatpak**: Declarative Flatpak application management (Linux)
 - 🌊 **plasma-manager**: KDE Plasma configuration management (Linux)
@@ -69,6 +74,62 @@
 - 👻 **Ghostty**: Modern terminal emulator with crisp rendering
 - ⭐ **Starship**: Beautiful cross-shell prompt
 - 🏠 **Home Manager**: Declarative user environment management
+
+### 🔐 Enterprise-Grade Security
+- 🔑 **sops-nix**: Encrypted secrets management with Age encryption
+- 🛡️ **Bitwarden CLI Integration**: Automated secret deployment with manual fallback
+- 🔒 **Zero Secrets in Git**: All sensitive data encrypted at rest
+- 🎯 **Fine-Grained Permissions**: Per-service secret access control
+
+## 🔐 Secrets Management
+
+This configuration uses **sops-nix** with **Age encryption** for enterprise-grade secrets management. All secrets are encrypted and safely stored in version control.
+
+### 🔑 How It Works
+
+1. **Age Encryption**: Uses modern Age encryption with dedicated key pairs
+2. **Encrypted at Rest**: All secrets encrypted in `hosts/kamino/secrets.yaml`
+3. **Runtime Decryption**: NixOS automatically decrypts secrets during deployment
+4. **Bitwarden Integration**: Automated secret deployment with CLI integration
+
+### 🚀 Secret Deployment Process
+
+```bash
+# Automated deployment with Bitwarden CLI
+just deploy-kamino
+
+# Manual secret setup (if needed)
+just setup-kamino-secrets
+
+# Check Bitwarden CLI status
+just check-bw
+```
+
+### 📋 Secret Categories
+
+- **🏠 Home Assistant**: API keys, OAuth secrets, integration tokens
+- **📊 Monitoring**: Grafana passwords, InfluxDB tokens
+- **🔗 Networking**: Cloudflare API tokens, Traefik credentials
+- **🌐 ESPHome**: Device API keys, OTA passwords, WiFi credentials
+- **📡 Services**: UniFi passwords, Docker registry tokens
+
+### 🔧 Adding New Secrets
+
+1. **Define in NixOS configuration**:
+   ```nix
+   sops.secrets."kamino/service/new-secret" = {
+     owner = "root";
+     group = "docker";
+     mode = "0440";
+   };
+   ```
+
+2. **Add to encrypted secrets file** using `sops` or Bitwarden CLI
+3. **Reference in Docker Compose**:
+   ```yaml
+   environment:
+     - NEW_SECRET_FILE=/run/secrets/kamino-service-new-secret
+   ```
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -220,14 +281,14 @@
 ### Initial Setup
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/nixos-config.git
+git clone https://github.com/Danielbook/nixos-config.git
 cd nixos-config
 
 # Build and switch (requires sudo)
-sudo nixos-rebuild switch --flake .#weepinbell
+just nixos-rebuild
 
 # Apply Home Manager configuration  
-home-manager switch --flake .#daniel@weepinbell
+just home-manager-switch
 ```
 
 ### 🔧 Adding a New Machine
@@ -300,8 +361,8 @@ home-manager switch --flake .#daniel@weepinbell
 4. **🚀 Deploy**:
    ```bash
    git add .
-   sudo nixos-rebuild switch --flake .#newmachine
-   home-manager switch --flake .#newuser@newmachine
+   just nixos-rebuild
+   just home-manager-switch
    ```
 
 ## 🍎 Darwin (macOS) Setup
@@ -334,7 +395,7 @@ This configuration supports macOS through nix-darwin, providing declarative syst
 
 3. **Run the automated bootstrap**:
    ```bash
-   make bootstrap-mac
+   just bootstrap-mac
    ```
 
 4. **Restart your terminal** and verify installation:
@@ -359,19 +420,19 @@ If you prefer manual installation or encounter issues with the bootstrap:
 
 3. **Install nix-darwin**:
    ```bash
-   make install-nix-darwin
+   just install-nix-darwin
    ```
 
 4. **Install Home Manager**:
    ```bash
-   make home-manager-switch
+   just home-manager-switch
    ```
 
 ### 📱 Daily Usage
 
-- **Update system configuration**: `make darwin-rebuild`
-- **Update user environment**: `make home-manager-switch`  
-- **Update all packages**: `make flake-update`
+- **Update system configuration**: `just darwin-rebuild`
+- **Update user environment**: `just home-manager-switch`  
+- **Update all packages**: `just flake-update`
 
 ### 📁 Configuration Structure
 
@@ -429,9 +490,73 @@ The configuration automatically configures:
 - **Homebrew apps**: Add to `hosts/coruscant/default.nix`
 - **System preferences**: Modify `system.defaults` in Darwin modules
 
+## 🌊 Kamino Server Infrastructure
+
+**Kamino** is our Star Wars-themed home automation and monitoring server, hosting a comprehensive Docker-based infrastructure for smart home management.
+
+### 🏗️ Architecture Overview
+
+```
+🌊 Kamino (10.10.40.20)
+├── 🔒 Traefik (Reverse Proxy & SSL)
+├── 🏠 Home Assistant Stack
+│   ├── Home Assistant Core
+│   ├── ESPHome (IoT device management)
+│   └── AppDaemon (Automation engine)
+├── 📊 Grafana Monitoring Stack
+│   ├── Grafana (Visualization)
+│   ├── Loki (Log aggregation)
+│   ├── Prometheus (Metrics)
+│   └── InfluxDB (Time series data)
+├── 🌐 Network Services
+│   ├── UniFi Controller
+│   ├── CloudFlare DDNS
+│   └── Homepage Dashboard
+├── 🖨️ OctoPrint (3D Printer)
+└── 📡 Promtail Remote (Log shipping)
+```
+
+### 🚀 Services Portfolio
+
+| Service | Purpose | Port | URL |
+|---------|---------|------|-----|
+| 🔒 **Traefik** | Reverse proxy, SSL termination | 80/443 | `traefik.local.bookorjeman.com` |
+| 🏠 **Home Assistant** | Smart home automation hub | 8123 | `homeassistant.local.bookorjeman.com` |
+| 📊 **Grafana** | Metrics visualization dashboard | 3000 | `grafana.local.bookorjeman.com` |
+| 📈 **InfluxDB** | Time series database | 8086 | Internal |
+| 📋 **Loki** | Log aggregation system | 3100 | Internal |
+| 🌐 **UniFi Controller** | Network device management | 8443 | `unifi.local.bookorjeman.com` |
+| 🖨️ **OctoPrint** | 3D printer management | 5000 | `octoprint.local.bookorjeman.com` |
+| 🏡 **Homepage** | Service dashboard | 3300 | `homepage.local.bookorjeman.com` |
+| 🔧 **ESPHome** | IoT device configuration | 6052 | `esphome.local.bookorjeman.com` |
+| ⚡ **AppDaemon** | Advanced automations | 5050 | Internal |
+
+### 🔐 Security Features
+
+- **🛡️ Zero-Trust Networking**: All traffic through Traefik with SSL termination
+- **🔑 Encrypted Secrets**: All credentials managed via sops-nix + Age encryption
+- **🚫 No Hardcoded Passwords**: All secrets injected at runtime
+- **🔥 Host Firewall**: Restrictive iptables rules, only required ports open
+- **📱 Multi-Factor Auth**: Integrated with external OAuth providers
+
+### 📊 Monitoring & Observability
+
+- **📈 Metrics**: Prometheus scraping all service endpoints
+- **📋 Logs**: Centralized logging via Loki with retention policies
+- **📊 Dashboards**: Pre-configured Grafana dashboards for all services
+- **🔔 Alerting**: Smart home and infrastructure alerts via Home Assistant
+- **📱 Mobile**: Home Assistant companion app with push notifications
+
+### 🌐 DNS & Networking
+
+- **🏠 Local DNS**: `.local.bookorjeman.com` domain for internal services
+- **🔄 Dynamic DNS**: Automated CloudFlare DNS updates
+- **🌍 External Access**: Secure remote access via Traefik + CloudFlare
+- **📡 IoT Network**: Segregated VLAN for smart home devices
+
 ## 🖥️ Server Deployment
 
-This configuration supports both desktop workstations and headless servers. Servers use a Star Wars naming theme.
+This configuration supports both desktop workstations and production-ready headless servers with automated deployment.
 
 ### 🌟 Available Server Configurations
 
@@ -439,74 +564,216 @@ This configuration supports both desktop workstations and headless servers. Serv
 - **🏜️ Tatooine**: Coming soon...  
 - **❄️ Hoth**: Coming soon...
 
-### 🚀 Remote Deployment
+### 🚀 Remote Deployment with nixos-anywhere
 
-Deploy NixOS servers remotely using `nixos-anywhere`:
+Deploy NixOS servers remotely with full automation:
 
-1. **🖥️ Create VM/Server** with NixOS minimal ISO
-2. **🔧 Enable SSH** on target machine:
-   ```bash
-   # On the target machine console
-   sudo systemctl start sshd
-   passwd  # Set temporary password for nixos user
-   ip addr show  # Get IP address
-   ```
+#### 1. **🖥️ Prepare Target Machine**
 
-3. **🚢 Deploy from your machine**:
-   ```bash
-   # Deploy Kamino server (using Makefile)
-   make deploy-kamino
-   
-   # Or manually
-   nixos-anywhere --flake .#kamino nixos@<TARGET_IP>
-   ```
+Create VM or physical server with NixOS minimal ISO:
 
-4. **📦 Migrate container data** (if replacing existing server):
-   ```bash
-   # Stop services on old server
-   ssh old-server "cd /srv && for dir in */; do cd \$dir && docker-compose down && cd ..; done"
-   
-   # Backup and transfer data
-   ssh old-server "tar czf /tmp/srv-backup.tar.gz /srv/"
-   scp old-server:/tmp/srv-backup.tar.gz .
-   scp srv-backup.tar.gz new-server:/tmp/
-   ssh new-server "cd / && sudo tar xzf /tmp/srv-backup.tar.gz"
-   
-   # Services will auto-start on boot
-   ```
+```bash
+# On the target machine console
+sudo systemctl start sshd
+passwd nixos  # Set temporary password for nixos user
+ip addr show  # Note the IP address for deployment
+```
+
+#### 2. **🚢 Deploy Kamino Server**
+
+**One-command deployment** with automated secrets:
+
+```bash
+# Deploy complete Kamino infrastructure
+just deploy-kamino
+```
+
+This command will:
+- ✅ Check connectivity to target server
+- 🚀 Deploy NixOS configuration via nixos-anywhere
+- 🔑 Set up Age encryption keys for secrets
+- 🐳 Start all Docker services automatically
+- 📊 Configure monitoring and logging
+
+#### 3. **🔧 Manual Secret Setup** (if Bitwarden unavailable)
+
+```bash
+# Set up secrets manually if Bitwarden CLI fails
+just setup-kamino-secrets
+
+# Check Bitwarden CLI status and configuration
+just check-bw
+```
+
+#### 4. **✅ Verify Deployment**
+
+```bash
+# Check running services
+ssh root@10.10.40.20 'docker ps'
+
+# Verify Home Assistant
+curl -k https://homeassistant.local.bookorjeman.com
+
+# Check service logs
+ssh root@10.10.40.20 'docker-compose -f /srv/homeassistant-stack/docker-compose.yaml logs'
+```
+
+### 📦 Data Migration (Optional)
+
+When replacing existing servers, migrate Docker volumes:
+
+```bash
+# Stop services on old server (Jupiter)
+ssh jupiter "cd /srv && for dir in */; do cd \$dir && docker-compose down && cd ..; done"
+
+# Create backup archive
+ssh jupiter "tar czf /tmp/srv-backup.tar.gz /srv/"
+
+# Transfer to new server
+scp jupiter:/tmp/srv-backup.tar.gz .
+scp srv-backup.tar.gz kamino:/tmp/
+
+# Restore on Kamino (before first boot)
+ssh kamino "cd / && sudo tar xzf /tmp/srv-backup.tar.gz"
+```
 
 ### ⚙️ Server Features
 
-- **🔒 Secure by default**: Only SSH open, no desktop components
-- **🐳 Docker integration**: Auto-starts all `/srv/*/docker-compose.yaml` services
-- **🔥 Host-specific firewalls**: Each server defines its own required ports
-- **📊 Monitoring ready**: Log rotation and system maintenance tools
-- **🎯 Minimal footprint**: Essential server tools only
+- **🔒 Secure by Default**: SSH hardening, minimal attack surface
+- **🐳 Container Orchestration**: Auto-discovery and management of Docker services
+- **🔥 Smart Firewalls**: Host-specific port configurations
+- **📊 Built-in Monitoring**: System metrics and log aggregation
+- **🎯 Minimal Footprint**: Server-optimized package selection
+- **🔄 Self-Healing**: Systemd service recovery and health checks
 
-## 🔧 Makefile Commands
+### 🛠️ Advanced Deployment Options
 
-This repository includes a Makefile for common operations:
+```bash
+# Deploy with custom target IP
+nixos-anywhere --flake .#kamino nixos@192.168.1.100
+
+# Deploy with disk encryption (enterprise)
+nixos-anywhere --flake .#kamino-encrypted nixos@10.10.40.20
+
+# Dry-run deployment (test configuration)
+nixos-anywhere --flake .#kamino --dry-run nixos@10.10.40.20
+```
+
+## 🚀 Deployment Commands
+
+This repository uses **Just** (modern alternative to Make) for all deployment and management tasks.
+
+### 📋 Available Commands
 
 ```bash
 # Show all available commands
-make help
+just --list
 
-# System management (NixOS)
-make nixos-rebuild          # Rebuild NixOS configuration
-make home-manager-switch    # Switch Home Manager configuration
-make flake-update          # Update all flake inputs
-make flake-check           # Validate flake configuration
-make nix-gc                # Run garbage collection
-
-# macOS (Darwin) management
-make bootstrap-mac          # Complete macOS setup (install Nix + nix-darwin)
-make install-nix           # Install Nix package manager
-make install-nix-darwin    # Install nix-darwin system
-make darwin-rebuild        # Rebuild Darwin (macOS) configuration
-
-# Server deployment
-make deploy-kamino         # Deploy Kamino server (prompts for IP)
-make deploy-tatooine       # Deploy Tatooine server (coming soon)
-make deploy-hoth           # Deploy Hoth server (coming soon)
+# Show detailed help with examples
+just help
 ```
 
+### 🏠 Local System Management
+
+```bash
+# NixOS/Linux systems
+just nixos-rebuild          # Rebuild NixOS configuration
+just home-manager-switch    # Switch Home Manager configuration
+
+# macOS (Darwin) systems  
+just darwin-rebuild         # Rebuild Darwin configuration
+just bootstrap-mac          # Complete macOS setup from scratch
+```
+
+### 🛠️ Development & Maintenance
+
+```bash
+just flake-update           # Update all flake inputs to latest
+just flake-check            # Validate flake configuration  
+just nix-gc                 # Run garbage collection to free space
+```
+
+### 🖥️ Server Deployment
+
+```bash
+# Deploy Kamino home automation server
+just deploy-kamino          # Full deployment with secrets setup
+
+# Secrets management
+just setup-kamino-secrets   # Set up Age encryption keys only
+just check-bw               # Check Bitwarden CLI status
+
+# Future server deployments
+just deploy-tatooine        # Coming soon
+just deploy-hoth           # Coming soon
+```
+
+### 🔧 Setup & Utilities
+
+```bash
+# Initial setup commands
+just install-nix            # Install Nix package manager
+just install-nix-darwin     # Install nix-darwin (macOS)
+
+# Bitwarden CLI integration
+just check-bw               # Verify Bitwarden CLI setup and status
+```
+
+### 🎯 Example Workflows
+
+#### 🖥️ **Setting up a new workstation**:
+```bash
+git clone https://github.com/Danielbook/nixos-config.git
+cd nixos-config
+just nixos-rebuild
+just home-manager-switch
+```
+
+#### 🍎 **macOS bootstrap**:
+```bash
+just bootstrap-mac          # Complete macOS setup
+```
+
+#### 🌊 **Deploy Kamino server**:
+```bash
+just deploy-kamino          # Deploy home automation infrastructure
+```
+
+#### 🔄 **Update everything**:
+```bash
+just flake-update           # Update package versions
+just nixos-rebuild          # Apply updates to system
+just home-manager-switch    # Apply updates to user environment
+```
+
+### 🚀 Advanced Features
+
+- **📡 Connectivity Checks**: Automatic server reachability validation
+- **🔐 Bitwarden Integration**: Automated secret deployment with CLI fallback  
+- **⚡ Parallel Execution**: Multiple operations run concurrently when possible
+- **🎯 Error Handling**: Comprehensive error checking with helpful messages
+- **📊 Progress Feedback**: Real-time deployment status and logging
+
+### 💡 Migration from Makefile
+
+This project migrated from Make to Just for enhanced features:
+
+| Old (Make) | New (Just) | Improvements |
+|------------|------------|--------------|
+| `make deploy-kamino` | `just deploy-kamino` | ✅ Better error handling |
+| `make nixos-rebuild` | `just nixos-rebuild` | ✅ Bitwarden integration |
+| `make help` | `just help` | ✅ Enhanced documentation |
+| `make bootstrap-mac` | `just bootstrap-mac` | ✅ Cleaner syntax |
+
+---
+
+## 🎉 Getting Started
+
+Ready to deploy your own infrastructure? 
+
+1. **🍴 Fork this repository**
+2. **⚙️ Customize configurations** for your hardware and services  
+3. **🔑 Set up your own Age keys** for secrets management
+4. **🚀 Deploy with confidence** using the automated tooling
+
+The entire infrastructure is declarative, reproducible, and production-tested. Welcome to the future of system administration! 🌟

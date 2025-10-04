@@ -111,6 +111,41 @@
         group = "docker";
         mode = "0440";
       };
+      "kamino/esphome/gym-presence-api-key" = {
+        owner = "root";
+        group = "docker";
+        mode = "0440";
+      };
+      "kamino/esphome/gym-presence-ota-password" = {
+        owner = "root";
+        group = "docker";
+        mode = "0440";
+      };
+      "kamino/esphome/gym-presence-fallback-password" = {
+        owner = "root";
+        group = "docker";
+        mode = "0440";
+      };
+      "kamino/esphome/everything-presence-api-key" = {
+        owner = "root";
+        group = "docker";
+        mode = "0440";
+      };
+      "kamino/esphome/bluetooth-proxy-api-key" = {
+        owner = "root";
+        group = "docker";
+        mode = "0440";
+      };
+      "kamino/esphome/bluetooth-proxy-ota-password" = {
+        owner = "root";
+        group = "docker";
+        mode = "0440";
+      };
+      "kamino/esphome/bluetooth-proxy-fallback-password" = {
+        owner = "root";
+        group = "docker";
+        mode = "0440";
+      };
       
       # UniFi secrets
       "kamino/unifi/password" = {
