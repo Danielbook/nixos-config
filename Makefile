@@ -21,7 +21,7 @@ help:
 	@echo "  flake-check          - Check the flake for issues"
 	@echo ""
 	@echo "Server deployment targets:"
-	@echo "  deploy-dagobah       - Deploy Dagobah server (home automation/monitoring)"
+	@echo "  deploy-kamino        - Deploy Kamino server (home automation/monitoring)"
 	@echo "  deploy-tatooine      - Deploy Tatooine server (coming soon)"
 	@echo "  deploy-hoth          - Deploy Hoth server (coming soon)"
 
@@ -66,10 +66,10 @@ flake-check:
 	@echo "Flake check complete."
 
 # Server deployment targets
-deploy-dagobah:
-	@echo "Deploying Dagobah server..."
-	nixos-anywhere --flake .#dagobah nixos@10.10.40.20
-	@echo "Dagobah deployment complete."
+deploy-kamino:
+	@echo "Deploying Kamino server..."
+	nixos-anywhere --flake .#kamino nixos@10.10.40.20
+	@echo "Kamino deployment complete."
 
 deploy-tatooine:
 	@echo "Tatooine server deployment not yet implemented"

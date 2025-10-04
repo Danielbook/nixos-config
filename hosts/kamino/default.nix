@@ -19,8 +19,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Dagobah-specific configuration
-  # This swampy planet runs our home automation and monitoring services
+  # Kamino-specific configuration
+  # This oceanic planet hosts our home automation and monitoring services
+  # Like the advanced cloning facilities, this server manages automated systems
   
   # Additional server packages for this specific host
   environment.systemPackages = with pkgs; [
@@ -29,8 +30,8 @@
     python3        # For Home Assistant scripts
   ];
 
-  # Dagobah-specific firewall configuration
-  # This swampy planet hosts our home automation and monitoring services
+  # Kamino-specific firewall configuration
+  # This oceanic planet hosts our home automation and monitoring services
   networking.firewall = {
     allowedTCPPorts = [
       80    # HTTP (Traefik)

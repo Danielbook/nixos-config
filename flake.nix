@@ -108,7 +108,7 @@
   in {
     nixosConfigurations = {
       weepinbell = mkNixosConfiguration "weepinbell" "daniel";
-      dagobah = mkNixosConfiguration "dagobah" "daniel";
+      kamino = mkNixosConfiguration "kamino" "daniel";
     };
 
     darwinConfigurations = {

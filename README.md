@@ -21,7 +21,7 @@
 - 🖥️ `hosts/`: Machine-specific configurations
   - 🐛 `weepinbell/`: Primary NixOS workstation configuration
   - 🍎 `coruscant/`: MacBook Pro (nix-darwin) configuration
-  - 🌍 `dagobah/`: Home server configuration
+  - 🌊 `kamino/`: Home server configuration
 - 🏠 `home/`: User-specific Home Manager configurations  
 - 📄 `files/`: Miscellaneous assets (avatars, scripts, etc.)
 - 🧩 `modules/`: Reusable configuration modules
@@ -435,7 +435,7 @@ This configuration supports both desktop workstations and headless servers. Serv
 
 ### 🌟 Available Server Configurations
 
-- **🌿 Dagobah**: Home automation and monitoring server (Home Assistant, Grafana, Traefik)
+- **🌊 Kamino**: Home automation and monitoring server (Home Assistant, Grafana, Traefik)
 - **🏜️ Tatooine**: Coming soon...  
 - **❄️ Hoth**: Coming soon...
 
@@ -454,11 +454,11 @@ Deploy NixOS servers remotely using `nixos-anywhere`:
 
 3. **🚢 Deploy from your machine**:
    ```bash
-   # Deploy Dagobah server (using Makefile)
-   make deploy-dagobah
+   # Deploy Kamino server (using Makefile)
+   make deploy-kamino
    
    # Or manually
-   nixos-anywhere --flake .#dagobah nixos@<TARGET_IP>
+   nixos-anywhere --flake .#kamino nixos@<TARGET_IP>
    ```
 
 4. **📦 Migrate container data** (if replacing existing server):
@@ -505,7 +505,7 @@ make install-nix-darwin    # Install nix-darwin system
 make darwin-rebuild        # Rebuild Darwin (macOS) configuration
 
 # Server deployment
-make deploy-dagobah        # Deploy Dagobah server (prompts for IP)
+make deploy-kamino         # Deploy Kamino server (prompts for IP)
 make deploy-tatooine       # Deploy Tatooine server (coming soon)
 make deploy-hoth           # Deploy Hoth server (coming soon)
 ```
