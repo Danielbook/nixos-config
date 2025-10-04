@@ -240,6 +240,8 @@
     ethtool # Ethernet device configuration utility
     usbutils # USB device utilities (lsusb)
     socat # Socket communication tool for Hyprland IPC
+    sops # Secrets management with age encryption
+    just # Modern task runner (replacement for make)
   ];
 
   # Enable firmware for better hardware support

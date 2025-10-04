@@ -1,0 +1,123 @@
+# Secrets and sensitive files
+*.env
+**/secrets/
+**/secrets.yaml
+*.token
+*.key
+*.pem
+*.crt
+*.csr
+acme.json
+**/ssl/
+**/*password*
+**/*token*
+**/.google*
+
+# Database and data directories
+**/data/
+**/db/
+**/database/
+**/postgres_data/
+**/mysql_data/
+**/influxdb_data/
+**/grafana_data/
+**/prometheus_data/
+**/unifi_data/
+**/config/zigbee2mqtt/
+**/homeassistant_config/database/
+
+# Build artifacts and caches
+**/build/
+**/dist/
+**/node_modules/
+**/.cache/
+**/tmp/
+**/temp/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.egg-info/
+**/wheels/
+
+# Log files
+**/logs/
+**/*.log
+**/*.log.*
+
+# Backup files
+**/*.backup
+**/*.bak
+**/*.old
+**/*.orig
+
+# ESPHome build artifacts
+**/esphome-config/.esphome/
+**/esphome-config/build/
+**/esphome-config/config/
+
+# OctoPrint personal data and artifacts
+**/octoprint/config/octoprint/generated/
+**/octoprint/config/octoprint/uploads/
+**/octoprint/config/octoprint/timelapse/
+**/octoprint/config/octoprint/logs/
+**/octoprint/config/octoprint/watched/
+**/octoprint/config/octoprint/*.db
+**/octoprint/config/octoprint/*.sqlite
+
+# InfluxDB data files (these are personal data)
+**/influxdb2/*.bolt
+**/influxdb2/*.sqlite
+**/influxdb2/*.sqlite.new
+**/influxdb2/engine/
+
+# Home Assistant specific
+**/config/home-assistant.log*
+**/config/home-assistant_v2.db*
+**/config/.HA_VERSION
+**/config/.cloud/
+**/config/.storage/
+**/config/known_devices.yaml
+**/config/entity_registry.yaml
+**/config/device_registry.yaml
+**/config/area_registry.yaml
+**/config/core.config_entries
+**/config/core.device_registry
+**/config/core.entity_registry
+**/config/core.restore_state
+
+# Grafana specific
+**/grafana/data/
+**/grafana/logs/
+**/grafana/plugins/
+
+# InfluxDB specific
+**/influxdb/data/
+**/influxdb/meta/
+**/influxdb/wal/
+
+# Prometheus specific
+**/prometheus/data/
+
+# UniFi specific
+**/unifi/data/
+**/unifi/logs/
+**/unifi/run/
+**/unifi/work/
+
+# OctoPrint specific
+**/octoprint/config/plugins/
+**/octoprint/config/logs/
+**/octoprint/config/uploads/
+**/octoprint/config/timelapse/
+**/octoprint/config/watched/
+
+# Docker specific
+**/.docker/
+**/docker-compose.override.yml
+
+# OS specific
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

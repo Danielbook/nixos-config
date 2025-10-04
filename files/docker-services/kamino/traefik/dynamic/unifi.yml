@@ -1,0 +1,23 @@
+http:
+  routers:
+    unifi:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`unifi.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: unifi
+
+  services:
+    unifi:
+      loadBalancer:
+        servers:
+          - url: "https://10.10.40.20:8443"
+        passHostHeader: true
+        serversTransport: unifi-transport
+
+  serversTransports:
+    unifi-transport:
+      insecureSkipVerify: true

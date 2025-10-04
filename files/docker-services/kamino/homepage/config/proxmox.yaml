@@ -1,0 +1,15 @@
+---
+andromeda:
+  url: https://10.10.30.11:8006
+  username: root@pam!homepage
+  password: ${HOMEPAGE_VAR_PROXMOX_ANDROMEDA_PASS}
+
+n4:
+  url: https://10.10.30.10:8006
+  username: root@pam!homepage
+  password: ${HOMEPAGE_VAR_PROXMOX_N4_PASS}
+
+hoth:
+  url: https://10.10.30.12:8006
+  username: root@pam!homepage
+  password: ${HOMEPAGE_VAR_PROXMOX_HOTH_PASS}

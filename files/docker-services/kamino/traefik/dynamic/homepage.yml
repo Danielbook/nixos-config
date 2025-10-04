@@ -1,0 +1,18 @@
+http:
+  routers:
+    homepage:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`homepage.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: homepage
+
+  services:
+    homepage:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.40.20:3000"
+        passHostHeader: true

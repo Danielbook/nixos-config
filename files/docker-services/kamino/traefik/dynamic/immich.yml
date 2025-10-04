@@ -1,0 +1,18 @@
+http:
+  routers:
+    immich:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`immich.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+      tls:
+        certResolver: cloudflare
+      service: immich
+
+  services:
+    immich:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.40.12:2283"
+        passHostHeader: true

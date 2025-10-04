@@ -1,0 +1,23 @@
+http:
+  routers:
+    andromeda:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`andromeda.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+      tls:
+        certResolver: cloudflare
+      service: andromeda
+
+  services:
+    andromeda:
+      loadBalancer:
+        servers:
+          - url: "https://10.10.30.11:8006"
+        passHostHeader: true
+        serversTransport: proxmox-transport
+
+  serversTransports:
+    proxmox-transport:
+      insecureSkipVerify: true

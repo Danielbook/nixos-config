@@ -1,0 +1,35 @@
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie
+    container_name: mealie
+    deploy:
+      resources:
+        limits:
+          memory: 1000M
+    volumes:
+      - ./data:/app/data/
+    ports:
+      - 9925:9000
+    environment:
+    # Set Backend ENV Variables Here
+      - ALLOW_SIGNUP=true
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+      - SECURITY_MAX_LOGIN_ATTEMPTS=5
+      - MAX_WORKERS=1
+      - WEB_CONCURRENCY=1
+      - BASE_URL=https://mealie.local.bookorjeman.com
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      proxy:
+
+volumes:
+  mealie-data:
+    driver: local
+
+networks:
+  proxy:
+    external: true

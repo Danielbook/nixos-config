@@ -1,0 +1,32 @@
+esphome:
+  name: bluetooth-proxy
+  friendly_name: bluetooth-proxy
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret bluetooth_proxy_api_key
+
+ota:
+  - platform: esphome
+    password: !secret bluetooth_proxy_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Bluetooth-Proxy Fallback Hotspot"
+    password: !secret bluetooth_proxy_fallback_password
+
+captive_portal:
+    

@@ -1,0 +1,15 @@
+---
+services:
+  octoprint:
+    image: octoprint/octoprint:latest
+    container_name: octoprint
+    restart: unless-stopped
+    ports:
+      - "5000:80"
+    volumes:
+      - ./config:/octoprint
+    devices:
+      - /dev/serial/by-id/usb-Prusa_Research__prusa3d.com__Original_Prusa_i3_MK3_CZPX2921X004XK96438-if00:/dev/ttyUSB0
+      - /dev/video0:/dev/video0
+    environment:
+      - ENABLE_MJPG_STREAMER=true

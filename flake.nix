@@ -40,6 +40,12 @@
 
     # Catppuccin color scheme for consistent theming
     catppuccin.url = "github:catppuccin/nix";
+
+    # Secrets management with age encryption
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -49,6 +55,7 @@
     home-manager,
     nix-darwin,
     nixpkgs,
+    sops-nix,
     ...
   } @ inputs: let
     inherit (self) outputs;

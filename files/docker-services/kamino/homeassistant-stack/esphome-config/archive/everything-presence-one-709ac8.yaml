@@ -1,0 +1,17 @@
+substitutions:
+  name: everything-presence-one-709ac8
+  friendly_name: Everything Presence One
+packages:
+  Everything_Smart_Technology.Everything_Presence_One: github://everythingsmarthome/presence-one/everything-presence-one.yaml@main
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+api:
+  encryption:
+    key: !secret everything_presence_api_key
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password

@@ -1,0 +1,18 @@
+http:
+  routers:
+    grafana:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`grafana.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+      tls:
+        certResolver: cloudflare
+      service: grafana
+
+  services:
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.40.20:3050"
+        passHostHeader: true

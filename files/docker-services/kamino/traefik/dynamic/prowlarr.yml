@@ -1,0 +1,18 @@
+http:
+  routers:
+    prowlarr:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`prowlarr.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: prowlarr
+
+  services:
+    prowlarr:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.40.11:9696"
+        passHostHeader: true

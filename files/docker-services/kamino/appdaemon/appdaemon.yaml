@@ -1,0 +1,16 @@
+appdaemon:
+  latitude: 0
+  longitude: 0
+  elevation: 30
+  time_zone: Europe/Berlin
+  plugins:
+    HASS:
+      type: hass
+      ha_url: http://10.10.40.20:8123
+      token: ${HA_APPDAEMON_KEY}
+      cert_verify: True
+http:
+  url: http://10.10.40.20:5050
+admin:
+api:
+hadashboard:

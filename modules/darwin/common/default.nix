@@ -246,6 +246,12 @@
     # Archive tools
     unzip
     p7zip
+
+    # Task runners and automation
+    just # Modern task runner (replacement for make)
+
+    # Secrets management
+    sops # Secrets management with age encryption
   ];
 
   # Shell configuration

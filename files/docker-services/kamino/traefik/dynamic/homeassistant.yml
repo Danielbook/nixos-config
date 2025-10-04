@@ -1,0 +1,20 @@
+http:
+  routers:
+    homeassistant:
+      # For Homeassistant config, check: https://www.home-assistant.io/integrations/http/#reverse-proxies
+      # This relies on Homeassistant using http. No certs are needed in the Homeassistant config.
+      entryPoints:
+        - "websecure"
+      rule: "Host(`homeassistant.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: homeassistant
+
+  services:
+    homeassistant:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.40.20:8123"
+        passHostHeader: true

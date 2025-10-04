@@ -1,0 +1,17 @@
+# SOPS configuration for Kamino secrets management
+keys:
+  # Kamino server Age public key
+  - &kamino age1pxc3l7nck3ku25nd66f5ul0c0gkhtnjmnr3zk0ftmm2yt3qn0q8strdzdy
+
+creation_rules:
+  # Kamino server secrets
+  - path_regex: hosts/kamino/secrets\.yaml$
+    key_groups:
+      - age:
+          - *kamino
+
+  # Global rule for any secrets.yaml files
+  - path_regex: secrets\.yaml$
+    key_groups:
+      - age:
+          - *kamino

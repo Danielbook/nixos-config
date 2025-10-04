@@ -1,0 +1,18 @@
+http:
+  routers:
+    jellyseerr:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`jellyseerr.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: jellyseerr
+
+  services:
+    jellyseerr:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.40.12:5055"
+        passHostHeader: true
