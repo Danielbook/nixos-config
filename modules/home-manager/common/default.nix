@@ -77,6 +77,7 @@
     # Linux-specific packages
     anki-bin # Flashcard and spaced repetition learning app
     prusa-slicer # 3D printer slicer for Prusa printers
+    swappy # Wayland screenshot annotation tool
     swww # Wayland wallpaper daemon
     tesseract # OCR engine for text recognition
     wl-clipboard # Wayland clipboard manager

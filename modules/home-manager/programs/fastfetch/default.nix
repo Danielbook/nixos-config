@@ -4,7 +4,10 @@
     enable = true;
     settings = {
       logo = {
-        type = "none";
+        type = "auto";
+        padding = {
+          right = 1;
+        };
       };
       display = {
         separator = "->   ";
@@ -12,98 +15,66 @@
       modules = [
         {
           type = "title";
-          format = "{6}{7}{8}";
+          format = "{#33}{1}{#39}@{#36}{2}{#0}";
         }
         "break"
         {
-          type = "custom";
-          format = "┌───────────────────────────── System Information ─────────────────────────────┐";
-        }
-        "break"
-        {
-          key = "     OS           ";
-          keyColor = "red";
+          key = " {#36} OS{#0}";
           type = "os";
         }
         {
-          key = "    󰌢 Machine      ";
-          keyColor = "green";
+          key = " {#36}󰌢 Host{#0}";
           type = "host";
         }
         {
-          key = "     Kernel       ";
-          keyColor = "magenta";
+          key = " {#36} Kernel{#0}";
           type = "kernel";
         }
         {
-          key = "    󰏖 Packages     ";
+          key = " {#36}󰏖 Packages{#0}";
           type = "packages";
         }
         {
-          key = "    󰅐 Uptime       ";
-          keyColor = "red";
+          key = " {#36}󰅐 Uptime{#0}";
           type = "uptime";
         }
         {
-          key = "    󰍹 Resolution   ";
-          keyColor = "yellow";
+          key = " {#36}󰍹 Display{#0}";
           type = "display";
           compactType = "original-with-refresh-rate";
         }
         {
-          key = "     WM           ";
-          keyColor = "blue";
+          key = " {#36} WM{#0}";
           type = "wm";
         }
         {
-          key = "     DE           ";
-          keyColor = "green";
-          type = "de";
-        }
-        {
-          key = "     Shell        ";
-          keyColor = "cyan";
+          key = " {#36} Shell{#0}";
           type = "shell";
         }
         {
-          key = "     Terminal     ";
-          keyColor = "red";
+          key = " {#36} Terminal{#0}";
           type = "terminal";
         }
+        "break"
         {
-          key = "    󰻠 CPU          ";
-          keyColor = "yellow";
+          key = " {#36}󰻠 CPU{#0}";
           type = "cpu";
         }
         {
-          key = "    󰍛 GPU          ";
-          keyColor = "blue";
+          key = " {#36}󰍛 GPU{#0}";
           type = "gpu";
         }
         {
-          key = "    󰑭 Memory       ";
-          keyColor = "magenta";
+          key = " {#36}󰑭 Memory{#0}";
           type = "memory";
         }
+        "break"
         {
-          key = "    󰩟 Local IP     ";
-          keyColor = "red";
+          key = " {#36}󰩟 Local IP{#0}";
           type = "localip";
         }
-        {
-          key = "    󰩠 Public IP    ";
-          keyColor = "cyan";
-          type = "publicip";
-        }
         "break"
         {
-          type = "custom";
-          format = "└──────────────────────────────────────────────────────────────────────────────┘";
-        }
-        "break"
-        {
-          paddingLeft = 34;
-          symbol = "circle";
           type = "colors";
         }
       ];

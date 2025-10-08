@@ -46,6 +46,12 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Curated wallpaper collection
+    walls = {
+      url = "github:dharmx/walls";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -56,6 +62,7 @@
     nix-darwin,
     nixpkgs,
     sops-nix,
+    walls,
     ...
   } @ inputs: let
     inherit (self) outputs;

@@ -39,7 +39,7 @@
     };
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.swww}/bin/swww img ${config.wallpaper}";
+      ExecStart = "${pkgs.swww}/bin/swww img ${config.wallpaper.default}";
       RemainAfterExit = true;
     };
     Install.WantedBy = ["hyprland-session.target"];
