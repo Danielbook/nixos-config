@@ -111,6 +111,7 @@
         group = "docker";
         mode = "0440";
       };
+      # ESPHome secrets
       "kamino/esphome/gym-presence-api-key" = {
         owner = "root";
         group = "docker";
