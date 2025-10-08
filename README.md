@@ -777,3 +777,9 @@ Ready to deploy your own infrastructure?
 4. **🚀 Deploy with confidence** using the automated tooling
 
 The entire infrastructure is declarative, reproducible, and production-tested. Welcome to the future of system administration! 🌟
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Feel free to use this configuration as inspiration for your own setup! 🚀
