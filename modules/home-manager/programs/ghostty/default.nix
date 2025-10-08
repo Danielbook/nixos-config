@@ -6,7 +6,7 @@
 }: {
   options = {
     programs.ghostty.enableConfig = lib.mkEnableOption "Ghostty configuration" // {
-      default = false;
+      default = !pkgs.stdenv.isDarwin;
     };
   };
 
