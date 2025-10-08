@@ -75,6 +75,41 @@
   # Networking
   networking.networkmanager = {
     enable = true;
+    
+    # Automatically prefer ethernet over WiFi
+    dispatcherScripts = [
+      {
+        source = pkgs.writeText "prefer-ethernet" ''
+          #!/bin/sh
+          # Automatically disable WiFi when ethernet is connected
+          # and re-enable when ethernet is disconnected
+          
+          interface="$1"
+          action="$2"
+          
+          case "$action" in
+            "up")
+              if [[ "$interface" =~ ^(eth|en) ]]; then
+                # Ethernet came up, disable WiFi
+                nmcli radio wifi off
+                logger "NetworkManager: Disabled WiFi because ethernet ($interface) is connected"
+              fi
+              ;;
+            "down")
+              if [[ "$interface" =~ ^(eth|en) ]]; then
+                # Ethernet went down, check if any other ethernet is up
+                if ! nmcli device status | grep -E '^(eth|en).*connected'; then
+                  # No ethernet connected, enable WiFi
+                  nmcli radio wifi on
+                  logger "NetworkManager: Enabled WiFi because no ethernet is connected"
+                fi
+              fi
+              ;;
+          esac
+        '';
+        type = "basic";
+      }
+    ];
 
     # Network stability settings
     settings = {
@@ -98,6 +133,10 @@
         # IPv6 configuration
         "ipv6.method" = "auto";
         "ipv6.addr-gen-mode" = "stable-privacy";
+        
+        # Connection priority: Prefer ethernet over WiFi
+        "ethernet.auto-negotiate" = "yes";
+        "wifi.autoconnect-priority" = "-1"; # Lower priority for WiFi
       };
 
       # Device-specific settings for better stability
