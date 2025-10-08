@@ -33,6 +33,13 @@
       # Rename window with prefix + r
       bind r command-prompt -I "#W" "rename-window '%%'"
 
+      # Rename pane with prefix + t
+      bind t command-prompt -p "Pane title:" "select-pane -T '%%'"
+
+      # Enable pane titles
+      set -g pane-border-status top
+      set -g pane-border-format " #{pane_index} #{pane_title} "
+
       # Reload tmux config by pressing prefix + R
       bind R source-file ~/.config/tmux/tmux.conf \; display "TMUX Conf Reloaded"
 
