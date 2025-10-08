@@ -14,7 +14,7 @@ hoth_host := "10.10.40.12"
 # Flake configuration
 hostname := `hostname`
 flake := ".#" + hostname
-home_target := flake
+home_target := ".#daniel@" + hostname
 experimental := "--extra-experimental-features \"nix-command flakes\""
 
 # =============================================================================
