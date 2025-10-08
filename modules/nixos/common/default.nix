@@ -96,19 +96,29 @@
 
   # USB power management and wake configuration
   services.udev.extraRules = ''
-    # Disable USB autosuspend for ethernet adapters (r8152 driver)
+    # Disable USB autosuspend for ALL ethernet adapters - Universal approach
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="r8152", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="asix", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="ax88179_178a", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="cdc_ether", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="dm9601", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="smsc95xx", ATTR{power/autosuspend}="-1"
+    
+    # Disable USB autosuspend for ALL devices with ethernet class
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="02", ATTR{bInterfaceSubClass}=="06", ATTR{power/autosuspend}="-1"
+    
+    # Specific Realtek USB ethernet adapters (fallback)
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8153", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8152", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8150", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="r8152", ATTR{power/autosuspend}="-1"
-
-    # Additional Realtek USB ethernet adapters
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8156", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8051", ATTR{power/autosuspend}="-1"
 
-    # Disable runtime power management for network interfaces
+    # Disable runtime power management for ALL network interfaces
     ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{device/power/control}="on"
     ACTION=="add", SUBSYSTEM=="net", KERNEL=="enp*", ATTR{device/power/control}="on"
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="eno*", ATTR{device/power/control}="on"
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="ens*", ATTR{device/power/control}="on"
     
     # Enable USB wake for keyboards and mice (allow wake from suspend)
     ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceSubClass}=="01", ATTR{bInterfaceProtocol}=="01", ATTR{power/wakeup}="enabled"
@@ -242,6 +252,7 @@
     socat # Socket communication tool for Hyprland IPC
     sops # Secrets management with age encryption
     just # Modern task runner (replacement for make)
+    bitwarden-cli # Password manager CLI for secrets management
   ];
 
   # Enable firmware for better hardware support
