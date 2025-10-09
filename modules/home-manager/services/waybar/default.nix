@@ -221,6 +221,7 @@
           interval = 1;
           on-click = "screen-recorder";
         };
+
       };
     };
     style = ''
@@ -336,6 +337,7 @@
       #privacy {
         color: #f5a97f;
       }
+
     '';
   };
 }

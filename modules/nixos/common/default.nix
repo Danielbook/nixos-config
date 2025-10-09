@@ -47,7 +47,7 @@
       "quiet" # Reduce kernel messages
       "splash" # Show boot splash
       "rd.udev.log_level=3" # Minimal udev logging
-      "usbcore.autosuspend=-1" # Disable USB autosuspend globally as backup
+      # Essential suspend configuration
       "mem_sleep_default=deep" # Prefer S3 suspend-to-RAM over S0ix
       
       # Network driver stability parameters
@@ -157,73 +157,7 @@
     };
   };
 
-  # Comprehensive power management and wake configuration for network stability
-  services.udev.extraRules = ''
-    # === USB ETHERNET ADAPTERS ===
-    # Disable USB autosuspend for ALL ethernet adapter drivers
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="r8152", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="asix", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="ax88179_178a", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="cdc_ether", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="dm9601", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="smsc95xx", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="rtl8152", ATTR{power/autosuspend}="-1"
-    
-    # Disable USB autosuspend for ALL devices with ethernet class
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="02", ATTR{bInterfaceSubClass}=="06", ATTR{power/autosuspend}="-1"
-    
-    # Specific USB ethernet adapters by vendor/product ID
-    # Realtek RTL8153/RTL8152 family
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8153", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8152", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8150", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8156", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8051", ATTR{power/autosuspend}="-1"
-    # ASIX AX88179/178A family
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0b95", ATTR{idProduct}=="1790", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0b95", ATTR{idProduct}=="178a", ATTR{power/autosuspend}="-1"
-    
-    # === WiFi ADAPTERS ===
-    # Disable USB autosuspend for WiFi adapters
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="rtl8xxxu", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="rtw88_8822bu", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="mt76x0u", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="mt76x2u", ATTR{power/autosuspend}="-1"
-    
-    # === NETWORK INTERFACES ===
-    # Disable runtime power management for ALL network interfaces
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{device/power/control}="on"
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="enp*", ATTR{device/power/control}="on"
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="eno*", ATTR{device/power/control}="on"
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="ens*", ATTR{device/power/control}="on"
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="wlan*", ATTR{device/power/control}="on"
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="wlo*", ATTR{device/power/control}="on"
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="wlp*", ATTR{device/power/control}="on"
-    
-    # === PCI NETWORK DEVICES ===
-    # Disable power management for PCI network devices
-    ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x020000", ATTR{power/control}="on"
-    ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x028000", ATTR{power/control}="on"
-    
-    # === BLUETOOTH ===
-    # Disable USB autosuspend for Bluetooth adapters (can affect WiFi coexistence)
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="e0", ATTR{bInterfaceSubClass}=="01", ATTR{power/autosuspend}="-1"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="0026", ATTR{power/autosuspend}="-1"
-    
-    # === INPUT DEVICES (Keep wake capability) ===
-    # Enable USB wake for keyboards and mice (allow wake from suspend)
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceSubClass}=="01", ATTR{bInterfaceProtocol}=="01", ATTR{power/wakeup}="enabled"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceSubClass}=="01", ATTR{bInterfaceProtocol}=="02", ATTR{power/wakeup}="enabled"
-    ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usbhid", ATTR{power/wakeup}="enabled"
-
-    # === PROBLEMATIC DEVICES ===
-    # Disable wakeup for devices that can cause immediate wake from suspend
-    ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{power/wakeup}="disabled"
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{bDeviceClass}=="09", ATTR{power/wakeup}="disabled"
-    
-    # Disable autosuspend for USB hubs (can cause network device disconnections)
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{bDeviceClass}=="09", ATTR{power/autosuspend}="-1"
-  '';
+# Removed complex udev rules - letting NixOS handle power management with defaults
 
   # Disable systemd services that are affecting the boot time
   systemd.services = {
@@ -231,11 +165,18 @@
     plymouth-quit-wait.enable = false;
   };
 
-  # Systemd sleep configuration for better suspend/resume reliability
-  systemd.sleep.extraConfig = ''
-    # Suspend-to-RAM configuration
-    HibernateDelaySec=30min
-    SuspendEstimationSec=5s
+  # Simple suspend configuration - let NixOS handle the details
+  services.logind.settings.Login = {
+    HandlePowerKey = "suspend";
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "suspend";
+  };
+
+
+  # Simple resume commands (runs as root, but can trigger user services)
+  powerManagement.resumeCommands = ''
+    # Restart waybar for the user session
+    sudo -u daniel systemctl --user restart waybar.service 2>/dev/null || true
   '';
   
   # Additional systemd network-related configurations
