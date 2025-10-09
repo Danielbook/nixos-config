@@ -183,6 +183,8 @@
           critical-threshold = 82;
           format-critical = "{icon} {temperatureC}°C";
           format = "󰈸 {temperatureC}°C";
+          thermal-zone = 7;  # Use x86_pkg_temp for actual CPU temperature
+          hwmon-path = "/sys/class/thermal/thermal_zone7/temp";
         };
 
         tray = {
