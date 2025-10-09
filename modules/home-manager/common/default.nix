@@ -8,7 +8,7 @@
   imports = [
     ../programs/aerospace
     ../programs/alacritty
-    ../programs/albert
+    ../programs/fuzzel
     ../programs/atuin
     ../programs/bat
     ../programs/brave
@@ -27,6 +27,7 @@
     ../programs/starship
     ../programs/tmux
     ../programs/vscodium
+    ../programs/zoxide
     ../programs/zsh
     ../scripts
     ../services/easyeffects
@@ -91,4 +92,5 @@
     flavor = "macchiato";
     accent = "lavender";
   };
+
 }
