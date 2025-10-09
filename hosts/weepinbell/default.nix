@@ -18,6 +18,7 @@
     #"${nixosModules}/desktop/kde"
     "${nixosModules}/services/tlp"
     "${nixosModules}/nvidia"
+    "${nixosModules}/memory-protection"
   ];
 
   # Set hostname
