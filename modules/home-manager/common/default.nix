@@ -76,7 +76,6 @@
     claude-code # Claude Code editor
 
     # Linux-specific packages
-    anki-bin # Flashcard and spaced repetition learning app
     prusa-slicer # 3D printer slicer for Prusa printers
     swappy # Wayland screenshot annotation tool
     swww # Wayland wallpaper daemon

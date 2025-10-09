@@ -55,4 +55,43 @@
     '';
     executable = true;
   };
+
+  # Desktop entries for power management that appear in fuzzel
+  xdg.desktopEntries = {
+    lock-screen = {
+      name = "Lock Screen";
+      comment = "Lock the screen with hyprlock";
+      exec = "hyprlock";
+      icon = "system-lock-screen";
+      categories = [ "System" ];
+      noDisplay = false;
+    };
+
+    suspend-system = {
+      name = "Suspend";
+      comment = "Suspend the system to save power";
+      exec = "systemctl suspend";
+      icon = "system-suspend";
+      categories = [ "System" ];
+      noDisplay = false;
+    };
+
+    reboot-system = {
+      name = "Reboot";
+      comment = "Restart the computer";
+      exec = "systemctl reboot";
+      icon = "system-reboot";
+      categories = [ "System" ];
+      noDisplay = false;
+    };
+
+    shutdown-system = {
+      name = "Shutdown";
+      comment = "Power off the computer";
+      exec = "systemctl poweroff";
+      icon = "system-shutdown";
+      categories = [ "System" ];
+      noDisplay = false;
+    };
+  };
 }

@@ -23,7 +23,6 @@
   environment.systemPackages = with pkgs; [
     file-roller # archive manager
     gnome-calculator
-    gnome-pomodoro
     gnome-text-editor
     loupe # image viewer
     nautilus # file manager

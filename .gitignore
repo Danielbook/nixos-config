@@ -18,3 +18,4 @@ secrets.nix
 .DS_Store
 Thumbs.db
 
+.claude/
