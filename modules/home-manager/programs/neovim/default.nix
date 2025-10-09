@@ -72,6 +72,12 @@ in {
         undotree                          # Undo history visualizer
         vim-fugitive                      # Git integration
         vim-be-good                       # Vim practice game
+        
+        # Animation plugins for smooth UI experience
+        mini-nvim                         # Collection of small plugins including animate
+        noice-nvim                        # Better UI for messages, cmdline and popupmenu
+        nvim-notify                       # Beautiful notification system
+        indent-blankline-nvim             # Indent guides with animations
       ];
 
     extraPackages = with pkgs; [

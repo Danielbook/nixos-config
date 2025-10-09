@@ -10,3 +10,14 @@ require("danbo.telescope")
 require("danbo.lualine")
 require("danbo.remap")
 require("danbo.set")
+
+-- Animation configurations for smooth UI experience
+-- Load with pcall to handle missing files gracefully
+local ok, _ = pcall(require, "danbo.notify")
+if ok then
+  local ok2, _ = pcall(require, "danbo.noice")
+  if ok2 then
+    pcall(require, "danbo.mini-animate")
+    pcall(require, "danbo.indent-blankline")
+  end
+end
