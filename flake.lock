@@ -38,6 +38,24 @@
         "type": "github"
       }
     },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "hardware": {
       "locked": {
         "lastModified": 1755330281,
@@ -191,8 +209,30 @@
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-stable": "nixpkgs-stable",
         "plasma-manager": "plasma-manager",
+        "shortcuts-viewer": "shortcuts-viewer",
         "sops-nix": "sops-nix",
         "walls": "walls"
+      }
+    },
+    "shortcuts-viewer": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1760001785,
+        "narHash": "sha256-kF3o/2d430scLaxAReuOUl/VC/6pqaRpTS6duIjKXKM=",
+        "owner": "Danielbook",
+        "repo": "shortcuts-viewer-nix",
+        "rev": "4b7c65af7b86b007c22e70c8e8dba2c0becbd259",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Danielbook",
+        "repo": "shortcuts-viewer-nix",
+        "type": "github"
       }
     },
     "sops-nix": {
@@ -212,6 +252,21 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
         "type": "github"
       }
     },

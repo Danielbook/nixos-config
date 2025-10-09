@@ -1,6 +1,7 @@
 require("danbo.alpha")
 require("danbo.catppuccin")
 require("danbo.cmp")
+require("danbo.gitsigns")
 require("danbo.lsp")
 require("danbo.formatting")
 require("danbo.treesitter")

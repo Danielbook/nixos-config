@@ -73,6 +73,7 @@
 - 📟 **Tmux**: Terminal multiplexer with vim-aware navigation
 - 👻 **Ghostty**: Modern terminal emulator with crisp rendering
 - ⭐ **Starship**: Beautiful cross-shell prompt
+- 📂 **Zoxide**: Smart directory jumping with frequency-based navigation
 - 🏠 **Home Manager**: Declarative user environment management
 
 ### 🔐 Enterprise-Grade Security

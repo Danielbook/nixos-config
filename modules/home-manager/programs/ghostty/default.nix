@@ -66,8 +66,8 @@
         # Mouse settings
         mouse-hide-while-typing = true;
 
-        # Auto-start tmux
-        command = "zsh -l -c \"tmux attach || tmux\"";
+        # Auto-start tmux with unique session per window
+        command = "zsh -l -c \"tmux new-session -s \\\"ghostty-$(date +%s%N)\\\" || tmux\"";
       } // lib.optionalAttrs pkgs.stdenv.isDarwin {
         # macOS specific settings
         macos-non-native-fullscreen = false;

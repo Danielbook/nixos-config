@@ -53,6 +53,7 @@ in {
         cmp-nvim-lsp                      # LSP completion source for nvim-cmp
         cmp_luasnip                       # LuaSnip completion source for nvim-cmp
         friendly-snippets                 # Collection of useful snippets
+        gitsigns-nvim                     # Git signs in the gutter
         lualine-nvim                      # Fast and customizable statusline
         luasnip                           # Snippet engine for Neovim
         neo-tree-nvim                     # File explorer tree

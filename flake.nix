@@ -52,6 +52,12 @@
       url = "github:dharmx/walls";
       flake = false;
     };
+
+    # Searchable keyboard shortcuts viewer
+    shortcuts-viewer = {
+      url = "github:Danielbook/shortcuts-viewer-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -61,6 +67,7 @@
     home-manager,
     nix-darwin,
     nixpkgs,
+    shortcuts-viewer,
     sops-nix,
     walls,
     ...
@@ -105,6 +112,7 @@
         modules = [
           ./home/${username}/${hostname}
           catppuccin.homeModules.catppuccin
+          shortcuts-viewer.homeManagerModules.default
         ];
       };
 

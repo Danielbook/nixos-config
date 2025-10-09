@@ -35,11 +35,16 @@
     initContent = ''
       export NPM_TOKEN=23123123123
 
-      # bindings
-      bindkey -e
+      # vi mode
+      bindkey -v
+
+      # vi mode bindings
       bindkey '^H' backward-delete-word
       bindkey '^[[1;5C' forward-word
       bindkey '^[[1;5D' backward-word
+      bindkey '^R' history-incremental-search-backward
+      bindkey '^P' up-history
+      bindkey '^N' down-history
 
       # open commands in $EDITOR with C-e
       autoload -z edit-command-line
