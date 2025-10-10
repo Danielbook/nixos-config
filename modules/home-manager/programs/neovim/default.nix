@@ -51,6 +51,8 @@ in {
         alpha-nvim                        # Startup screen with custom dashboard
         catppuccin-nvim                   # Catppuccin colorscheme
         cmp-nvim-lsp                      # LSP completion source for nvim-cmp
+        cmp-path                          # Path completion source for nvim-cmp
+        cmp-buffer                        # Buffer completion source for nvim-cmp
         cmp_luasnip                       # LuaSnip completion source for nvim-cmp
         friendly-snippets                 # Collection of useful snippets
         gitsigns-nvim                     # Git signs in the gutter
@@ -72,6 +74,7 @@ in {
         undotree                          # Undo history visualizer
         vim-fugitive                      # Git integration
         vim-be-good                       # Vim practice game
+        which-key-nvim                    # Show available keybindings
         
         # Animation plugins for smooth UI experience
         mini-nvim                         # Collection of small plugins including animate
