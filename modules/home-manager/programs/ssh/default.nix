@@ -2,7 +2,8 @@
   # SSH configuration with Bitwarden SSH agent
   programs.ssh = {
     enable = true;
-    
+    enableDefaultConfig = false;
+
     # Use Bitwarden as SSH agent
     extraConfig = ''
       Host *
@@ -12,15 +13,15 @@
           else "/home/${userConfig.name}/.bitwarden-ssh-agent.sock"
         }
     '';
-    
-    # Common SSH settings
-    serverAliveInterval = 60;
-    serverAliveCountMax = 3;
-    compression = true;
-    
-    # Security settings
-    hashKnownHosts = true;
-    userKnownHostsFile = "~/.ssh/known_hosts";
+
+    # Apply settings to all hosts
+    matchBlocks."*" = {
+      serverAliveInterval = 60;
+      serverAliveCountMax = 3;
+      compression = true;
+      hashKnownHosts = true;
+      userKnownHostsFile = "~/.ssh/known_hosts";
+    };
   };
 
   # Disable other SSH agents to avoid conflicts

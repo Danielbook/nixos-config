@@ -67,14 +67,6 @@
       noDisplay = false;
     };
 
-    suspend-system = {
-      name = "Suspend";
-      comment = "Suspend the system to save power";
-      exec = "systemctl suspend";
-      icon = "system-suspend";
-      categories = [ "System" ];
-      noDisplay = false;
-    };
 
     reboot-system = {
       name = "Reboot";

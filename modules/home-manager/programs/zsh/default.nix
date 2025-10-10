@@ -1,8 +1,18 @@
-{...}: {
+{pkgs, ...}: {
   # Zsh shell configuration
   programs.zsh = {
     enable = true;
     enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+    
+    plugins = [
+      {
+        name = "zsh-completions";
+        src = pkgs.zsh-completions;
+        file = "share/zsh/site-functions";
+      }
+    ];
     shellAliases = {
       ff = "fastfetch";
 
@@ -50,6 +60,18 @@
       autoload -z edit-command-line
       zle -N edit-command-line
       bindkey "^v" edit-command-line
+
+      # autosuggestion key bindings
+      bindkey '^[[Z' autosuggest-accept  # shift-tab to accept suggestion
+      bindkey '^I' complete-word         # tab for completion
+      
+      # autosuggestion styling
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#585b70"  # catppuccin surface2
+      ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+      
+      # completion styling  
+      zstyle ':completion:*' menu select
+      zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
     '';
   };
 }

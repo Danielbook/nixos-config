@@ -51,7 +51,6 @@
   # Essential user packages for daily workflow (macOS)
   home.packages = with pkgs; [
     # Cross-platform packages
-    awscli2 # AWS command line interface v2
     bash # Bash shell (fallback/compatibility)
     dig # DNS lookup utility
     nodejs_24 # Node.js runtime

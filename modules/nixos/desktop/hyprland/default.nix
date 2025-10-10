@@ -37,8 +37,9 @@
     hyprpicker
     libnotify
     networkmanagerapplet
-    pamixer
+    # pamixer # Temporarily disabled due to build issues
     pavucontrol
+    wireplumber # Audio session manager
     slurp
     wf-recorder
     wlr-randr

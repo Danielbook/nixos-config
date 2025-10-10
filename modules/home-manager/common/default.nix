@@ -2,7 +2,6 @@
   outputs,
   userConfig,
   pkgs,
-  lib,
   ...
 }: {
   imports = [
@@ -58,7 +57,6 @@
   # Essential user packages for daily workflow (Linux)
   home.packages = with pkgs; [
     # Cross-platform packages
-    awscli2 # AWS command line interface v2
     bash # Bash shell (fallback/compatibility)
     dig # DNS lookup utility
     du-dust # Modern disk usage analyzer (du replacement)
@@ -77,7 +75,7 @@
 
     # Linux-specific packages
     prusa-slicer # 3D printer slicer for Prusa printers
-    swappy # Wayland screenshot annotation tool
+    satty # Modern Wayland screenshot annotation tool (replaces swappy)
     swww # Wayland wallpaper daemon
     tesseract # OCR engine for text recognition
     wl-clipboard # Wayland clipboard manager
