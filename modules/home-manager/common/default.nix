@@ -8,12 +8,13 @@
   imports = [
     ../programs/aerospace
     ../programs/alacritty
-    ../programs/fuzzel
     ../programs/atuin
     ../programs/bat
     ../programs/brave
     ../programs/btop
     ../programs/fastfetch
+    ../programs/firefox
+    ../programs/fuzzel
     ../programs/fzf
     ../programs/ghostty
     ../programs/git
@@ -63,7 +64,6 @@
     du-dust # Modern disk usage analyzer (du replacement)
     eza # Modern ls replacement with colors and icons
     fd # Fast find alternative for files/directories
-    firefox # Mozilla Firefox web browser
     jq # JSON processor and formatter
     lazydocker # Docker container management TUI
     nh # NixOS helper for rebuilding and managing generations
@@ -91,5 +91,4 @@
     flavor = "macchiato";
     accent = "lavender";
   };
-
 }

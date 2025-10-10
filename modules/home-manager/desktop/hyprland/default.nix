@@ -14,10 +14,8 @@
     "${nhModules}/services/kanshi"
     "${nhModules}/services/swaync"
     "${nhModules}/services/swww"
-    #"${nhModules}/services/hyprpaper"
     "${nhModules}/services/waybar"
   ];
-
 
   # Consistent cursor theme across all applications.
   home.pointerCursor = {
@@ -34,19 +32,18 @@
       source = ./hyprland.conf;
     };
 
-
     "hypr/hypridle.conf".text = ''
       general {
         lock_cmd = pidof hyprlock || hyprlock
         before_sleep_cmd = loginctl lock-session
         after_sleep_cmd = hyprctl dispatch dpms on
       }
-      
+
       listener {
         timeout = 300
         on-timeout = loginctl lock-session
       }
-      
+
       listener {
         timeout = 900
         on-timeout = systemctl suspend

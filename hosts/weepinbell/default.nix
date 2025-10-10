@@ -8,14 +8,9 @@
   # inputs.nixos-hardware.url = "github:NixOS/nixos-hardware";
   # then:
   imports = [
-    # Pick the ones that fit your setup
-    # inputs.nixos-hardware.nixosModules.common-cpu-intel
-    # inputs.nixos-hardware.nixosModules.common-pc-laptop
-    # inputs.nixos-hardware.nixosModules.common-pc-ssd
     ./hardware-configuration.nix
     "${nixosModules}/common"
     "${nixosModules}/desktop/hyprland"
-    #"${nixosModules}/desktop/kde"
     "${nixosModules}/services/tlp"
     "${nixosModules}/nvidia"
     "${nixosModules}/memory-protection"
