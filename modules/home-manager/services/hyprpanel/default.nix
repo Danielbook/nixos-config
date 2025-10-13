@@ -4,10 +4,40 @@
   programs.hyprpanel = {
     enable = true;
 
-    # HyprPanel will be auto-started by systemd
-    systemd.enable = true;
+    settings = {
+      bar.launcher.autoDetectIcon = true;
+      theme.bar.floating = true;
+      theme.bar.transparent = true;
 
-    # Override hyprland integration to use hyprpanel autostart
-    hyprland.enable = true;
+      # Font configuration - use Nerd Font for icons
+      theme.font.name = "JetBrainsMono Nerd Font";
+      theme.font.size = "16px";
+
+      # Notification positioning - top center (stays within bounds)
+      theme.notification.position = "top";
+      theme.notification.monitor = 0;
+
+      # Bar layout - add keyboard input module to show current language
+      bar.layouts = {
+        "0" = {
+          left = ["dashboard" "workspaces" "windowtitle"];
+          middle = ["media"];
+          right = ["kbinput" "volume" "network" "bluetooth" "battery" "clock" "notifications"];
+        };
+      };
+
+      # Dashboard shortcuts configuration (using Nerd Font icons)
+      menus.dashboard.shortcuts.left.shortcut1.command = "firefox";
+      menus.dashboard.shortcuts.left.shortcut1.tooltip = "Firefox";
+      menus.dashboard.shortcuts.left.shortcut1.icon = "󰈹";
+
+      menus.dashboard.shortcuts.left.shortcut2.command = "ghostty";
+      menus.dashboard.shortcuts.left.shortcut2.tooltip = "Terminal";
+      menus.dashboard.shortcuts.left.shortcut2.icon = "";
+
+      menus.dashboard.shortcuts.left.shortcut3.command = "fuzzel";
+      menus.dashboard.shortcuts.left.shortcut3.tooltip = "App Launcher";
+      menus.dashboard.shortcuts.left.shortcut3.icon = "󰀻";
+    };
   };
 }
