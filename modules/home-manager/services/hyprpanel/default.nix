@@ -17,12 +17,12 @@
       theme.notification.position = "top";
       theme.notification.monitor = 0;
 
-      # Bar layout - add keyboard input module to show current language
+      # Bar layout - show current language with systray, remove kbinput (not working)
       bar.layouts = {
         "0" = {
           left = ["dashboard" "workspaces" "windowtitle"];
           middle = ["media"];
-          right = ["kbinput" "volume" "network" "bluetooth" "battery" "clock" "notifications"];
+          right = ["systray" "volume" "network" "bluetooth" "battery" "clock" "notifications"];
         };
       };
 
