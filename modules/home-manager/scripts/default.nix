@@ -11,10 +11,8 @@
     };
   };
 
-  # Conditional configuration for Darwin systems
-  home.sessionPath = lib.mkMerge [
-    (lib.mkIf pkgs.stdenv.isDarwin [
-      "$HOME/.local/bin"
-    ])
+  # Add ~/.local/bin to PATH for all systems
+  home.sessionPath = [
+    "$HOME/.local/bin"
   ];
 }
