@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 grim -t png -g "$(slurp)" - |
-	tesseract stdin stdout -l "eng+rus+pol" |
+	tesseract stdin stdout -l "eng+swe" |
 	tr -d '\f' | wl-copy
