@@ -11,10 +11,9 @@
     "${nhModules}/misc/wallpaper"
     "${nhModules}/misc/xdg"
     "${nhModules}/services/cliphist"
+    "${nhModules}/services/hyprpanel"
     "${nhModules}/services/kanshi"
-    "${nhModules}/services/swaync"
     "${nhModules}/services/swww"
-    "${nhModules}/services/waybar"
   ];
 
   # Consistent cursor theme across all applications.
