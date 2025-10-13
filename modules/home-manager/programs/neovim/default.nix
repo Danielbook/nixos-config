@@ -64,6 +64,7 @@ in {
         nvim-cmp                          # Completion engine
         nvim-lspconfig                    # LSP configuration helper
         nvim-treesitter-with-plugins      # Syntax highlighting and parsing
+        nvim-treesitter-textobjects       # Textobjects for treesitter (af, if, etc.)
         nvim-ts-autotag                   # Auto close/rename HTML tags
         nvim-web-devicons                 # File type icons
         peek-nvim                         # Markdown preview
