@@ -38,6 +38,13 @@
       menus.dashboard.shortcuts.left.shortcut3.command = "fuzzel";
       menus.dashboard.shortcuts.left.shortcut3.tooltip = "App Launcher";
       menus.dashboard.shortcuts.left.shortcut3.icon = "󰀻";
+
+      # Clock configuration - 24-hour format
+      menus.clock.time.military = true;
+
+      # Weather configuration - Motala, Sweden
+      menus.clock.weather.location = "Motala, Sweden";
+      menus.clock.weather.unit = "metric";
     };
   };
 }

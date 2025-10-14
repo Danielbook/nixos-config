@@ -6,6 +6,7 @@
 
 - **[✨ Features](docs/FEATURES.md)** - Detailed feature lists by platform
 - **[⌨️ Keybindings](docs/KEYBINDINGS.md)** - Complete keyboard shortcut reference
+- **[📝 Neovim](docs/NEOVIM.md)** - LSP, Treesitter, Telescope, and Fugitive setup
 - **[🔐 Secrets Management](docs/SECRETS.md)** - sops-nix and Bitwarden integration
 - **[🖥️ Server Deployment](docs/SERVER.md)** - Kamino infrastructure and nixos-anywhere
 - **[🍎 macOS Setup](docs/MACOS.md)** - nix-darwin and AeroSpace configuration
@@ -52,7 +53,7 @@
 - **Homebrew** declarative GUI app management
 
 ### 🌐 Cross-Platform
-- **Neovim** with LSP, Treesitter, Telescope
+- **Neovim** with LSP, Treesitter, Telescope, Fugitive ([see full docs](docs/NEOVIM.md))
 - **Tmux** with vim-aware navigation
 - **Catppuccin** theme across all applications
 - **Modern CLI tools** (zoxide, fzf, ripgrep, bat, eza)

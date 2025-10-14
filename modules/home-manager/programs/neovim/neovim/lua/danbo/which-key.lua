@@ -52,9 +52,22 @@ wk.add({
 	{ "<leader>fW", desc = "Find WORD under cursor" },
 	{ "<leader>fh", desc = "Find Help" },
 
-	-- Git/Grep operations
-	{ "<leader>g", group = "󰊢 Git/Grep" },
-	{ "<leader>gw", desc = "Live Grep" },
+	-- Search/Grep operations
+	{ "<leader>s", group = " Search" },
+	{ "<leader>sg", desc = "Live Grep" },
+
+	-- Git operations (Fugitive)
+	{ "<leader>g", group = "󰊢 Git" },
+	{ "<leader>gs", desc = "Git Status" },
+	{ "<leader>gc", desc = "Git Commit" },
+	{ "<leader>gp", desc = "Git Push" },
+	{ "<leader>gP", desc = "Git Pull" },
+	{ "<leader>gb", desc = "Git Blame" },
+	{ "<leader>gd", desc = "Git Diff" },
+	{ "<leader>gl", desc = "Git Log" },
+	{ "<leader>gL", desc = "Git Log (current file)" },
+	{ "<leader>gr", desc = "Git Read (checkout file)" },
+	{ "<leader>gw", desc = "Git Write (stage file)" },
 
 	-- Git Hunks (GitSigns)
 	{ "<leader>h", group = "󰊢 Git Hunks" },
