@@ -74,7 +74,30 @@ end, {})
 keymap("n", "gt", function()
 	vim.lsp.buf.type_definition()
 end, {})
-keymap("n", "gr", telescope.lsp_references, opts)
+keymap("n", "gr", function()
+	require("telescope.builtin").lsp_references({
+		include_declaration = false,
+		file_ignore_patterns = {},
+		entry_maker = function(entry)
+			local make_entry = require("telescope.make_entry")
+			local default_entry = make_entry.gen_from_quickfix()(entry)
+
+			if default_entry and default_entry.text then
+				local text = default_entry.text
+				-- Filter out import lines
+				if text:match("^%s*import%s")
+					or text:match("^%s*from%s")
+					or text:match("^%s*require%s*%(")
+					or text:match("import%s*{.*}%s*from")
+					or text:match("import%s*%*%s*as") then
+					return nil
+				end
+			end
+
+			return default_entry
+		end,
+	})
+end, opts)
 keymap("n", "<leader>ds", telescope.lsp_document_symbols, opts)
 keymap("n", "<leader>ws", telescope.lsp_workspace_symbols, opts)
 keymap("n", "<leader>vd", function()

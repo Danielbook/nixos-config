@@ -1,14 +1,30 @@
-local lspconfig = require("lspconfig")
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 local M = {}
 
-M.on_attach = function(client, bufnr)
-	-- Enable inlay hints if supported
+local function on_attach(client, bufnr)
+	-- Disable inlay hints by default (use <leader>th to toggle)
 	if client.supports_method("textDocument/inlayHint") then
-		vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+		vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
 	end
 
+	-- Enable document highlight (highlight other uses of symbol under cursor)
+	if client.supports_method("textDocument/documentHighlight") then
+		local group = vim.api.nvim_create_augroup("LspDocumentHighlight", { clear = false })
+		vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
+		vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+			group = group,
+			buffer = bufnr,
+			callback = vim.lsp.buf.document_highlight,
+		})
+		vim.api.nvim_create_autocmd("CursorMoved", {
+			group = group,
+			buffer = bufnr,
+			callback = vim.lsp.buf.clear_references,
+		})
+	end
+
+	-- Format on save with any LSP that supports it
 	if client.supports_method("textDocument/formatting") then
 		local group = vim.api.nvim_create_augroup("LspFormatOnSave", { clear = false })
 		vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
@@ -17,24 +33,44 @@ M.on_attach = function(client, bufnr)
 			group = group,
 			buffer = bufnr,
 			callback = function()
-				vim.lsp.buf.format({
-					bufnr = bufnr,
-					filter = function(c)
-						return c.name == "null-ls" or c.name == "none-ls"
-					end,
-				})
+				vim.lsp.buf.format({ bufnr = bufnr })
 			end,
+		})
+	end
+
+	-- Enable codelens if supported
+	if client.supports_method("textDocument/codeLens") then
+		vim.lsp.codelens.refresh()
+		local group = vim.api.nvim_create_augroup("LspCodeLens", { clear = false })
+		vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
+		vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+			group = group,
+			buffer = bufnr,
+			callback = vim.lsp.codelens.refresh,
 		})
 	end
 end
 
--- Your LSP servers setup here
+-- Configure and enable LSP servers using vim.lsp.config (Neovim 0.11+)
 local servers = {
 	lua_ls = {
 		settings = {
 			Lua = {
 				hint = {
 					enable = true,
+				},
+				runtime = {
+					version = "LuaJIT",
+				},
+				diagnostics = {
+					globals = { "vim" },
+				},
+				workspace = {
+					library = vim.api.nvim_get_runtime_file("", true),
+					checkThirdParty = false,
+				},
+				telemetry = {
+					enable = false,
 				},
 			},
 		},
@@ -92,24 +128,17 @@ local servers = {
 				formatting = {
 					command = { "alejandra" },
 				},
-				options = {
-					nixos = {
-						expr = '(builtins.getFlake "/home/daniel/Documents/repositories/nixos-config").nixosConfigurations.danbo.options',
-					},
-					home_manager = {
-						expr = '(builtins.getFlake "/home/daniel/Documents/repositories/nixos-config").homeConfigurations."daniel@danbo".options',
-					},
-				},
 			},
 		},
 	},
 }
 
 for name, config in pairs(servers) do
-	lspconfig[name].setup(vim.tbl_deep_extend("force", {
+	vim.lsp.config(name, vim.tbl_deep_extend("force", {
 		capabilities = capabilities,
-		on_attach = M.on_attach,
+		on_attach = on_attach,
 	}, config))
+	vim.lsp.enable(name)
 end
 
 return M
