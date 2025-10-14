@@ -85,16 +85,62 @@
         set -g @catppuccin_flavor "macchiato"
         set -g @catppuccin_status_background "none"
 
+        # Window styling with beautiful separators
         set -g @catppuccin_window_current_number_color "#{@thm_peach}"
         set -g @catppuccin_window_current_text " #W"
         set -g @catppuccin_window_current_text_color "#{@thm_bg}"
+        set -g @catppuccin_window_current_background_color "#{@thm_peach}"
+
         set -g @catppuccin_window_number_color "#{@thm_blue}"
         set -g @catppuccin_window_text " #W"
         set -g @catppuccin_window_text_color "#{@thm_surface_0}"
-        set -g @catppuccin_status_left_separator "█"
+        set -g @catppuccin_window_background_color "#{@thm_surface_0}"
 
-        set -g status-right "#{E:@catppuccin_status_host}#{E:@catppuccin_status_date_time}"
-        set -g status-left ""
+        # Separators
+        set -g @catppuccin_status_left_separator "█"
+        set -g @catppuccin_status_right_separator "█"
+        set -g @catppuccin_window_left_separator "█"
+        set -g @catppuccin_window_right_separator "█"
+        set -g @catppuccin_window_middle_separator "█"
+        set -g @catppuccin_window_status_separator " "
+
+        # Status modules styling
+        set -g @catppuccin_status_modules_right "directory user host session date_time"
+        set -g @catppuccin_status_modules_left ""
+
+        # Date/Time format
+        set -g @catppuccin_date_time_text "%Y-%m-%d %H:%M:%S"
+        set -g @catppuccin_date_time_icon "󰃰"
+        set -g @catppuccin_date_time_color "#{@thm_blue}"
+
+        # User module
+        set -g @catppuccin_user_icon ""
+        set -g @catppuccin_user_color "#{@thm_green}"
+        set -g @catppuccin_user_text "#(whoami)"
+
+        # Host module
+        set -g @catppuccin_host_icon "󰒋"
+        set -g @catppuccin_host_color "#{@thm_mauve}"
+        set -g @catppuccin_host_text "#H"
+
+        # Directory module
+        set -g @catppuccin_directory_icon "󰉋"
+        set -g @catppuccin_directory_color "#{@thm_lavender}"
+        set -g @catppuccin_directory_text "#{pane_current_path}"
+
+        # Session module
+        set -g @catppuccin_session_icon ""
+        set -g @catppuccin_session_color "#{@thm_yellow}"
+
+        # Pane border styling
+        set -g @catppuccin_pane_border_style "fg=#{@thm_surface_0}"
+        set -g @catppuccin_pane_active_border_style "fg=#{@thm_lavender}"
+
+        # Status bar position
+        set -g status-position top
+
+        # Status bar update interval (1 second for clock)
+        set -g status-interval 1
       '';
     };
   };
