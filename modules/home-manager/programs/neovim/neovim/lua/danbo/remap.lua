@@ -134,6 +134,14 @@ end, { desc = "Toggle inlay hints" })
 keymap("n", "<leader>f", vim.lsp.buf.format)
 keymap("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Toggle undo tree" })
 
+-- CodeLens
+keymap("n", "<leader>cl", function()
+	vim.lsp.codelens.run()
+end, { desc = "Run CodeLens action" })
+keymap("n", "<leader>cr", function()
+	vim.lsp.codelens.refresh()
+end, { desc = "Refresh CodeLens" })
+
 -- Reload configuration
 keymap("n", "<leader>R", function()
 	-- Clear the module cache for your config

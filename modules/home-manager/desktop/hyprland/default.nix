@@ -31,18 +31,13 @@
       source = ./hyprland.conf;
     };
 
-    "hypr/hypridle.conf".text = ''
-      general {
-        lock_cmd = pidof hyprlock || hyprlock
-        before_sleep_cmd = loginctl lock-session
-        after_sleep_cmd = hyprctl dispatch dpms on
-      }
+    "hypr/hyprlock.conf" = {
+      source = ./hyprlock.conf;
+    };
 
-      listener {
-        timeout = 300
-        on-timeout = loginctl lock-session
-      }
-    '';
+    "hypr/hypridle.conf" = {
+      source = ./hypridle.conf;
+    };
   };
 
   dconf.settings = {

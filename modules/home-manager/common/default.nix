@@ -74,6 +74,7 @@
     claude-code # Claude Code editor
 
     # Linux-specific packages
+    google-chrome # Google Chrome web browser
     prusa-slicer # 3D printer slicer for Prusa printers
     satty # Modern Wayland screenshot annotation tool (replaces swappy)
     swww # Wayland wallpaper daemon
