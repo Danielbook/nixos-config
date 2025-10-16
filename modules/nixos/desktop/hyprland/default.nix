@@ -8,6 +8,9 @@
   # Enable Bluetooth support
   services.blueman.enable = true;
 
+  # Enable GVFS for mounting remote filesystems (SMB, FTP, etc.)
+  services.gvfs.enable = true;
+
   # Enable Hyprland
   programs.hyprland = {
     enable = true;

@@ -14,8 +14,8 @@
       # Automatically renumber windows when one is closed
       set -g renumber-windows on
 
-      # Set the prefix to `ctrl + q` instead of `ctrl + b`
-      set -g prefix C-q
+      # Set the prefix to `ctrl + a` instead of `ctrl + b`
+      set -g prefix C-a
       unbind C-b
 
       # Use | and - to split a window vertically and horizontally instead of " and % respoectively

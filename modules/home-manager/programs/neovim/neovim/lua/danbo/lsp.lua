@@ -88,6 +88,18 @@ local servers = {
 					includeInlayFunctionLikeReturnTypeHints = true,
 					includeInlayEnumMemberValueHints = true,
 				},
+				suggest = {
+					includeCompletionsForModuleExports = true,
+					includeAutomaticOptionalChainCompletions = true,
+				},
+				preferences = {
+					includePackageJsonAutoImports = "auto",
+					importModuleSpecifierPreference = "relative",
+					quotePreference = "auto",
+				},
+				updateImportsOnFileMove = {
+					enabled = "always",
+				},
 			},
 			javascript = {
 				inlayHints = {
@@ -98,6 +110,18 @@ local servers = {
 					includeInlayPropertyDeclarationTypeHints = true,
 					includeInlayFunctionLikeReturnTypeHints = true,
 					includeInlayEnumMemberValueHints = true,
+				},
+				suggest = {
+					includeCompletionsForModuleExports = true,
+					includeAutomaticOptionalChainCompletions = true,
+				},
+				preferences = {
+					includePackageJsonAutoImports = "auto",
+					importModuleSpecifierPreference = "relative",
+					quotePreference = "auto",
+				},
+				updateImportsOnFileMove = {
+					enabled = "always",
 				},
 			},
 		},

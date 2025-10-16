@@ -1,4 +1,4 @@
-{...}: {
+{pkgs, ...}: {
   # Enable HyprPanel via home-manager module
   # HyprPanel includes built-in notifications, so no separate daemon needed
   programs.hyprpanel = {
@@ -17,7 +17,8 @@
       theme.notification.position = "top";
       theme.notification.monitor = 0;
 
-      # Bar layout - show current language with systray, remove kbinput (not working)
+      # Bar layout - custom modules not yet working in HyprPanel v0.1.0
+      # Note: kbinput module exists but doesn't function
       bar.layouts = {
         "0" = {
           left = ["dashboard" "workspaces" "windowtitle"];
