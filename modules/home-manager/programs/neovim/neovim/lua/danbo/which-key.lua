@@ -81,6 +81,16 @@ wk.add({
 	{ "<leader>hd", desc = "Diff This" },
 	{ "<leader>hD", desc = "Diff This ~" },
 
+	-- AI/Copilot operations
+	{ "<leader>a", group = "󰚩 AI/Copilot" },
+	{ "<leader>ac", desc = "Open Chat", mode = { "n", "v" } },
+	{ "<leader>ae", desc = "Explain Code", mode = { "n", "v" } },
+	{ "<leader>af", desc = "Fix Code", mode = { "n", "v" } },
+	{ "<leader>ao", desc = "Optimize Code", mode = { "n", "v" } },
+	{ "<leader>at", desc = "Generate Tests" },
+	{ "<leader>ad", desc = "Generate Docs" },
+	{ "<leader>ar", desc = "Review Code", mode = { "n", "v" } },
+
 	-- Code operations
 	{ "<leader>c", group = "󰘦 Code" },
 	{ "<leader>ca", desc = "Code Actions" },

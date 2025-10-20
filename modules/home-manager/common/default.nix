@@ -62,6 +62,7 @@
     du-dust # Modern disk usage analyzer (du replacement)
     eza # Modern ls replacement with colors and icons
     fd # Fast find alternative for files/directories
+    github-copilot-cli # GitHub Copilot CLI
     jq # JSON processor and formatter
     lazydocker # Docker container management TUI
     nh # NixOS helper for rebuilding and managing generations

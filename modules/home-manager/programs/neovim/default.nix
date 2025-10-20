@@ -54,6 +54,9 @@ in {
         cmp-path                          # Path completion source for nvim-cmp
         cmp-buffer                        # Buffer completion source for nvim-cmp
         cmp_luasnip                       # LuaSnip completion source for nvim-cmp
+        copilot-lua                       # GitHub Copilot integration
+        copilot-cmp                       # Copilot integration with nvim-cmp
+        CopilotChat-nvim                  # Copilot chat for conversations with AI
         friendly-snippets                 # Collection of useful snippets
         gitsigns-nvim                     # Git signs in the gutter
         lualine-nvim                      # Fast and customizable statusline

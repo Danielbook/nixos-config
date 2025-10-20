@@ -53,7 +53,7 @@
 - **Homebrew** declarative GUI app management
 
 ### 🌐 Cross-Platform
-- **Neovim** with LSP, Treesitter, Telescope, Fugitive ([see full docs](docs/NEOVIM.md))
+- **Neovim** with LSP, Treesitter, Telescope, Fugitive, GitHub Copilot AI ([see full docs](docs/NEOVIM.md))
 - **Tmux** with vim-aware navigation
 - **Catppuccin** theme across all applications
 - **Modern CLI tools** (zoxide, fzf, ripgrep, bat, eza)

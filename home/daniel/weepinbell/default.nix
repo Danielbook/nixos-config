@@ -17,7 +17,7 @@
   home.packages = with pkgs; [
     bitwarden # Password manager
     google-chrome # Web browser
-    nodejs_20 # Node.js runtime
+    nodejs_24 # Node.js runtime
     nixos-anywhere # Remote NixOS deployment tool
     # spotify                           # Moved to Flatpak for better Wayland support
     thunderbird # Email client

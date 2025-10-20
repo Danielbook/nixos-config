@@ -1,6 +1,8 @@
 require("danbo.alpha")
 require("danbo.catppuccin")
 require("danbo.cmp")
+require("danbo.copilot")
+require("danbo.copilot-chat")
 require("danbo.diagnostics")
 require("danbo.gitsigns")
 require("danbo.lsp")

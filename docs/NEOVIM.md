@@ -1,6 +1,6 @@
 # 📝 Neovim Configuration
 
-> Modern Neovim setup with LSP, Treesitter, Telescope, and Git integration via vim-fugitive
+> Modern Neovim setup with LSP, Treesitter, Telescope, Git integration, and GitHub Copilot AI assistance
 
 ## 📦 Plugin Stack
 
@@ -10,6 +10,11 @@
 - **nvim-cmp** - Autocompletion engine
 - **luasnip** - Snippet engine
 - **which-key-nvim** - Keybinding help and documentation
+
+### AI Assistance
+- **copilot-lua** - GitHub Copilot integration
+- **copilot-cmp** - Copilot suggestions in completion menu
+- **CopilotChat-nvim** - AI chat interface for code assistance
 
 ### Navigation & Search
 - **telescope.nvim** - Fuzzy finder for files, buffers, grep
@@ -89,6 +94,18 @@ The leader key is set to `<Space>`.
 | `[c` | Previous Git Hunk | n |
 | `]c` | Next Git Hunk | n |
 | `ih` | Inner Hunk (text object) | o, x |
+
+### AI/Copilot Operations (`<leader>a`)
+
+| Keybind | Action | Mode |
+|---------|--------|------|
+| `<leader>ac` | Open Copilot Chat | n, v |
+| `<leader>ae` | Explain Code | n, v |
+| `<leader>af` | Fix Code | n, v |
+| `<leader>ao` | Optimize Code | n, v |
+| `<leader>at` | Generate Tests | n |
+| `<leader>ad` | Generate Docs | n |
+| `<leader>ar` | Review Code | n, v |
 
 ### Code Operations (`<leader>c`)
 
@@ -227,6 +244,8 @@ modules/home-manager/programs/neovim/
         ├── treesitter.lua           # Treesitter config
         ├── telescope.lua            # Telescope config
         ├── cmp.lua                  # Completion config
+        ├── copilot.lua              # Copilot config
+        ├── copilot-chat.lua         # Copilot Chat config
         ├── gitsigns.lua             # GitSigns config
         ├── formatting.lua           # Formatter config
         ├── catppuccin.lua           # Theme config
@@ -282,12 +301,58 @@ modules/home-manager/programs/neovim/
 
 Press `<leader>R` to reload your Neovim configuration without restarting.
 
+## 🤖 GitHub Copilot Usage
+
+### Initial Setup
+
+1. **Authenticate**: Run `:Copilot auth` in Neovim
+2. **Follow** the browser authentication flow
+3. **Start coding** - suggestions appear automatically
+
+### Code Suggestions
+
+Copilot suggestions appear **automatically** in your completion menu (nvim-cmp) as you type:
+- **Tab** - Select next suggestion
+- **Shift+Tab** - Select previous suggestion
+- **Enter** - Accept selected suggestion
+- **Ctrl+e** - Dismiss completion menu
+
+### AI Chat Commands
+
+Use Copilot Chat for conversational AI assistance:
+
+1. **General Chat**: `<leader>ac` - Opens chat window
+   - Type your question or request
+   - Press `<CR>` (Enter) to submit
+   - Press `q` to close
+
+2. **With Selection** (Visual mode):
+   - Select code with `v` or `V`
+   - Press `<leader>ac` for context-aware chat
+   - Press `<leader>ae` to explain selected code
+   - Press `<leader>af` to get fix suggestions
+   - Press `<leader>ao` to optimize code
+   - Press `<leader>ar` to review code
+
+3. **Quick Actions** (Normal mode):
+   - `<leader>at` - Generate tests for current file
+   - `<leader>ad` - Generate documentation
+   - `<leader>ae` - Explain code at cursor
+
+### Chat Window Controls
+
+- **Submit**: `<CR>` (normal), `<C-s>` (insert)
+- **Close**: `q` (normal), `<C-c>` (insert)
+- **Reset**: `<C-r>` - Clear conversation
+- **Complete**: `<Tab>` - Auto-complete commands
+
 ## 🎯 Next Steps
 
-1. Explore `:Telescope` commands
-2. Try `:Git` for full fugitive power
-3. Use `:Mason` to manage additional LSP servers
-4. Practice with `:VimBeGood` game
+1. Authenticate GitHub Copilot with `:Copilot auth`
+2. Explore `:Telescope` commands
+3. Try `:Git` for full fugitive power
+4. Use `:Mason` to manage additional LSP servers
+5. Practice with `:VimBeGood` game
 
 ---
 

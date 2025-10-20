@@ -43,6 +43,7 @@ cmp.setup({
 		end, { "i", "s" }),
 	}),
 	sources = cmp.config.sources({
+		{ name = "copilot", priority = 1100 },
 		{ name = "nvim_lsp", priority = 1000 },
 		{ name = "luasnip", priority = 750 },
 		{ name = "path", priority = 500 },
