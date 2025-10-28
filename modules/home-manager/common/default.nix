@@ -26,7 +26,8 @@
     ../programs/ssh
     ../programs/starship
     ../programs/tmux
-    ../programs/vscodium
+    ../programs/vscode
+    # ../programs/vscodium
     ../programs/zoxide
     ../programs/zsh
     ../scripts

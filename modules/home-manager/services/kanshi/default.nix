@@ -33,14 +33,9 @@
         profile.name = "work";
         profile.outputs = [
           {
-            criteria = "Samsung Electric Company U28E850 HTPK100298";
-            status = "enable";
-            position = "0,0";
-          }
-          {
             criteria = "Samsung Electric Company U28E850 HTPK100449";
             status = "enable";
-            position = "3840,0";
+            position = "0,0";
           }
           {
             criteria = "eDP-1";
