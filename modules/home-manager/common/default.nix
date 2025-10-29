@@ -20,6 +20,7 @@
     ../programs/go
     ../programs/gpg
     ../programs/jujutsu
+    ../programs/kitty
     ../programs/lazygit
     ../programs/neovim
     ../programs/obs-studio
@@ -28,6 +29,7 @@
     ../programs/tmux
     ../programs/vscode
     # ../programs/vscodium
+    ../programs/yazi
     ../programs/zoxide
     ../programs/zsh
     ../scripts

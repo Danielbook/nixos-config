@@ -35,7 +35,9 @@
 
           # Catppuccin Macchiato palette - remove this since we need individual palette entries
 
-          background-opacity = 0.8;
+          # Apple glass effect
+          background-opacity = 0.7;
+          background-blur-radius = 50;
 
           # Terminal settings
           term = "xterm-256color";

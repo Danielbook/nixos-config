@@ -20,12 +20,14 @@
     ../programs/go
     ../programs/gpg
     ../programs/jujutsu
+    ../programs/kitty
     ../programs/lazygit
     ../programs/neovim
     ../programs/ssh
     ../programs/starship
     ../programs/tmux
     ../programs/vscodium
+    ../programs/yazi
     ../programs/zsh
     ../scripts
     ../misc/wallpaper
@@ -81,8 +83,9 @@
     accent = "lavender";
   };
 
-  # Enable Ghostty configuration (works with Homebrew Ghostty)
+  # Enable terminal configurations
   programs.ghostty.enableConfig = true;
+  programs.kitty.enableConfig = true;
 
   # Set wallpaper on Darwin using osascript
   launchd.agents.wallpaper = {

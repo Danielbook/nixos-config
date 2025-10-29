@@ -23,6 +23,10 @@ keymap("i", "<C-c>", "<Esc>")
 keymap("n", "<leader>w", ":w<CR>", { desc = "Save file" })
 keymap("n", "<leader>q", ":q<CR>", { desc = "Quit" })
 
+-- Insert blank lines above/below without leaving current line
+keymap("n", "[<Space>", "O<Esc>j", { desc = "Add blank line above" })
+keymap("n", "]<Space>", "o<Esc>k", { desc = "Add blank line below" })
+
 -- Paste over selection without overwriting the default register
 -- Deletes selected text to the black hole register, then pastes
 keymap("x", "<leader>p", [["_dP]])

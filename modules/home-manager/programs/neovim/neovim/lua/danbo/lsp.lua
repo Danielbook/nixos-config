@@ -76,53 +76,62 @@ local servers = {
 		},
 	},
 	html = {},
-	ts_ls = {
+	vtsls = {
 		settings = {
 			typescript = {
 				inlayHints = {
-					includeInlayParameterNameHints = "all",
-					includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-					includeInlayFunctionParameterTypeHints = true,
-					includeInlayVariableTypeHints = true,
-					includeInlayPropertyDeclarationTypeHints = true,
-					includeInlayFunctionLikeReturnTypeHints = true,
-					includeInlayEnumMemberValueHints = true,
+					parameterNames = { enabled = "all" },
+					parameterTypes = { enabled = true },
+					variableTypes = { enabled = true },
+					propertyDeclarationTypes = { enabled = true },
+					functionLikeReturnTypes = { enabled = true },
+					enumMemberValues = { enabled = true },
 				},
 				suggest = {
-					includeCompletionsForModuleExports = true,
-					includeAutomaticOptionalChainCompletions = true,
+					completeFunctionCalls = true,
 				},
 				preferences = {
-					includePackageJsonAutoImports = "auto",
-					importModuleSpecifierPreference = "relative",
-					quotePreference = "auto",
+					importModuleSpecifier = "relative",
+					quoteStyle = "auto",
 				},
-				updateImportsOnFileMove = {
-					enabled = "always",
+				updateImportsOnFileMove = { enabled = "always" },
+				referencesCodeLens = {
+					enabled = true,
+					showOnAllFunctions = true,
+				},
+				implementationsCodeLens = {
+					enabled = true,
+					showOnInterfaceMethods = true,
 				},
 			},
 			javascript = {
 				inlayHints = {
-					includeInlayParameterNameHints = "all",
-					includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-					includeInlayFunctionParameterTypeHints = true,
-					includeInlayVariableTypeHints = true,
-					includeInlayPropertyDeclarationTypeHints = true,
-					includeInlayFunctionLikeReturnTypeHints = true,
-					includeInlayEnumMemberValueHints = true,
+					parameterNames = { enabled = "all" },
+					parameterTypes = { enabled = true },
+					variableTypes = { enabled = true },
+					propertyDeclarationTypes = { enabled = true },
+					functionLikeReturnTypes = { enabled = true },
+					enumMemberValues = { enabled = true },
 				},
 				suggest = {
-					includeCompletionsForModuleExports = true,
-					includeAutomaticOptionalChainCompletions = true,
+					completeFunctionCalls = true,
 				},
 				preferences = {
-					includePackageJsonAutoImports = "auto",
-					importModuleSpecifierPreference = "relative",
-					quotePreference = "auto",
+					importModuleSpecifier = "relative",
+					quoteStyle = "auto",
 				},
-				updateImportsOnFileMove = {
-					enabled = "always",
+				updateImportsOnFileMove = { enabled = "always" },
+				referencesCodeLens = {
+					enabled = true,
+					showOnAllFunctions = true,
 				},
+				implementationsCodeLens = {
+					enabled = true,
+					showOnInterfaceMethods = true,
+				},
+			},
+			vtsls = {
+				autoUseWorkspaceTsdk = true,
 			},
 		},
 	},
@@ -137,6 +146,16 @@ local servers = {
 					functionTypeParameters = true,
 					parameterNames = true,
 					rangeVariableTypes = true,
+				},
+				codelenses = {
+					gc_details = false,
+					generate = true,
+					regenerate_cgo = true,
+					run_govulncheck = true,
+					test = true,
+					tidy = true,
+					upgrade_dependency = true,
+					vendor = true,
 				},
 			},
 		},

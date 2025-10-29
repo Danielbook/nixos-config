@@ -79,12 +79,16 @@ in {
         vim-fugitive                      # Git integration
         vim-be-good                       # Vim practice game
         which-key-nvim                    # Show available keybindings
-        
+
         # Animation plugins for smooth UI experience
         mini-nvim                         # Collection of small plugins including animate
         noice-nvim                        # Better UI for messages, cmdline and popupmenu
         nvim-notify                       # Beautiful notification system
         indent-blankline-nvim             # Indent guides with animations
+
+        # Navigation learning plugins
+        hardtime-nvim                     # Break bad habits, suggest better motions
+        precognition-nvim                 # Show available motion hints
       ];
 
     extraPackages = with pkgs; [
@@ -97,13 +101,13 @@ in {
       nixd                              # Alternative Nix language server
       nodePackages.bash-language-server # Bash language server
       nodePackages.prettier            # Code formatter for web languages
-      nodePackages.typescript-language-server # TypeScript/JavaScript language server
       shellcheck                        # Shell script static analysis
       shfmt                             # Shell script formatter
       stylua                            # Lua code formatter
       tailwindcss-language-server       # Tailwind CSS language server
       terraform-ls                      # Terraform language server
       vscode-langservers-extracted      # HTML/CSS/JSON language servers
+      vtsls                             # TypeScript/JavaScript LSP with enhanced CodeLens
       yaml-language-server              # YAML language server
     ];
   };
