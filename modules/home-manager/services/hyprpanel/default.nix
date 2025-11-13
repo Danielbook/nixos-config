@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{...}: {
   # Enable HyprPanel via home-manager module
   # HyprPanel includes built-in notifications, so no separate daemon needed
   programs.hyprpanel = {
@@ -21,9 +21,21 @@
       # Note: kbinput module exists but doesn't function
       bar.layouts = {
         "0" = {
-          left = ["dashboard" "workspaces" "windowtitle"];
+          left = [
+            "dashboard"
+            "workspaces"
+            "windowtitle"
+          ];
           middle = ["media"];
-          right = ["systray" "volume" "network" "bluetooth" "battery" "clock" "notifications"];
+          right = [
+            "systray"
+            "volume"
+            "network"
+            "bluetooth"
+            "battery"
+            "clock"
+            "notifications"
+          ];
         };
       };
 
@@ -46,6 +58,8 @@
       # Weather configuration - Motala, Sweden
       menus.clock.weather.location = "Motala, Sweden";
       menus.clock.weather.unit = "metric";
+
+      theme.bar.scaling = 95;
     };
   };
 }
