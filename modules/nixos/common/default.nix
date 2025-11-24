@@ -208,8 +208,22 @@
     powerOnBoot = true;
   };
 
+  # Enable UPower for battery/power management (required by HyprDynamicMonitors)
+  services.upower.enable = true;
+
   # Input settings
-  services.libinput.enable = true;
+  services.libinput = {
+    enable = true;
+    touchpad = {
+      scrollMethod = "twofinger";
+      tapping = true;
+      accelSpeed = "-0.3";
+      # Reduce scroll sensitivity with custom pixel distance (default ~15)
+      additionalOptions = ''
+        Option "ScrollPixelDistance" "200"
+      '';
+    };
+  };
 
   # X server keyboard: US + SE, Alt+Shift to toggle
   services.xserver = {

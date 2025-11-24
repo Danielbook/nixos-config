@@ -58,6 +58,12 @@
       url = "github:Danielbook/shortcuts-viewer-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Dynamic monitor configuration for Hyprland
+    hyprdynamicmonitors = {
+      url = "github:fiffeek/hyprdynamicmonitors";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -65,6 +71,7 @@
     catppuccin,
     disko,
     home-manager,
+    hyprdynamicmonitors,
     nix-darwin,
     nixpkgs,
     shortcuts-viewer,
@@ -113,6 +120,7 @@
           ./home/${username}/${hostname}
           catppuccin.homeModules.catppuccin
           shortcuts-viewer.homeManagerModules.default
+          hyprdynamicmonitors.homeManagerModules.default
         ];
       };
 

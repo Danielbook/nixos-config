@@ -2,6 +2,9 @@
 -- Blocks repeated inefficient keys and suggests better alternatives
 
 require("hardtime").setup({
+	-- Start disabled by default (use <leader>ht to toggle on)
+	enabled = false,
+
 	-- Maximum number of repetitions allowed within the time window
 	max_count = 3,
 
@@ -62,7 +65,3 @@ require("hardtime").setup({
 		},
 	},
 })
-
--- Keybindings for hardtime commands
-vim.keymap.set("n", "<leader>ht", "<cmd>Hardtime toggle<CR>", { desc = "Toggle Hardtime" })
-vim.keymap.set("n", "<leader>hr", "<cmd>Hardtime report<CR>", { desc = "Hardtime Report" })

@@ -87,35 +87,6 @@
   systemd.services = {
     # Disable unnecessary services for headless operation
     NetworkManager-wait-online.enable = lib.mkForce false;
-
-    # Enable automatic container startup
-    docker-compose-startup = {
-      description = "Start Docker Compose services";
-      after = ["docker.service" "network.target"];
-      wants = ["docker.service"];
-      wantedBy = ["multi-user.target"];
-      script = ''
-        # Wait for Docker to be ready
-        while ! ${pkgs.docker}/bin/docker info >/dev/null 2>&1; do
-          sleep 1
-        done
-
-        # Start all compose services in /srv
-        for compose_file in /srv/*/docker-compose.yaml; do
-          if [ -f "$compose_file" ]; then
-            dir=$(dirname "$compose_file")
-            echo "Starting services in $dir"
-            cd "$dir"
-            ${pkgs.docker-compose}/bin/docker-compose up -d
-          fi
-        done
-      '';
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        User = userConfig.name;
-      };
-    };
   };
 
   # Basic firewall configuration - specific ports defined per host

@@ -1,4 +1,5 @@
 {
+  inputs,
   nhModules,
   pkgs,
   ...
@@ -6,6 +7,8 @@
   imports = [
     "${nhModules}/common"
     "${nhModules}/desktop/hyprland"
+    inputs.sops-nix.homeManagerModules.sops
+    # hyprdynamicmonitors - managed via TUI in ~/.config/hyprdynamicmonitors/
   ];
 
   # Enable home-manager
@@ -21,10 +24,27 @@
     nixos-anywhere # Remote NixOS deployment tool
     # spotify                           # Moved to Flatpak for better Wayland support
     thunderbird # Email client
+    inputs.hyprdynamicmonitors.packages.${pkgs.system}.default # Monitor configuration tool
   ];
+
+  # Secrets management with sops-nix
+  sops = {
+    age.keyFile = "/home/daniel/.config/sops/age/keys.txt";
+    defaultSopsFile = ./secrets.yaml;
+    secrets.aline_npm_token = {};
+  };
 
   # Stop the CLI's auto-updater; Nix will handle upgrades.
   home.sessionVariables.DISABLE_AUTOUPDATER = "1";
+
+  # Load NPM_TOKEN from sops secret in shell initialization
+  programs.zsh.initExtra = ''
+    export NPM_TOKEN="$(cat ~/.config/sops-nix/secrets/aline_npm_token 2>/dev/null || echo "")"
+  '';
+
+  programs.bash.initExtra = ''
+    export NPM_TOKEN="$(cat ~/.config/sops-nix/secrets/aline_npm_token 2>/dev/null || echo "")"
+  '';
 
   # Enable shortcuts viewer with custom shortcuts
   programs.shortcuts-viewer = {
@@ -151,6 +171,12 @@
 
     # Disable auto-detection for now
     autoDetect.enable = false;
+  };
+
+  # HyprDynamicMonitors - automatic monitor configuration management
+  home.hyprdynamicmonitors = {
+    enable = true;
+    extraFlags = ["--disable-power-events"];
   };
 
   xdg.mimeApps = {

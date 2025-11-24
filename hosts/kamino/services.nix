@@ -31,9 +31,9 @@
           "unifi"
           "homepage"
           "cloudflare-ddns"
-          "appdaemon"
           "octoprint"
-          "promtail-remote"
+          "portainer"
+          "mealie"
         )
         
         # Start each service
@@ -125,7 +125,7 @@
     # Create service directories with proper permissions
     "d /srv 0755 root root -"
     "d /srv/kamino 0755 root root -"
-    
+
     # Create data directories for persistent storage
     "d /srv/kamino-data 0755 root root -"
     "d /srv/kamino-data/homeassistant 0755 root root -"
@@ -136,23 +136,59 @@
     "d /srv/kamino-data/unifi 0755 root root -"
     "d /srv/kamino-data/traefik 0755 root root -"
     "d /srv/kamino-data/octoprint 0755 root root -"
-    
+    "d /srv/kamino-data/portainer 0755 root root -"
+    "d /srv/kamino-data/mealie 0755 root root -"
+    "d /srv/kamino-data/homepage 0755 root root -"
+
     # Create secrets directory with restricted permissions
     "d /srv/kamino-secrets 0700 root root -"
-    
+
     # Create runtime environment files for Docker services
     "d /srv/kamino-runtime 0755 root root -"
     "d /srv/kamino-runtime/env 0755 root root -"
   ];
 
-  # File system binds for Docker services
-  fileSystems = {
-    "/srv/kamino" = {
-      device = "/home/daniel/Documents/repositories/nixos-config/files/docker-services/kamino";
-      fsType = "none";
-      options = [ "bind" "ro" ]; # Read-only bind mount
-    };
-  };
+  # Deploy docker-compose files from repository to /srv/kamino
+  system.activationScripts.deployDockerServices = ''
+    echo "Deploying Kamino Docker services..."
+
+    # Source directory in the Nix store (this gets copied during deployment)
+    DOCKER_SERVICES="${../../files/docker-services/kamino}"
+
+    # Copy docker-compose files and configs to /srv/kamino
+    if [ -d "$DOCKER_SERVICES" ]; then
+      ${pkgs.rsync}/bin/rsync -av --delete \
+        --exclude '.git' \
+        --exclude '*.md' \
+        --exclude 'promtail-remote' \
+        "$DOCKER_SERVICES/" /srv/kamino/
+
+      echo "Docker services deployed to /srv/kamino"
+    else
+      echo "Warning: Docker services directory not found in Nix store"
+    fi
+
+    # Create secret files from sops-nix for services that need them
+    echo "Creating secret files from sops-nix..."
+
+    # Traefik CloudFlare API token (traefik expects this as a file)
+    mkdir -p /srv/kamino/traefik
+    cat ${config.sops.secrets."kamino/traefik/cf-api-token".path} > /srv/kamino/traefik/cf_api_token.txt
+    chmod 600 /srv/kamino/traefik/cf_api_token.txt
+
+    # Create main .env file with common variables and secrets
+    cat > /srv/kamino/.env <<EOF
+DOMAIN=local.bookorjeman.com
+SERVER_IP=10.10.40.20
+TRAEFIK_DASHBOARD_CREDENTIALS=$(cat ${config.sops.secrets."kamino/global/traefik-dashboard-credentials".path})
+HA_APPDAEMON_KEY=$(cat ${config.sops.secrets."kamino/global/ha-appdaemon-key".path})
+VW_EMAIL_PASS=$(cat ${config.sops.secrets."kamino/global/vw-email-pass".path})
+EOF
+
+    chmod 600 /srv/kamino/.env
+
+    echo "Secrets deployed successfully"
+  '';
 
   # Environment setup
   environment.systemPackages = with pkgs; [

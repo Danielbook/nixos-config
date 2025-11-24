@@ -1,4 +1,4 @@
-# Dagobah hardware configuration
+# Kamino hardware configuration
 # This is a placeholder - you'll need to generate the actual hardware config
 # when installing NixOS on the server by running:
 # nixos-generate-config --root /mnt

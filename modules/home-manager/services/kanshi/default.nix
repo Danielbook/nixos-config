@@ -1,7 +1,8 @@
 {...}: {
   # Manage kanshi services via Home-manager
+  # Disabled in favor of native Hyprland monitor configuration
   services.kanshi = {
-    enable = true;
+    enable = false;
     systemdTarget = "graphical-session.target";
     settings = [
       {
@@ -40,6 +41,37 @@
           {
             criteria = "eDP-1";
             status = "disable";
+          }
+        ];
+      }
+      {
+        profile.name = "benq";
+        profile.outputs = [
+          {
+            criteria = "BNQ BenQ LCD C1H04453SL0";
+            status = "enable";
+            position = "0,0";
+            mode = "3840x2160@60.00";
+            scale = 1.0;
+          }
+          {
+            criteria = "eDP-1";
+            status = "disable";
+          }
+        ];
+      }
+      {
+        profile.name = "mirror";
+        profile.outputs = [
+          {
+            criteria = "eDP-1";
+            status = "enable";
+            position = "0,0";
+          }
+          {
+            criteria = "Philips Consumer Electronics Company 34M2C6500 AU42507000018";
+            status = "enable";
+            position = "0,0";
           }
         ];
       }

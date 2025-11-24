@@ -2,8 +2,8 @@
 -- Displays virtual text showing what motions are available from cursor position
 
 require("precognition").setup({
-	-- Start enabled by default (use :Precognition toggle to disable)
-	startVisible = true,
+	-- Start disabled by default (use <leader>pt to toggle on)
+	startVisible = false,
 
 	-- Show hints in buffer types
 	showBlankVirtLine = true,
@@ -44,7 +44,3 @@ require("precognition").setup({
 		"mason",
 	},
 })
-
--- Keybinding to toggle precognition
-vim.keymap.set("n", "<leader>pt", "<cmd>Precognition toggle<CR>", { desc = "Toggle Precognition hints" })
-vim.keymap.set("n", "<leader>pp", "<cmd>Precognition peek<CR>", { desc = "Peek Precognition hints" })
