@@ -18,7 +18,7 @@
 
   # Essential packages for this machine
   home.packages = with pkgs; [
-    bitwarden # Password manager
+    bitwarden-desktop # Password manager
     google-chrome # Web browser
     nodejs_24 # Node.js runtime
     nixos-anywhere # Remote NixOS deployment tool
@@ -173,10 +173,31 @@
     autoDetect.enable = false;
   };
 
-  # HyprDynamicMonitors - automatic monitor configuration management
-  home.hyprdynamicmonitors = {
-    enable = true;
-    extraFlags = ["--disable-power-events"];
+  # HyprDynamicMonitors - manual configuration management
+  # Disable the built-in module to use custom config files
+  # home.hyprdynamicmonitors = {
+  #   enable = true;
+  #   extraFlags = ["--disable-power-events"];
+  # };
+
+  # HyprDynamicMonitors configuration files (managed manually)
+  xdg.configFile."hyprdynamicmonitors/config.toml".source = ./hyprdynamicmonitors/config.toml;
+  xdg.configFile."hyprdynamicmonitors/hyprconfigs/home.go.tmpl".source = ./hyprdynamicmonitors/hyprconfigs/home.go.tmpl;
+  xdg.configFile."hyprdynamicmonitors/hyprconfigs/work.go.tmpl".source = ./hyprdynamicmonitors/hyprconfigs/work.go.tmpl;
+  xdg.configFile."hyprdynamicmonitors/hyprconfigs/laptop.go.tmpl".source = ./hyprdynamicmonitors/hyprconfigs/laptop.go.tmpl;
+
+  # Manual systemd service for hyprdynamicmonitors
+  systemd.user.services.hyprdynamicmonitors = {
+    Unit = {
+      Description = "HyprDynamicMonitors - automatic monitor configuration";
+      PartOf = ["graphical-session.target"];
+      After = ["graphical-session.target"];
+    };
+    Service = {
+      ExecStart = "${inputs.hyprdynamicmonitors.packages.${pkgs.system}.default}/bin/hyprdynamicmonitors --disable-power-events";
+      Restart = "on-failure";
+    };
+    Install.WantedBy = ["graphical-session.target"];
   };
 
   xdg.mimeApps = {

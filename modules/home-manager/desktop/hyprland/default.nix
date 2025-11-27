@@ -40,6 +40,43 @@
     };
   };
 
+  # Toggle mirror script for presentations/conference rooms
+  home.file.".local/bin/toggle-mirror" = {
+    text = ''
+      #!/usr/bin/env bash
+      # Toggle mirror mode for presentations/conference rooms
+      # Mirrors external monitor to laptop display or restores normal mode
+
+      LAPTOP="desc:Samsung Display Corp. 0x415D"
+
+      # Get all external monitors (not the laptop)
+      EXTERNALS=$(${pkgs.hyprland}/bin/hyprctl monitors -j | ${pkgs.jq}/bin/jq -r '.[] | select(.description != "Samsung Display Corp. 0x415D") | .name')
+
+      if [ -z "$EXTERNALS" ]; then
+          ${pkgs.libnotify}/bin/notify-send "Mirror Toggle" "No external monitors detected"
+          exit 0
+      fi
+
+      # Check if any external is currently mirroring
+      CURRENT_MIRROR=$(${pkgs.hyprland}/bin/hyprctl monitors -j | ${pkgs.jq}/bin/jq -r '.[] | select(.description != "Samsung Display Corp. 0x415D") | .mirrorOf')
+
+      if [ "$CURRENT_MIRROR" != "" ] && [ "$CURRENT_MIRROR" != "none" ]; then
+          # Currently mirroring - restore normal mode
+          for monitor in $EXTERNALS; do
+              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$monitor,preferred,auto,1"
+          done
+          ${pkgs.libnotify}/bin/notify-send "Mirror Mode" "Disabled - restored normal display"
+      else
+          # Not mirroring - enable mirror mode
+          for monitor in $EXTERNALS; do
+              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$monitor,preferred,auto,1,mirror,$LAPTOP"
+          done
+          ${pkgs.libnotify}/bin/notify-send "Mirror Mode" "Enabled - mirroring to external display(s)"
+      fi
+    '';
+    executable = true;
+  };
+
   dconf.settings = {
     "org/blueman/general" = {
       "plugin-list" = lib.mkForce ["!StatusNotifierItem"];

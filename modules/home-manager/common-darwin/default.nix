@@ -56,7 +56,7 @@
     bash # Bash shell (fallback/compatibility)
     dig # DNS lookup utility
     nodejs_24 # Node.js runtime
-    du-dust # Modern disk usage analyzer (du replacement)
+    dust # Modern disk usage analyzer (du replacement)
     eza # Modern ls replacement with colors and icons
     fd # Fast find alternative for files/directories
     firefox # Mozilla Firefox web browser

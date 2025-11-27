@@ -62,7 +62,7 @@
     # Cross-platform packages
     bash # Bash shell (fallback/compatibility)
     dig # DNS lookup utility
-    du-dust # Modern disk usage analyzer (du replacement)
+    dust # Modern disk usage analyzer (du replacement)
     eza # Modern ls replacement with colors and icons
     fd # Fast find alternative for files/directories
     github-copilot-cli # GitHub Copilot CLI

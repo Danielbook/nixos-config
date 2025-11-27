@@ -3,25 +3,30 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
-    userName = userConfig.fullName;
-    userEmail = userConfig.email;
-    #signing = {
-    #key = userConfig.gitKey;
-    #    signByDefault = true;
-    #};
-    delta = {
-      enable = true;
-      options = {
-        keep-plus-minus-markers = true;
-        light = false;
-        line-numbers = true;
-        navigate = true;
-        width = 280;
+    settings = {
+      user = {
+        name = userConfig.fullName;
+        email = userConfig.email;
       };
-    };
-    extraConfig = {
+      #signing = {
+      #key = userConfig.gitKey;
+      #    signByDefault = true;
+      #};
       pull.rebase = "true";                    # Always rebase when pulling
       push.autoSetupRemote = "true";           # Auto-setup remote tracking for new branches
+    };
+  };
+
+  # Configure delta (git diff pager)
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      keep-plus-minus-markers = true;
+      light = false;
+      line-numbers = true;
+      navigate = true;
+      width = 280;
     };
   };
 

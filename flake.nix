@@ -110,6 +110,7 @@
       home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           inherit system;
+          overlays = builtins.attrValues outputs.overlays;
         };
         extraSpecialArgs = {
           inherit inputs outputs;

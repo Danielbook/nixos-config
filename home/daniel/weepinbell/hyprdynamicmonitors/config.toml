@@ -1,0 +1,38 @@
+# HyprDynamicMonitors config - managed by Nix
+
+[profiles.home]
+config_file = "/home/daniel/.config/hyprdynamicmonitors/hyprconfigs/home.go.tmpl"
+config_file_type = "template"
+[profiles.home.conditions]
+
+[[profiles.home.conditions.required_monitors]]
+description = "Samsung Display Corp. 0x415D"
+monitor_tag = "monitor0"
+
+[[profiles.home.conditions.required_monitors]]
+description = "Philips Consumer Electronics Company 34M2C6500 AU42507000018"
+monitor_tag = "monitor1"
+
+
+[profiles.work]
+config_file = "/home/daniel/.config/hyprdynamicmonitors/hyprconfigs/work.go.tmpl"
+config_file_type = "template"
+[profiles.work.conditions]
+
+[[profiles.work.conditions.required_monitors]]
+description = "BNQ BenQ LCD C1H04453SL0"
+monitor_tag = "monitor0"
+
+[[profiles.work.conditions.required_monitors]]
+description = "Samsung Display Corp. 0x415D"
+monitor_tag = "monitor1"
+
+
+[profiles.laptop]
+config_file = "/home/daniel/.config/hyprdynamicmonitors/hyprconfigs/laptop.go.tmpl"
+config_file_type = "template"
+[profiles.laptop.conditions]
+
+[[profiles.laptop.conditions.required_monitors]]
+description = "Samsung Display Corp. 0x415D"
+monitor_tag = "monitor0"
