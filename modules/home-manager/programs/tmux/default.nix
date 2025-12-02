@@ -54,8 +54,10 @@
       bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
       bind-key -T copy-mode-vi r send-keys -X rectangle-toggle
 
-      # Apply Tc
+      # Apply Tc for various terminal types
       set -ga terminal-overrides ",xterm-256color:RGB:smcup@:rmcup@"
+      set -ga terminal-overrides ",xterm-kitty:RGB:smcup@:rmcup@"
+      set -ga terminal-overrides ",alacritty:RGB:smcup@:rmcup@"
 
       # Enable focus-events
       set -g focus-events on

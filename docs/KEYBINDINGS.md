@@ -13,7 +13,7 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `Super + Shift + F` | 📁 Open file manager (Nautilus) |
 | `Super + A` | 🗃️ Show applications menu (Fuzzel) |
 | `Super + N` | 📋 Toggle notification center (HyprPanel) |
-| `Super + /` | 🔑 Show shortcuts viewer |
+| `Super + K` | 🔑 Show keybindings viewer |
 
 ### 🪟 Window Management
 | Shortcut | Action |

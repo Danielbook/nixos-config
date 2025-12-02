@@ -53,15 +53,15 @@
       flake = false;
     };
 
-    # Searchable keyboard shortcuts viewer
-    shortcuts-viewer = {
-      url = "github:Danielbook/shortcuts-viewer-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Dynamic monitor configuration for Hyprland
     hyprdynamicmonitors = {
       url = "github:fiffeek/hyprdynamicmonitors";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Fuzzel-based Hyprland keybindings viewer
+    hypr-binds = {
+      url = "github:Danielbook/hyprland_keybinds";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -71,10 +71,10 @@
     catppuccin,
     disko,
     home-manager,
+    hypr-binds,
     hyprdynamicmonitors,
     nix-darwin,
     nixpkgs,
-    shortcuts-viewer,
     sops-nix,
     walls,
     ...
@@ -120,7 +120,6 @@
         modules = [
           ./home/${username}/${hostname}
           catppuccin.homeModules.catppuccin
-          shortcuts-viewer.homeManagerModules.default
           hyprdynamicmonitors.homeManagerModules.default
         ];
       };

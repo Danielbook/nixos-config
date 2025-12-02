@@ -24,154 +24,18 @@
     nixos-anywhere # Remote NixOS deployment tool
     # spotify                           # Moved to Flatpak for better Wayland support
     thunderbird # Email client
-    inputs.hyprdynamicmonitors.packages.${pkgs.system}.default # Monitor configuration tool
+    inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default # Monitor configuration tool
+    inputs.hypr-binds.packages.${pkgs.stdenv.hostPlatform.system}.default # Hyprland keybindings viewer
   ];
 
   # Secrets management with sops-nix
   sops = {
     age.keyFile = "/home/daniel/.config/sops/age/keys.txt";
     defaultSopsFile = ./secrets.yaml;
-    secrets.aline_npm_token = {};
   };
 
   # Stop the CLI's auto-updater; Nix will handle upgrades.
   home.sessionVariables.DISABLE_AUTOUPDATER = "1";
-
-  # Load NPM_TOKEN from sops secret in shell initialization
-  programs.zsh.initExtra = ''
-    export NPM_TOKEN="$(cat ~/.config/sops-nix/secrets/aline_npm_token 2>/dev/null || echo "")"
-  '';
-
-  programs.bash.initExtra = ''
-    export NPM_TOKEN="$(cat ~/.config/sops-nix/secrets/aline_npm_token 2>/dev/null || echo "")"
-  '';
-
-  # Enable shortcuts viewer with custom shortcuts
-  programs.shortcuts-viewer = {
-    enable = true;
-    keybinding = "Super+slash";
-    theme = "catppuccin-macchiato";
-    interface = "rofi";
-
-    # Add some custom shortcuts for testing
-    shortcuts = {
-      hyprland = {
-        applications = [
-          {
-            key = "Super+Shift+Return";
-            action = "Open Ghostty terminal";
-            icon = "";
-          }
-          {
-            key = "Super+Shift+F";
-            action = "Open file manager";
-            icon = "";
-          }
-          {
-            key = "Ctrl+Space";
-            action = "Toggle Albert launcher";
-            icon = "";
-          }
-        ];
-        window_management = [
-          {
-            key = "Super+Q";
-            action = "Close active window";
-            icon = "";
-          }
-          {
-            key = "Super+F";
-            action = "Toggle floating window";
-            icon = "";
-          }
-          {
-            key = "Super+M";
-            action = "Toggle fullscreen";
-            icon = "";
-          }
-        ];
-        workspaces = [
-          {
-            key = "Super+1-9";
-            action = "Switch to workspace 1-9";
-            icon = "";
-          }
-          {
-            key = "Super+Shift+1-9";
-            action = "Move window to workspace 1-9";
-            icon = "";
-          }
-        ];
-      };
-
-      tmux = {
-        core = [
-          {
-            key = "Ctrl+Q";
-            action = "Tmux prefix key";
-            icon = "";
-          }
-          {
-            key = "Prefix+R";
-            action = "Reload tmux config";
-            icon = "";
-          }
-        ];
-        panes = [
-          {
-            key = "Prefix+v";
-            action = "Split pane vertically";
-            icon = "";
-          }
-          {
-            key = "Prefix+s";
-            action = "Split pane horizontally";
-            icon = "";
-          }
-        ];
-      };
-
-      neovim = {
-        files = [
-          {
-            key = "Space+ff";
-            action = "Find files with Telescope";
-            icon = "";
-          }
-          {
-            key = "Ctrl+P";
-            action = "Find git files";
-            icon = "";
-          }
-          {
-            key = "Space+w";
-            action = "Save file";
-            icon = "";
-          }
-        ];
-        lsp = [
-          {
-            key = "K";
-            action = "Show hover information";
-            icon = "";
-          }
-          {
-            key = "Space+ca";
-            action = "Code actions";
-            icon = "";
-          }
-          {
-            key = "Space+rn";
-            action = "Rename symbol";
-            icon = "";
-          }
-        ];
-      };
-    };
-
-    # Disable auto-detection for now
-    autoDetect.enable = false;
-  };
 
   # HyprDynamicMonitors - manual configuration management
   # Disable the built-in module to use custom config files
@@ -194,7 +58,7 @@
       After = ["graphical-session.target"];
     };
     Service = {
-      ExecStart = "${inputs.hyprdynamicmonitors.packages.${pkgs.system}.default}/bin/hyprdynamicmonitors --disable-power-events";
+      ExecStart = "${inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/hyprdynamicmonitors --disable-power-events";
       Restart = "on-failure";
     };
     Install.WantedBy = ["graphical-session.target"];

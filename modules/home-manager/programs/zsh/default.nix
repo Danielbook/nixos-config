@@ -43,8 +43,6 @@
       lt = "eza --tree --level=2 --icons"; # tree
     };
     initContent = ''
-      export NPM_TOKEN=23123123123
-
       # vi mode
       bindkey -v
 
@@ -69,9 +67,15 @@
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#585b70"  # catppuccin surface2
       ZSH_AUTOSUGGEST_STRATEGY=(history completion)
       
-      # completion styling  
+      # completion styling
       zstyle ':completion:*' menu select
       zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
+      # Auto-start tmux for interactive shells
+      if [[ -z "$TMUX" ]] && [[ -n "$PS1" ]] && [[ -t 0 ]]; then
+        # Try to attach to an existing unattached session, otherwise create a new one
+        tmux attach-session -t default 2>/dev/null || tmux new-session -s default
+      fi
     '';
   };
 }

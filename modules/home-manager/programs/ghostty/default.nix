@@ -70,9 +70,6 @@
 
           # Mouse settings
           mouse-hide-while-typing = true;
-
-          # Auto-attach to existing unattached tmux session, otherwise create new
-          command = "zsh -l -c \"tmux list-sessions 2>/dev/null | grep -v '(attached)' && tmux attach-session || tmux new-session\"";
         }
         // lib.optionalAttrs pkgs.stdenv.isDarwin {
           # macOS specific settings
