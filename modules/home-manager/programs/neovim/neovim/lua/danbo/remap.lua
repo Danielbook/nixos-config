@@ -11,11 +11,11 @@ keymap("n", "<C-f>", "<C-f>zz")
 keymap("n", "<C-b>", "<C-b>zz")
 keymap("n", "Y", "yy")
 
--- Navigate vim panes better
-keymap("n", "<C-k>", ":wincmd k<CR>")
-keymap("n", "<C-j>", ":wincmd j<CR>")
-keymap("n", "<C-h>", ":wincmd h<CR>")
-keymap("n", "<C-l>", ":wincmd l<CR>")
+-- Navigate vim panes and tmux panes seamlessly
+keymap("n", "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { silent = true })
+keymap("n", "<C-j>", "<cmd>TmuxNavigateDown<CR>", { silent = true })
+keymap("n", "<C-k>", "<cmd>TmuxNavigateUp<CR>", { silent = true })
+keymap("n", "<C-l>", "<cmd>TmuxNavigateRight<CR>", { silent = true })
 
 keymap("i", "<C-c>", "<Esc>")
 
@@ -41,19 +41,19 @@ keymap("n", "<leader>nb", "<cmd>Neotree buffers reveal float<CR>", { desc = "Sho
 
 -- Telescope
 local telescope = require("telescope.builtin")
-keymap("n", "<leader>ff", telescope.find_files)
-keymap("n", "<leader>fb", telescope.buffers)
+keymap("n", "<leader>sf", telescope.find_files)
+keymap("n", "<leader>sb", telescope.buffers)
 keymap("n", "<C-p>", telescope.git_files, opts)
-keymap("n", "<leader>fw", function()
+keymap("n", "<leader>sw", function()
 	local word = vim.fn.expand("<cword>")
 	telescope.grep_string({ search = word })
 end)
-keymap("n", "<leader>fW", function()
+keymap("n", "<leader>sW", function()
 	local word = vim.fn.expand("<cWORD>")
 	telescope.grep_string({ search = word })
 end)
 keymap("n", "<leader>sg", telescope.live_grep, opts)
-keymap("n", "<leader>fh", telescope.help_tags, opts)
+keymap("n", "<leader>sh", telescope.help_tags, opts)
 
 -- Fugitive (Git commands)
 keymap("n", "<leader>gs", "<cmd>Git<CR>", { desc = "Git status" })

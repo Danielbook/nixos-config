@@ -44,17 +44,17 @@ wk.add({
 	-- LEADER KEY GROUPS
 	-- ═══════════════════════════════════════════════════════════════════════════════
 	
-	-- File/Find operations
-	{ "<leader>f", group = "󰈞 Find/Files/Format" },
-	{ "<leader>ff", desc = "Find Files" },
-	{ "<leader>fb", desc = "Find Buffers" },
-	{ "<leader>fw", desc = "Find Word under cursor" },
-	{ "<leader>fW", desc = "Find WORD under cursor" },
-	{ "<leader>fh", desc = "Find Help" },
+	-- Format operations
+	{ "<leader>f", group = "󰉼 Format" },
 
 	-- Search/Grep operations
 	{ "<leader>s", group = " Search" },
+	{ "<leader>sf", desc = "Search Files" },
+	{ "<leader>sb", desc = "Search Buffers" },
+	{ "<leader>sw", desc = "Search Word under cursor" },
+	{ "<leader>sW", desc = "Search WORD under cursor" },
 	{ "<leader>sg", desc = "Live Grep" },
+	{ "<leader>sh", desc = "Search Help" },
 
 	-- Git operations (Fugitive)
 	{ "<leader>g", group = "󰊢 Git" },

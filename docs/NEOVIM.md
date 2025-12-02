@@ -45,22 +45,22 @@
 ### Leader Key
 The leader key is set to `<Space>`.
 
-### File & Search Operations (`<leader>f`)
+### Format Operations (`<leader>f`)
 
 | Keybind | Action |
 |---------|--------|
-| `<leader>ff` | Find Files |
-| `<leader>fb` | Find Buffers |
-| `<leader>fw` | Find Word under cursor |
-| `<leader>fW` | Find WORD under cursor |
-| `<leader>fh` | Find Help |
 | `<leader>f` | Format Buffer |
 
-### Search/Grep Operations (`<leader>s`)
+### Search Operations (`<leader>s`)
 
 | Keybind | Action |
 |---------|--------|
+| `<leader>sf` | Search Files |
+| `<leader>sb` | Search Buffers |
+| `<leader>sw` | Search Word under cursor |
+| `<leader>sW` | Search WORD under cursor |
 | `<leader>sg` | Live Grep |
+| `<leader>sh` | Search Help |
 | `<leader>/` | Fuzzy search in current buffer |
 
 ### Git Operations (`<leader>g`) - Fugitive
@@ -283,10 +283,11 @@ modules/home-manager/programs/neovim/
 
 ### Telescope Quick Search
 
-- **Files**: `<leader>ff` or `<C-p>` (Git files)
+- **Files**: `<leader>sf` or `<C-p>` (Git files)
 - **Live Grep**: `<leader>sg` - Search across all files
-- **Buffer Search**: `<leader>fb` - Switch between open buffers
-- **Help**: `<leader>fh` - Search Neovim help docs
+- **Buffer Search**: `<leader>sb` - Switch between open buffers
+- **Word Search**: `<leader>sw` - Search for word under cursor
+- **Help**: `<leader>sh` - Search Neovim help docs
 
 ### LSP Features
 

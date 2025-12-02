@@ -78,6 +78,7 @@ in {
         undotree                          # Undo history visualizer
         vim-fugitive                      # Git integration
         vim-be-good                       # Vim practice game
+        vim-tmux-navigator                # Seamless navigation between tmux panes and vim splits
         which-key-nvim                    # Show available keybindings
 
         # Animation plugins for smooth UI experience
