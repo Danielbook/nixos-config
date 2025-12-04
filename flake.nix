@@ -70,6 +70,12 @@
       url = "github:Danielbook/swwwitch";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Wayland wallpaper daemon (swww replacement)
+    awww = {
+      url = "https://codeberg.org/LGFae/awww";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {

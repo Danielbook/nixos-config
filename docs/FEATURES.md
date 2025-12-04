@@ -30,7 +30,7 @@ This document details all features available across different platforms.
 ### Tools & Utilities
 - **📋 Cliphist**: Clipboard history manager
 - **🎨 Hyprpicker**: Color picker tool
-- **🖼️ SWWW**: Wayland wallpaper daemon with smooth transitions
+- **🖼️ awww**: Wayland wallpaper daemon with smooth transitions
 - **🌅 Wlsunset**: Automatic screen temperature adjustment
 
 ## 🍎 macOS (Darwin) Features
