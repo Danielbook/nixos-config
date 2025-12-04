@@ -19,8 +19,9 @@ This is **Daniel's NixOS Configuration Repository** - a declarative, flake-based
 - **sops-nix**: Age-encrypted secrets management
 - **disko**: Declarative disk partitioning
 - **nix-flatpak**: v0.6.0 (pinned version)
-- **shortcuts-viewer**: Custom package for keyboard shortcut viewer
-- **walls**: dharmx wallpaper collection
+- **swwwitch**: Custom wallpaper switcher for swww (written in Go)
+- **hypr-binds**: Fuzzel-based Hyprland keybindings viewer
+- **walls**: dharmx wallpaper collection (used by swwwitch)
 
 ### Repository Structure
 ```
@@ -176,6 +177,7 @@ For a **personal config with 3 hosts**, CLAUDE.md is likely sufficient. Consider
 - Hyprland config is in `modules/home-manager/desktop/hyprland/`
 - Neovim config is heavily customized (see `docs/NEOVIM.md`)
 - Server deployment is automated (see `docs/SERVER.md`)
+- **swwwitch** is a custom Go-based wallpaper switcher for swww, maintained in a separate repo at `github.com/Danielbook/swwwitch`
 
 ## Quick Reference
 - **Primary user**: daniel
@@ -186,3 +188,4 @@ For a **personal config with 3 hosts**, CLAUDE.md is likely sufficient. Consider
 - **Shell**: zsh with starship prompt
 - **Editor**: Neovim (with Copilot, LSP, Treesitter)
 - **Terminal**: Ghostty (Linux) / default (macOS)
+- **Wallpaper switcher**: swwwitch (custom Go CLI for swww)

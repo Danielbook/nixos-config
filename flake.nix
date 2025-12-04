@@ -64,6 +64,12 @@
       url = "github:Danielbook/hyprland_keybinds";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Wallpaper switcher for awww
+    swwwitch = {
+      url = "github:Danielbook/swwwitch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {

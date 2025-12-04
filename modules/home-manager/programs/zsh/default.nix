@@ -42,7 +42,10 @@
       la = "eza -abhl --icons --group-directories-first"; # all list
       lt = "eza --tree --level=2 --icons"; # tree
     };
-    initContent = ''
+    initExtra = ''
+      # Source home-manager session variables
+      [[ -f ~/.nix-profile/etc/profile.d/hm-session-vars.sh ]] && source ~/.nix-profile/etc/profile.d/hm-session-vars.sh
+
       # vi mode
       bindkey -v
 
@@ -62,11 +65,11 @@
       # autosuggestion key bindings
       bindkey '^[[Z' autosuggest-accept  # shift-tab to accept suggestion
       bindkey '^I' complete-word         # tab for completion
-      
+
       # autosuggestion styling
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#585b70"  # catppuccin surface2
       ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-      
+
       # completion styling
       zstyle ':completion:*' menu select
       zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'

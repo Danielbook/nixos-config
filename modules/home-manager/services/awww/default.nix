@@ -1,8 +1,11 @@
 {
   config,
   pkgs,
+  inputs,
   ...
-}: {
+}: let
+  swwwitch = inputs.swwwitch.packages.${pkgs.system}.default;
+in {
   # Create hyprland-session.target for Hyprland services
   systemd.user.targets.hyprland-session = {
     Unit = {
@@ -13,16 +16,16 @@
       After = ["graphical-session-pre.target"];
     };
   };
-  # Swww wallpaper daemon service
-  systemd.user.services.swww-daemon = {
+  # awww wallpaper daemon service
+  systemd.user.services.awww-daemon = {
     Unit = {
-      Description = "Swww wallpaper daemon";
+      Description = "awww wallpaper daemon";
       PartOf = ["hyprland-session.target"];
       After = ["graphical-session.target"];
     };
     Service = {
       Type = "simple";
-      ExecStart = "${pkgs.swww}/bin/swww-daemon";
+      ExecStart = "${pkgs.awww}/bin/awww-daemon";
       Restart = "on-failure";
       RestartSec = "2s";
     };
@@ -30,16 +33,16 @@
   };
 
   # Set initial wallpaper
-  systemd.user.services.swww-wallpaper = {
+  systemd.user.services.awww-wallpaper = {
     Unit = {
-      Description = "Set wallpaper with swww";
-      After = ["swww-daemon.service"];
-      Requires = ["swww-daemon.service"];
+      Description = "Set wallpaper with swwwitch";
+      After = ["awww-daemon.service"];
+      Requires = ["awww-daemon.service"];
       PartOf = ["hyprland-session.target"];
     };
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.swww}/bin/swww img ${config.wallpaper.default}";
+      ExecStart = "${swwwitch}/bin/swwwitch --set ${config.wallpaper.default}";
       RemainAfterExit = true;
     };
     Install.WantedBy = ["hyprland-session.target"];

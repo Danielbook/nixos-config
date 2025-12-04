@@ -13,7 +13,7 @@
     "${nhModules}/services/cliphist"
     "${nhModules}/services/hyprpanel"
     "${nhModules}/services/kanshi"
-    "${nhModules}/services/swww"
+    "${nhModules}/services/awww"
   ];
 
   # Consistent cursor theme across all applications.

@@ -36,7 +36,6 @@
     hypridle
     hyprlock
     hyprpaper
-    swww
     hyprpicker
     libnotify
     networkmanagerapplet
