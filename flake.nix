@@ -73,13 +73,14 @@
 
     # Wayland wallpaper daemon (swww replacement)
     awww = {
-      url = "https://codeberg.org/LGFae/awww";
+      url = "git+https://codeberg.org/LGFae/awww";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   outputs = {
     self,
+    awww,
     catppuccin,
     disko,
     home-manager,

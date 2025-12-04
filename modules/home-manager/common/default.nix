@@ -81,7 +81,7 @@
     # google-chrome # Moved to host-specific config with custom flags
     prusa-slicer # 3D printer slicer for Prusa printers
     satty # Modern Wayland screenshot annotation tool (replaces swappy)
-    awww # Wayland wallpaper daemon
+    # awww # Wayland wallpaper daemon (provided via flake input in services/awww)
     tesseract # OCR engine for text recognition
     wl-clipboard # Wayland clipboard manager
     xdg-desktop-portal # Desktop integration portal

@@ -5,6 +5,7 @@
   ...
 }: let
   swwwitch = inputs.swwwitch.packages.${pkgs.system}.default;
+  awww = inputs.awww.packages.${pkgs.system}.default;
 in {
   # Create hyprland-session.target for Hyprland services
   systemd.user.targets.hyprland-session = {
@@ -25,7 +26,7 @@ in {
     };
     Service = {
       Type = "simple";
-      ExecStart = "${pkgs.awww}/bin/awww-daemon";
+      ExecStart = "${awww}/bin/awww-daemon";
       Restart = "on-failure";
       RestartSec = "2s";
     };
