@@ -11,8 +11,8 @@
       enable = true;
 
       # Use new defaultApplicationPackages API (replaces deprecated lib.xdg.mimeAssociations)
+      # Note: google-chrome is installed via host-specific config with custom flags
       defaultApplicationPackages = [
-        pkgs.google-chrome
         pkgs.gnome-text-editor
         pkgs.loupe
         pkgs.totem

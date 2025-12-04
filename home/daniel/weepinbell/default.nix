@@ -19,7 +19,7 @@
   # Essential packages for this machine
   home.packages = with pkgs; [
     bitwarden-desktop # Password manager
-    google-chrome # Web browser
+    # google-chrome # Installed via programs.chromium below with custom flags
     nodejs_24 # Node.js runtime
     nixos-anywhere # Remote NixOS deployment tool
     # spotify                           # Moved to Flatpak for better Wayland support
@@ -36,6 +36,15 @@
 
   # Stop the CLI's auto-updater; Nix will handle upgrades.
   home.sessionVariables.DISABLE_AUTOUPDATER = "1";
+
+  # Configure Chrome/Chromium with touchpad gesture support
+  programs.chromium = {
+    enable = true;
+    package = pkgs.google-chrome;
+    commandLineArgs = [
+      "--enable-features=TouchpadOverscrollHistoryNavigation"
+    ];
+  };
 
   # HyprDynamicMonitors - manual configuration management
   # Disable the built-in module to use custom config files

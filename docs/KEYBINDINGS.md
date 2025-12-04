@@ -9,11 +9,11 @@ Comprehensive keybinding reference for all tools in this configuration.
 ### 🚀 Applications
 | Shortcut | Action |
 |----------|--------|
-| `Super + Shift + Enter` | 🖥️ Open terminal (Ghostty) |
-| `Super + Shift + F` | 📁 Open file manager (Nautilus) |
-| `Super + A` | 🗃️ Show applications menu (Fuzzel) |
+| `Super + Return` | 🖥️ Open terminal (Ghostty) |
+| `Super + E` | 📁 Open file manager (Nautilus) |
+| `Super + Space` | 🗃️ Show applications menu (Fuzzel) |
 | `Super + N` | 📋 Toggle notification center (HyprPanel) |
-| `Super + K` | 🔑 Show keybindings viewer |
+| `Super + /` | 🔑 Show keybindings viewer |
 
 ### 🪟 Window Management
 | Shortcut | Action |
@@ -43,6 +43,12 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `Super + Shift + R` | 🎥 Start screen recording |
 | `Super + Shift + C` | 🎨 Color picker (Hyprpicker) |
 | `Alt + Shift + 2` | 👁️ OCR text recognition |
+
+### 🖥️ Display Management
+| Shortcut | Action |
+|----------|--------|
+| `Super + P` | 🔄 Toggle mirror mode (for presentations) |
+| `Super + Shift + D` | 🔁 Reload HyprDynamicMonitors (fixes stuck monitor states) |
 
 ### 🎵 System Controls
 | Shortcut | Action |
