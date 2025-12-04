@@ -7,6 +7,9 @@
   swwwitch = inputs.swwwitch.packages.${pkgs.system}.default;
   awww = inputs.awww.packages.${pkgs.system}.default;
 in {
+  # Make awww available in PATH
+  home.packages = [ awww ];
+
   # Create hyprland-session.target for Hyprland services
   systemd.user.targets.hyprland-session = {
     Unit = {
