@@ -2,7 +2,11 @@ local wk = require("which-key")
 
 wk.setup({
 	preset = "modern",
-	delay = 500,
+	delay = 300,
+	triggers = {
+		{ "<leader>", mode = { "n", "v" } },
+		{ "<localleader>", mode = { "n", "v" } },
+	},
 	plugins = {
 		marks = true,
 		registers = true,
@@ -43,7 +47,7 @@ wk.add({
 	-- ═══════════════════════════════════════════════════════════════════════════════
 	-- LEADER KEY GROUPS
 	-- ═══════════════════════════════════════════════════════════════════════════════
-	
+
 	-- Format operations
 	{ "<leader>f", group = "󰉼 Format" },
 
@@ -136,22 +140,22 @@ wk.add({
 	-- ═══════════════════════════════════════════════════════════════════════════════
 	-- CONTROL KEY MAPPINGS
 	-- ═══════════════════════════════════════════════════════════════════════════════
-	
+
 	{ "<C-n>", desc = "󰙅 Toggle File Explorer (Neotree)" },
 	{ "<C-p>", desc = "󰈞 Find Git Files" },
-	
+
 	-- Window navigation
 	{ "<C-h>", desc = "󰁍 Window Left" },
 	{ "<C-j>", desc = "󰁅 Window Down" },
 	{ "<C-k>", desc = "󰁝 Window Up" },
 	{ "<C-l>", desc = "󰁔 Window Right" },
-	
+
 	-- Scrolling with centering
 	{ "<C-d>", desc = "󰜮 Scroll Down (centered)" },
 	{ "<C-u>", desc = "󰜷 Scroll Up (centered)" },
 	{ "<C-f>", desc = "󰜴 Page Down (centered)" },
 	{ "<C-b>", desc = "󰜱 Page Up (centered)" },
-	
+
 	-- Insert mode mappings
 	{ "<C-c>", desc = "󰿅 Exit Insert Mode", mode = "i" },
 	{ "<C-s>", desc = "󰋖 Signature Help", mode = "i" },
@@ -159,33 +163,33 @@ wk.add({
 	-- Completion mappings (nvim-cmp)
 	{ "<C-Space>", desc = "󰄮 Manual Complete", mode = "i" },
 	{ "<C-e>", desc = "󰅙 Abort Completion", mode = "i" },
-	
+
 	-- ═══════════════════════════════════════════════════════════════════════════════
 	-- LSP & NAVIGATION
 	-- ═══════════════════════════════════════════════════════════════════════════════
-	
+
 	-- LSP operations
 	{ "K", desc = "󰋖 Hover Documentation" },
 	{ "gd", desc = "󰑊 Go to Definition" },
 	{ "gi", desc = "󰑊 Go to Implementation" },
 	{ "gt", desc = "󰑊 Go to Type Definition" },
 	{ "gr", desc = "󰑊 Go to References" },
-	
+
 	-- Diagnostic navigation
 	{ "[d", desc = "󰒕 Previous Diagnostic" },
 	{ "]d", desc = "󰒖 Next Diagnostic" },
-	
+
 	-- Git hunk navigation (GitSigns)
 	{ "[c", desc = "󰒕 Previous Git Hunk" },
 	{ "]c", desc = "󰒖 Next Git Hunk" },
-	
+
 	-- ═══════════════════════════════════════════════════════════════════════════════
 	-- TEXT OBJECTS & SPECIAL KEYS
 	-- ═══════════════════════════════════════════════════════════════════════════════
-	
+
 	-- Git text objects
 	{ "ih", desc = "󰊢 Inner Hunk", mode = { "o", "x" } },
-	
+
 	-- Special keys
 	{ "Y", desc = "󰆏 Yank Line" },
 	{ "<CR>", desc = "󰄲 Confirm Completion", mode = "i" },

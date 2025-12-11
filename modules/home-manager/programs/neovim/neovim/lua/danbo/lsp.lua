@@ -38,17 +38,17 @@ local function on_attach(client, bufnr)
 		})
 	end
 
-	-- Enable codelens if supported
-	if client.supports_method("textDocument/codeLens") then
-		vim.lsp.codelens.refresh()
-		local group = vim.api.nvim_create_augroup("LspCodeLens", { clear = false })
-		vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
-		vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-			group = group,
-			buffer = bufnr,
-			callback = vim.lsp.codelens.refresh,
-		})
-	end
+	-- CodeLens disabled for performance (was causing slowness in vtsls)
+	-- if client.supports_method("textDocument/codeLens") then
+	-- 	vim.lsp.codelens.refresh()
+	-- 	local group = vim.api.nvim_create_augroup("LspCodeLens", { clear = false })
+	-- 	vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
+	-- 	vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+	-- 		group = group,
+	-- 		buffer = bufnr,
+	-- 		callback = vim.lsp.codelens.refresh,
+	-- 	})
+	-- end
 end
 
 -- Configure and enable LSP servers using vim.lsp.config (Neovim 0.11+)
@@ -96,12 +96,10 @@ local servers = {
 				},
 				updateImportsOnFileMove = { enabled = "always" },
 				referencesCodeLens = {
-					enabled = true,
-					showOnAllFunctions = true,
+					enabled = false,
 				},
 				implementationsCodeLens = {
-					enabled = true,
-					showOnInterfaceMethods = true,
+					enabled = false,
 				},
 			},
 			javascript = {
@@ -122,12 +120,10 @@ local servers = {
 				},
 				updateImportsOnFileMove = { enabled = "always" },
 				referencesCodeLens = {
-					enabled = true,
-					showOnAllFunctions = true,
+					enabled = false,
 				},
 				implementationsCodeLens = {
-					enabled = true,
-					showOnInterfaceMethods = true,
+					enabled = false,
 				},
 			},
 			vtsls = {
