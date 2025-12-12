@@ -309,6 +309,7 @@
     sops # Secrets management with age encryption
     just # Modern task runner (replacement for make)
     bitwarden-cli # Password manager CLI for secrets management
+    wireguard-tools # WireGuard VPN utilities (wg, wg-quick) for NetworkManager integration
   ];
 
   # Enable firmware for better hardware support

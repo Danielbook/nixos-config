@@ -42,6 +42,7 @@ This is **Daniel's NixOS Configuration Repository** - a declarative, flake-based
 │   ├── NEOVIM.md          # LSP, Treesitter, Telescope setup
 │   ├── SECRETS.md         # sops-nix and Bitwarden integration
 │   ├── SERVER.md          # Kamino infrastructure details
+│   ├── WIREGUARD.md       # WireGuard VPN setup with NetworkManager
 │   └── MACOS.md           # nix-darwin and AeroSpace setup
 ├── 🔧 overlays/           # Custom package overlays
 ├── 🔧 justfile            # All deployment commands (use these!)
@@ -57,6 +58,7 @@ This is **Daniel's NixOS Configuration Repository** - a declarative, flake-based
 - Neovim (with LSP, Treesitter, Telescope, Copilot)
 - NVIDIA Prime hybrid graphics
 - Hyprshot + Satty (screenshots)
+- WireGuard VPN (managed via NetworkManager)
 
 **macOS (Darwin):**
 - AeroSpace (tiling window manager)
@@ -178,6 +180,7 @@ For a **personal config with 3 hosts**, CLAUDE.md is likely sufficient. Consider
 - Neovim config is heavily customized (see `docs/NEOVIM.md`)
 - Server deployment is automated (see `docs/SERVER.md`)
 - **swwwitch** is a custom Go-based wallpaper switcher for awww, maintained in a separate repo at `github.com/Danielbook/swwwitch`
+- **WireGuard VPN** is managed via NetworkManager (not declarative NixOS config) - see `docs/WIREGUARD.md` for setup
 
 ## Quick Reference
 - **Primary user**: daniel
@@ -189,3 +192,4 @@ For a **personal config with 3 hosts**, CLAUDE.md is likely sufficient. Consider
 - **Editor**: Neovim (with Copilot, LSP, Treesitter)
 - **Terminal**: Ghostty (Linux) / default (macOS)
 - **Wallpaper switcher**: swwwitch (custom Go CLI for awww)
+- **VPN**: WireGuard via NetworkManager (OPNsense home router)

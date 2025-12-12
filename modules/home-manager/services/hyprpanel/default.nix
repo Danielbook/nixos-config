@@ -52,6 +52,10 @@
       menus.dashboard.shortcuts.left.shortcut3.tooltip = "App Launcher";
       menus.dashboard.shortcuts.left.shortcut3.icon = "󰀻";
 
+      menus.dashboard.shortcuts.left.shortcut4.command = "ghostty -e nmtui";
+      menus.dashboard.shortcuts.left.shortcut4.tooltip = "Network Manager";
+      menus.dashboard.shortcuts.left.shortcut4.icon = "󰖂";
+
       # Clock configuration - 24-hour format
       menus.clock.time.military = true;
 

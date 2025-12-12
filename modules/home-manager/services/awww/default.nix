@@ -36,11 +36,26 @@ in {
     Install.WantedBy = ["hyprland-session.target"];
   };
 
+  # Kill swww-daemon if HyprPanel starts it (we use awww instead)
+  systemd.user.services.kill-swww-daemon = {
+    Unit = {
+      Description = "Kill swww-daemon to prevent conflict with awww";
+      After = ["awww-daemon.service" "hyprpanel.service"];
+      PartOf = ["hyprland-session.target"];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.procps}/bin/pkill swww-daemon || true'";
+      RemainAfterExit = false;
+    };
+    Install.WantedBy = ["hyprland-session.target"];
+  };
+
   # Set initial wallpaper
   systemd.user.services.awww-wallpaper = {
     Unit = {
       Description = "Set wallpaper with swwwitch";
-      After = ["awww-daemon.service"];
+      After = ["awww-daemon.service" "kill-swww-daemon.service"];
       Requires = ["awww-daemon.service"];
       PartOf = ["hyprland-session.target"];
     };
