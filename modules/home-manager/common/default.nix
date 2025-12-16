@@ -61,6 +61,7 @@
   home.packages = with pkgs; [
     # Cross-platform packages
     bash # Bash shell (fallback/compatibility)
+    bruno # Open-source API testing tool (Postman alternative)
     dig # DNS lookup utility
     dust # Modern disk usage analyzer (du replacement)
     eza # Modern ls replacement with colors and icons
