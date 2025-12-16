@@ -126,6 +126,10 @@ wk.add({
 	{ "<leader>n", group = "󰙅 Neotree" },
 	{ "<leader>nb", desc = "Show Buffer List (float)" },
 
+	-- Markdown
+	{ "<leader>m", group = " Markdown" },
+	{ "<leader>mv", desc = "Toggle Markview" },
+
 	-- Standalone leader keys
 	{ "<leader>pv", desc = "Open File Explorer (Ex)" },
 	{ "<leader>q", desc = "Quit" },

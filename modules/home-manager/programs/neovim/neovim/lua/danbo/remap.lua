@@ -221,6 +221,9 @@ keymap("n", "<leader>hr", "<cmd>Hardtime report<CR>", { desc = "Hardtime Report"
 keymap("n", "<leader>pt", "<cmd>Precognition toggle<CR>", { desc = "Toggle Precognition hints" })
 keymap("n", "<leader>pp", "<cmd>Precognition peek<CR>", { desc = "Peek Precognition hints" })
 
+-- Markview
+keymap("n", "<leader>mv", "<cmd>Markview toggle<CR>", { desc = "Toggle Markview" })
+
 -- Gitsigns (buffer-local keymaps set on attach)
 vim.api.nvim_create_autocmd("User", {
 	pattern = "GitSignsAttach",

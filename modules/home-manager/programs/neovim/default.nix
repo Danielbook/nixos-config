@@ -71,6 +71,7 @@ in {
         nvim-ts-autotag                   # Auto close/rename HTML tags
         nvim-web-devicons                 # File type icons
         peek-nvim                         # Markdown preview
+        markview-nvim                     # Markdown rendering and live preview in buffer
         plenary-nvim                      # Lua utility library
         telescope-fzf-native-nvim         # FZF integration for Telescope
         telescope-nvim                    # Fuzzy finder
