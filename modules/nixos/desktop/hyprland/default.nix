@@ -1,6 +1,18 @@
 {pkgs, ...}: {
-  # Enable GDM display manager
-  services.displayManager.gdm.enable = true;
+  # Enable greetd display manager with tuigreet
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --asterisks --cmd Hyprland";
+        user = "greeter";
+      };
+    };
+  };
+
+  # Alternative: Use gtkgreet for a GUI login
+  # Uncomment the following to use gtkgreet instead of tuigreet:
+  # services.greetd.settings.default_session.command = "${pkgs.gtkgreet}/bin/gtkgreet -l -c Hyprland";
 
   # Call dbus-update-activation-environment on login
   services.xserver.updateDbusEnvironment = true;
