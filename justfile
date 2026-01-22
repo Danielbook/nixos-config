@@ -8,7 +8,7 @@
 
 # Host configurations
 kamino_host := "10.10.40.20"
-tatooine_host := "10.10.40.11" 
+tatooine_host := "10.10.40.104"  # Test VM (production: 10.10.40.11)
 hoth_host := "10.10.40.12"
 
 # Flake configuration
@@ -43,8 +43,8 @@ help:
     @echo ""
     @echo "🖥️  Server Deployment:"
     @echo "  just deploy-kamino           - Deploy Kamino (home automation)"
-    @echo "  just deploy-tatooine         - Deploy Tatooine (coming soon)"
-    @echo "  just deploy-hoth            - Deploy Hoth (coming soon)"
+    @echo "  just deploy-tatooine         - Deploy Tatooine (media server)"
+    @echo "  just deploy-hoth             - Deploy Hoth (coming soon)"
     @echo ""
     @echo "🔧 Setup & Utilities:"
     @echo "  just bootstrap-mac           - Bootstrap fresh macOS system"
@@ -221,11 +221,69 @@ setup-kamino-secrets:
     echo "$age_key" | ssh root@{{kamino_host}} "mkdir -p /var/lib/sops-nix && cat > /var/lib/sops-nix/key.txt && chmod 600 /var/lib/sops-nix/key.txt"
     echo "✅ Age key deployed successfully via manual entry"
 
-# Deploy Tatooine server (placeholder)
+# Deploy Tatooine server (media server with Jellyfin, Immich, n8n)
 deploy-tatooine:
-    @echo "🏜️  Tatooine server deployment not yet implemented"
-    @echo "🚧 Coming soon..."
-    @echo "📍 Planned target: {{tatooine_host}}"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "🏜️  Deploying Tatooine server..."
+    echo "📍 Target: {{tatooine_host}}"
+    echo ""
+    just _check-connectivity {{tatooine_host}} "Tatooine"
+    echo "🏗️  Starting NixOS deployment with nixos-anywhere..."
+    echo "⚠️  This will WIPE the disk on {{tatooine_host}}!"
+    echo "📦 Creating a test VM in Proxmox first is recommended"
+    echo ""
+    read -p "Continue with deployment? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "❌ Deployment cancelled"
+        exit 1
+    fi
+    nixos-anywhere --flake .#tatooine nixos@{{tatooine_host}}
+    echo "✅ NixOS deployment complete"
+    echo ""
+    echo "📦 Next steps:"
+    echo "   Optional: Set up TrueNAS credentials with: just setup-tatooine-credentials"
+    echo "   1. Copy docker-compose files from old system:"
+    echo "      rsync -av daniel@<old-tatooine>:/srv/docker/ {{tatooine_host}}:/srv/docker/"
+    echo "   2. Copy Immich .env file with database credentials"
+    echo "   3. Restart docker services: ssh root@{{tatooine_host}} 'systemctl restart docker-compose-tatooine'"
+    echo ""
+    echo "🎉 Tatooine deployment complete!"
+    echo "💡 Verify with: ssh root@{{tatooine_host}} 'docker ps'"
+    echo "🌐 Jellyfin: http://{{tatooine_host}}:8096"
+    echo "🌐 Immich: http://{{tatooine_host}}:2283"
+
+# Set up TrueNAS CIFS credentials for Tatooine
+setup-tatooine-credentials:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "🔑 Setting up TrueNAS CIFS credentials for Tatooine..."
+
+    # Check connectivity first
+    if ! ping -c 1 {{tatooine_host}} > /dev/null 2>&1; then
+        echo "❌ Cannot reach {{tatooine_host}}"
+        echo "💡 Please ensure the server is accessible and try again"
+        exit 1
+    fi
+
+    echo "📋 Please provide TrueNAS CIFS credentials:"
+    echo -n "Username (e.g., arr-data-smb): "
+    read truenas_user
+    echo -n "Password: "
+    read -s truenas_pass
+    echo ""
+
+    # Create credentials file
+    cat << EOF | ssh root@{{tatooine_host}} "cat > /etc/nixos/truenas-credentials && chmod 600 /etc/nixos/truenas-credentials"
+    username=$truenas_user
+    password=$truenas_pass
+    EOF
+
+    echo "✅ TrueNAS credentials deployed successfully"
+    echo "💡 Testing CIFS mount..."
+    ssh root@{{tatooine_host}} "systemctl restart mnt-truenas-data.mount" || echo "⚠️  Mount failed - you may need to troubleshoot manually"
 
 # Deploy Hoth server (placeholder) 
 deploy-hoth:

@@ -22,6 +22,7 @@
     # google-chrome # Installed via programs.chromium below with custom flags
     nodejs_24 # Node.js runtime
     nixos-anywhere # Remote NixOS deployment tool
+    pgadmin4-desktopmode # PostgreSQL administration tool
     # spotify                           # Moved to Flatpak for better Wayland support
     thunderbird # Email client
     inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default # Monitor configuration tool

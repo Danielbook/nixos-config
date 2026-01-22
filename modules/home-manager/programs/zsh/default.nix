@@ -42,7 +42,7 @@
       la = "eza -abhl --icons --group-directories-first"; # all list
       lt = "eza --tree --level=2 --icons"; # tree
     };
-    initExtra = ''
+    initContent = ''
       # Source home-manager session variables
       [[ -f ~/.nix-profile/etc/profile.d/hm-session-vars.sh ]] && source ~/.nix-profile/etc/profile.d/hm-session-vars.sh
 

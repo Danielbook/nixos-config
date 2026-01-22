@@ -152,6 +152,7 @@
     nixosConfigurations = {
       weepinbell = mkNixosConfiguration "weepinbell" "daniel";
       kamino = mkNixosConfiguration "kamino" "daniel";
+      tatooine = mkNixosConfiguration "tatooine" "daniel";
     };
 
     darwinConfigurations = {

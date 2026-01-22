@@ -4,8 +4,8 @@
   inputs,
   ...
 }: let
-  swwwitch = inputs.swwwitch.packages.${pkgs.system}.default;
-  awww = inputs.awww.packages.${pkgs.system}.default;
+  swwwitch = inputs.swwwitch.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  awww = inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
   # Make awww available in PATH
   home.packages = [ awww ];

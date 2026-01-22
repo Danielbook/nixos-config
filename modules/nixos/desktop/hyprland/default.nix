@@ -4,11 +4,16 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --asterisks --cmd Hyprland";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --asterisks --cmd 'exec dbus-run-session Hyprland'";
         user = "greeter";
       };
     };
   };
+
+  # Ensure greetd has proper environment
+  environment.etc."greetd/environments".text = ''
+    Hyprland
+  '';
 
   # Alternative: Use gtkgreet for a GUI login
   # Uncomment the following to use gtkgreet instead of tuigreet:

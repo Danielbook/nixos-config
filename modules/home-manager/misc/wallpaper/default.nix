@@ -5,7 +5,7 @@
   ...
 }: let
   walls = inputs.walls;
-  swwwitch = inputs.swwwitch.packages.${pkgs.system}.default;
+  swwwitch = inputs.swwwitch.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
   options.wallpaper = {
     default = lib.mkOption {

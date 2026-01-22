@@ -1,17 +1,17 @@
-{...}: {
+{config, ...}: {
   # Install and configure Golang via home-manager module
   programs.go = {
     enable = true;
 
     # Use env-based configuration (new API)
     env = {
-      GOBIN = "$HOME/go/bin";
-      GOPATH = "$HOME/go";
+      GOBIN = "${config.home.homeDirectory}/go/bin";
+      GOPATH = "${config.home.homeDirectory}/go";
     };
   };
 
   # Ensure Go bin in the PATH
   home.sessionPath = [
-    "$HOME/go/bin"
+    "${config.home.homeDirectory}/go/bin"
   ];
 }

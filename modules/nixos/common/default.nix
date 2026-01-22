@@ -116,10 +116,10 @@
       main = {
         # Don't randomize MAC addresses (can cause connection issues)
         "wifi.scan-rand-mac-address" = "no";
-        
+
         # Use internal DHCP client for better stability
         "dhcp" = "internal";
-        
+
         # DNS settings for better connectivity
         "dns" = "default";
       };
@@ -129,11 +129,11 @@
         # Autoconnect settings for better reliability
         "connection.autoconnect-retries" = "0"; # Retry indefinitely
         "connection.auth-retries" = "0"; # Retry auth indefinitely
-        
+
         # IPv6 configuration
         "ipv6.method" = "auto";
         "ipv6.addr-gen-mode" = "stable-privacy";
-        
+
         # Connection priority: Prefer ethernet over WiFi
         "ethernet.auto-negotiate" = "yes";
         "wifi.autoconnect-priority" = "-1"; # Lower priority for WiFi
@@ -144,11 +144,11 @@
         # Disable WiFi powersave that can cause disconnections
         "wifi.powersave" = "2"; # 2 = disable powersave
         "wifi.wake-on-wlan" = "0x0"; # Disable wake-on-WLAN
-        
+
         # Ethernet settings
         "ethernet.wake-on-lan" = "0x0"; # Disable wake-on-LAN for stability
       };
-      
+
       # WiFi-specific settings for stability
       "802-11-wireless" = {
         "powersave" = "2"; # Disable powersave mode
@@ -208,6 +208,9 @@
     powerOnBoot = true;
   };
 
+  # Enable Thunderbolt/USB4 support for USB-C hubs and docks
+  services.hardware.bolt.enable = true;
+
   # Enable UPower for battery/power management (required by HyprDynamicMonitors)
   services.upower.enable = true;
 
@@ -244,8 +247,18 @@
   # PATH configuration
   environment.localBinInPath = true;
 
-  # Disable CUPS printing
-  services.printing.enable = false;
+  # Enable CUPS printing
+  services.printing.enable = true;
+  services.printing.drivers = with pkgs; [
+    gutenprint  # Generic printer drivers
+    gutenprintBin  # Gutenprint utilities
+  ];
+  # Enable auto-discovery of network printers
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
 
   # Enable devmon for device management
   services.devmon.enable = true;
