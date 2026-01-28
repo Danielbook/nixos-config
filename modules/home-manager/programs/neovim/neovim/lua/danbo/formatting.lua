@@ -13,4 +13,7 @@ local sources = {
 null_ls.setup({
 	on_attach = lsp.on_attach,
 	sources = sources,
+	-- Increase timeout for large files (default is 5000ms)
+	-- Set to 30 seconds to handle large file operations
+	timeout_ms = 30000,
 })
