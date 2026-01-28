@@ -3,16 +3,15 @@
   pkgs,
   ...
 }: {
-  # GTK theme configuration
+  # GTK configuration tool
+  home.packages = [pkgs.nwg-look];
+
+  # GTK theme configuration - using adw-gtk3 for Noctalia color integration
   gtk = {
     enable = true;
     theme = {
-      name = "catppuccin-macchiato-lavender-compact";
-      package = pkgs.catppuccin-gtk.override {
-        accents = ["lavender"];
-        variant = "macchiato";
-        size = "compact";
-      };
+      name = "adw-gtk3-dark";
+      package = pkgs.adw-gtk3;
     };
     iconTheme = {
       name = "Tela-circle-dark";

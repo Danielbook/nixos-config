@@ -59,21 +59,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Fuzzel-based Hyprland keybindings viewer
-    hypr-binds = {
-      url = "github:Danielbook/hyprland_keybinds";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Wallpaper switcher for awww
-    swwwitch = {
-      url = "github:Danielbook/swwwitch";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Wayland wallpaper daemon (swww replacement)
     awww = {
       url = "git+https://codeberg.org/LGFae/awww";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Noctalia desktop shell (bar, notifications, lock screen)
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -84,10 +78,10 @@
     catppuccin,
     disko,
     home-manager,
-    hypr-binds,
     hyprdynamicmonitors,
     nix-darwin,
     nixpkgs,
+    noctalia,
     sops-nix,
     walls,
     ...
@@ -134,6 +128,7 @@
           ./home/${username}/${hostname}
           catppuccin.homeModules.catppuccin
           hyprdynamicmonitors.homeManagerModules.default
+          noctalia.homeModules.default
         ];
       };
 

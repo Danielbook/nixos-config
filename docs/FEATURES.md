@@ -6,13 +6,13 @@ This document details all features available across different platforms.
 
 ### Desktop Environment
 - **🪟 Hyprland**: Modern Wayland compositor with smooth animations and extensive customization
-- **🎨 HyprPanel**: Feature-rich status bar with floating pills design
-  - Built-in notification center (replaces separate notification daemons)
-  - Dashboard with quick settings and media controls
-  - System monitoring (CPU, RAM, battery, temperature)
+- **🎨 Noctalia Shell**: Beautiful desktop shell built on Quickshell
+  - Bar with workspaces, window title, system tray, and clock
+  - Built-in notification center with history
+  - Control center with quick settings
+  - Integrated lock screen with PAM authentication
+  - Media controls and system monitoring
   - Network, Bluetooth, and volume controls
-  - Auto-detected NixOS icon
-- **🔒 Hyprlock**: Secure screen locking with custom styling
 - **💤 Hypridle**: Automatic screen dimming and locking
 - **🖼️ Kanshi**: Dynamic display configuration
 
@@ -103,7 +103,7 @@ This document details all features available across different platforms.
   - Editor (Neovim)
   - Shell (Starship prompt)
   - Desktop (Hyprland)
-  - Status bar (HyprPanel)
+  - Status bar (Noctalia)
 
 ## 🔐 Security Features
 

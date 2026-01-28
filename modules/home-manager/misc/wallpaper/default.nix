@@ -1,11 +1,9 @@
 {
   lib,
   inputs,
-  pkgs,
   ...
 }: let
   walls = inputs.walls;
-  swwwitch = inputs.swwwitch.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
   options.wallpaper = {
     default = lib.mkOption {
@@ -16,11 +14,7 @@ in {
   };
 
   config = {
-    home.packages = [ swwwitch ];
-
-    # Configure swwwitch to use dharmx/walls collection
-    home.sessionVariables = {
-      SWWWITCH_WALLPAPERS = "${walls}";
-    };
+    # Stable symlink to walls collection for Noctalia wallpaper management
+    home.file.".local/share/wallpapers".source = walls;
   };
 }

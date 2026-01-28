@@ -175,8 +175,8 @@
 
   # Simple resume commands (runs as root, but can trigger user services)
   powerManagement.resumeCommands = ''
-    # Restart hyprpanel for the user session
-    sudo -u daniel systemctl --user restart hyprpanel.service 2>/dev/null || true
+    # Restart noctalia-shell for the user session
+    sudo -u daniel systemctl --user restart noctalia-shell.service 2>/dev/null || true
   '';
   
   # Additional systemd network-related configurations

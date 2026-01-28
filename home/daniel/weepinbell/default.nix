@@ -26,7 +26,6 @@
     # spotify                           # Moved to Flatpak for better Wayland support
     thunderbird # Email client
     inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default # Monitor configuration tool
-    inputs.hypr-binds.packages.${pkgs.stdenv.hostPlatform.system}.default # Hyprland keybindings viewer
   ];
 
   # Secrets management with sops-nix

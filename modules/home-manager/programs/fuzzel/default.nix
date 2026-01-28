@@ -60,8 +60,8 @@
   xdg.desktopEntries = {
     lock-screen = {
       name = "Lock Screen";
-      comment = "Lock the screen with hyprlock";
-      exec = "hyprlock";
+      comment = "Lock the screen";
+      exec = "noctalia-shell ipc call lockScreen lock";
       icon = "system-lock-screen";
       categories = [ "System" ];
       noDisplay = false;

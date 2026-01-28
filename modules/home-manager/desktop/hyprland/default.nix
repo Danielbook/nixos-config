@@ -11,7 +11,7 @@
     "${nhModules}/misc/wallpaper"
     "${nhModules}/misc/xdg"
     "${nhModules}/services/cliphist"
-    "${nhModules}/services/hyprpanel"
+    "${nhModules}/services/noctalia"
     "${nhModules}/services/kanshi"
     "${nhModules}/services/awww"
   ];
@@ -29,10 +29,6 @@
   xdg.configFile = {
     "hypr/hyprland.conf" = {
       source = ./hyprland.conf;
-    };
-
-    "hypr/hyprlock.conf" = {
-      source = ./hyprlock.conf;
     };
 
     "hypr/hypridle.conf" = {
