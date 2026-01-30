@@ -272,6 +272,12 @@
     alsa.support32Bit = true; # 32-bit app audio support
     pulse.enable = true; # PulseAudio compatibility
     jack.enable = true; # JACK audio system support
+    # RAOP (AirPlay) discovery for streaming to AirPlay devices (e.g., Denon AVR)
+    extraConfig.pipewire-pulse."raop-discover" = {
+      "pulse.cmd" = [
+        { cmd = "load-module"; args = "module-raop-discover"; }
+      ];
+    };
   };
 
   # Enable flatpak service
