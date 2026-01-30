@@ -36,7 +36,7 @@
   # Enable security services
   security.polkit.enable = true;
   security.pam.services = {
-    hyprlock = {};
+    # Noctalia lock screen uses its own PAM config
   };
 
   # List of Hyprland specific packages
@@ -51,7 +51,6 @@
     brightnessctl
     grim
     hypridle
-    hyprlock
     hyprpaper
     hyprpicker
     libnotify

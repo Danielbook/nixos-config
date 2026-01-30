@@ -20,14 +20,14 @@ This is **Daniel's NixOS Configuration Repository** - a declarative, flake-based
 - **disko**: Declarative disk partitioning
 - **nix-flatpak**: v0.6.0 (pinned version)
 - **swwwitch**: Custom wallpaper switcher for awww (written in Go)
-- **hypr-binds**: Fuzzel-based Hyprland keybindings viewer
 - **walls**: dharmx wallpaper collection (used by swwwitch)
+- **noctalia**: Desktop shell for Wayland (bar, notifications, lock screen, keybind cheatsheet)
 
 ### Repository Structure
 ```
 📦 nixos-config/
 ├── 🖥️ hosts/              # Machine-specific configurations
-│   ├── weepinbell/        # Primary NixOS workstation (Hyprland + HyprPanel)
+│   ├── weepinbell/        # Primary NixOS workstation (Hyprland + Noctalia)
 │   ├── coruscant/         # MacBook Pro (nix-darwin + AeroSpace)
 │   └── kamino/            # Home automation server
 ├── 🏠 home/               # User-specific Home Manager configs per host
@@ -53,7 +53,7 @@ This is **Daniel's NixOS Configuration Repository** - a declarative, flake-based
 ### Tech Stack Highlights
 **Linux (Hyprland Desktop):**
 - Hyprland (Wayland compositor)
-- HyprPanel (floating status bar with notification center)
+- Noctalia Shell (bar, notifications, lock screen, control center)
 - Ghostty (modern terminal with tmux)
 - Neovim (with LSP, Treesitter, Telescope, Copilot)
 - NVIDIA Prime hybrid graphics
@@ -191,5 +191,6 @@ For a **personal config with 3 hosts**, CLAUDE.md is likely sufficient. Consider
 - **Shell**: zsh with starship prompt
 - **Editor**: Neovim (with Copilot, LSP, Treesitter)
 - **Terminal**: Ghostty (Linux) / default (macOS)
+- **Desktop shell**: Noctalia (bar, notifications, lock screen)
 - **Wallpaper switcher**: swwwitch (custom Go CLI for awww)
 - **VPN**: WireGuard via NetworkManager (OPNsense home router)

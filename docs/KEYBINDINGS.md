@@ -11,14 +11,14 @@ Comprehensive keybinding reference for all tools in this configuration.
 |----------|--------|
 | `Super + Return` | 🖥️ Open terminal (Ghostty) |
 | `Super + E` | 📁 Open file manager (Nautilus) |
-| `Super + Space` | 🗃️ Show applications menu (Fuzzel) |
-| `Super + N` | 📋 Toggle notification center (HyprPanel) |
+| `Super + Space` | 🗃️ Application launcher (Noctalia) |
+| `Super + N` | 📋 Toggle notification center (Noctalia) |
 | `Super + /` | 🔑 Show keybindings viewer |
 
 ### 🪟 Window Management
 | Shortcut | Action |
 |----------|--------|
-| `Super + Q` | ❌ Kill active window |
+| `Super + W` | ❌ Kill active window |
 | `Ctrl + Alt + Q` | 🚪 Exit Hyprland |
 | `Super + F` | 📌 Toggle floating mode |
 | `Super + M` | 📺 Toggle fullscreen |
@@ -42,6 +42,7 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `Super + Ctrl + S` | 🖼️ Screenshot window (with Satty annotation) |
 | `Super + Shift + R` | 🎥 Start screen recording |
 | `Super + Shift + C` | 🎨 Color picker (Hyprpicker) |
+| `Super + Shift + W` | 🖼️ Random wallpaper (swwwitch) |
 | `Alt + Shift + 2` | 👁️ OCR text recognition |
 
 ### 🖥️ Display Management
@@ -61,7 +62,7 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `XF86MonBrightnessDown` | 🌑 Decrease brightness |
 | `Shift + XF86MonBrightnessUp` | ⌨️ Increase keyboard backlight |
 | `Shift + XF86MonBrightnessDown` | ⌨️ Decrease keyboard backlight |
-| `Ctrl + Alt + L` | 🔒 Lock screen (Hyprlock) |
+| `Ctrl + Alt + L` | 🔒 Lock screen (Noctalia) |
 
 ## 📝 Neovim
 

@@ -51,6 +51,7 @@ help:
     @echo "  just install-nix             - Install Nix package manager"
     @echo "  just check-bw                - Check Bitwarden CLI status"
     @echo "  just setup-kamino-secrets    - Set up Kamino secrets only"
+    @echo "  just noctalia-sync           - Sync Noctalia UI changes to repo"
     @echo ""
     @echo "💡 Examples:"
     @echo "  just deploy-kamino           # Full Kamino deployment"
@@ -105,6 +106,7 @@ darwin-rebuild:
 # Switch the Home Manager configuration
 home-manager-switch:
     @echo "🏠 Switching Home Manager configuration..."
+    @just noctalia-sync || true
     @home-manager {{experimental}} switch --flake {{home_target}}
     @echo "✅ Home Manager switch complete."
 
@@ -294,6 +296,15 @@ deploy-hoth:
 # =============================================================================
 # Utilities & Diagnostics
 # =============================================================================
+
+# Sync Noctalia config changes back to the repo
+noctalia-sync:
+    @echo "🎨 Syncing Noctalia config to repo..."
+    @cp ~/.config/noctalia/settings.json home/daniel/weepinbell/noctalia/
+    @cp ~/.config/noctalia/user-templates.toml home/daniel/weepinbell/noctalia/
+    @cp ~/.config/noctalia/plugins.json home/daniel/weepinbell/noctalia/
+    @echo "✅ Noctalia config synced!"
+    @echo "💡 Don't forget to commit the changes"
 
 # Check Bitwarden CLI installation and status
 check-bw:

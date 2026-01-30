@@ -12,7 +12,7 @@
       enable = true;
       packages = [
         "us.zoom.Zoom"                   # Video conferencing
-        "com.spotify.Client"             # Music streaming (better Wayland support than Nix version)
+        # Spotify now installed via spicetify-nix for Noctalia theming
       ];
       uninstallUnmanaged = true;
       update.auto.enable = false;
