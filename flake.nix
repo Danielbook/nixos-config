@@ -70,6 +70,12 @@
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Declarative Spicetify configuration (Spotify theming)
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -129,6 +135,7 @@
           catppuccin.homeModules.catppuccin
           hyprdynamicmonitors.homeManagerModules.default
           noctalia.homeModules.default
+          inputs.spicetify-nix.homeManagerModules.default
         ];
       };
 

@@ -2,6 +2,6 @@ local lualine = require("lualine")
 
 lualine.setup({
 	options = {
-		theme = "catppuccin",
+		theme = "auto", -- Picks up colors from current colorscheme (base16)
 	},
 })

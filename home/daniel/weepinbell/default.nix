@@ -1,9 +1,13 @@
 {
+  config,
   inputs,
+  lib,
   nhModules,
   pkgs,
   ...
-}: {
+}: let
+  noctaliaConfigDir = ./noctalia;
+in {
   imports = [
     "${nhModules}/common"
     "${nhModules}/desktop/hyprland"
@@ -23,7 +27,7 @@
     nodejs_24 # Node.js runtime
     nixos-anywhere # Remote NixOS deployment tool
     pgadmin4-desktopmode # PostgreSQL administration tool
-    # spotify                           # Moved to Flatpak for better Wayland support
+    # spotify - installed by spicetify-nix module
     thunderbird # Email client
     inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default # Monitor configuration tool
   ];
@@ -72,6 +76,28 @@
     };
     Install.WantedBy = ["graphical-session.target"];
   };
+
+  # Spicetify - Spotify theming (integrated with Noctalia)
+  programs.spicetify = let
+    spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
+  in {
+    enable = true;
+    enabledExtensions = with spicePkgs.extensions; [
+      adblockify
+      hidePodcasts
+      shuffle
+    ];
+    theme = spicePkgs.themes.comfy;
+  };
+
+  # Noctalia config - copied (not symlinked) so UI can still edit
+  # Run `just noctalia-sync` to save changes back to the repo
+  home.activation.noctaliaConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p ${config.home.homeDirectory}/.config/noctalia
+    cp -f ${noctaliaConfigDir}/settings.json ${config.home.homeDirectory}/.config/noctalia/
+    cp -f ${noctaliaConfigDir}/user-templates.toml ${config.home.homeDirectory}/.config/noctalia/
+    cp -f ${noctaliaConfigDir}/plugins.json ${config.home.homeDirectory}/.config/noctalia/
+  '';
 
   xdg.mimeApps = {
     enable = true;

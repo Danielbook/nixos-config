@@ -49,7 +49,7 @@ in {
     in
       with pkgs.vimPlugins; [
         alpha-nvim                        # Startup screen with custom dashboard
-        catppuccin-nvim                   # Catppuccin colorscheme
+        base16-nvim                       # Base16 colorscheme (used with Noctalia)
         cmp-nvim-lsp                      # LSP completion source for nvim-cmp
         cmp-path                          # Path completion source for nvim-cmp
         cmp-buffer                        # Buffer completion source for nvim-cmp

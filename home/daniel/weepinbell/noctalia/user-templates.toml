@@ -1,0 +1,21 @@
+[config]
+
+[templates]
+
+# User-defined templates
+# Add your custom templates below
+# Example:
+# [templates.myapp]
+# input_path = "~/.config/noctalia/templates/myapp.css"
+# output_path = "~/.config/myapp/theme.css"
+# post_hook = "myapp --reload-theme"
+
+# Remove this section and add your own templates
+#[templates.placeholder]
+#input_path = "/nix/store/jxk04mbpc0mzj79l39mn1s4gv4l10i7f-noctalia-shell-2026-01-28_b2b16ec/share/noctalia-shell/Assets/Templates/noctalia.json"
+#output_path = "/home/daniel/.cache/noctalia/placeholder.json"
+[templates.nvim]
+input_path = "~/.config/nvim/lua/matugen-template.lua"
+output_path = "~/.config/nvim/lua/matugen.lua"
+post_hook = "pkill -USR1 nvim"
+
