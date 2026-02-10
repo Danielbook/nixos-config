@@ -91,6 +91,25 @@
     xterm # X terminal emulator (fallback)
   ];
 
+  # Claude Code global settings
+  home.file.".claude/settings.json".text = builtins.toJSON {
+    enabledPlugins = {
+      "frontend-design@claude-code-plugins" = true;
+    };
+    alwaysThinkingEnabled = true;
+    permissions = {
+      allow = [
+        "Bash(*)"
+        "WebSearch"
+        "WebFetch"
+      ];
+      deny = [
+        "Bash(git commit*)"
+        "Bash(git push*)"
+      ];
+    };
+  };
+
   # Catpuccin flavor and accent
   catppuccin = {
     flavor = "macchiato";

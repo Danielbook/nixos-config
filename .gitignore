@@ -1,21 +1,24 @@
-
----
-
-## 📄 `.gitignore`
-
-```gitignore
 # Nix build outputs
 result
 *.swp
-*.lock
 
 # Secrets or temporary overrides
 secrets.nix
 *.age
 *.gpg
 
+# MCP shell environments (contain API keys/tokens)
+*-mcp-shell.nix
+
+# Logs
+logs/
+
+# Network/infra exports
+kea-reservations.csv
+
 # macOS/Windows cruft
 .DS_Store
 Thumbs.db
 
+# Claude
 .claude/
