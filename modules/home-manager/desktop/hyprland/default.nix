@@ -31,9 +31,6 @@
       source = ./hyprland.conf;
     };
 
-    "hypr/hypridle.conf" = {
-      source = ./hypridle.conf;
-    };
   };
 
   # Toggle mirror script for presentations/conference rooms

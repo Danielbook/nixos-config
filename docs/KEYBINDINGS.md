@@ -42,7 +42,7 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `Super + Ctrl + S` | 🖼️ Screenshot window (with Satty annotation) |
 | `Super + Shift + R` | 🎥 Start screen recording |
 | `Super + Shift + C` | 🎨 Color picker (Hyprpicker) |
-| `Super + Shift + W` | 🖼️ Random wallpaper (swwwitch) |
+| `Super + Shift + W` | 🖼️ Random wallpaper (Noctalia) |
 | `Alt + Shift + 2` | 👁️ OCR text recognition |
 
 ### 🖥️ Display Management

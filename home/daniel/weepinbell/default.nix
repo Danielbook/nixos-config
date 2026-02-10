@@ -20,6 +20,9 @@ in {
     enable = true;
   };
 
+  # Enable Noctalia dynamic theming for tmux
+  programs.tmux.noctaliaTheme = true;
+
   # Essential packages for this machine
   home.packages = with pkgs; [
     bitwarden-desktop # Password manager

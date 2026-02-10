@@ -22,6 +22,8 @@ This is **Daniel's NixOS Configuration Repository** - a declarative, flake-based
 - **swwwitch**: Custom wallpaper switcher for awww (written in Go)
 - **walls**: dharmx wallpaper collection (used by swwwitch)
 - **noctalia**: Desktop shell for Wayland (bar, notifications, lock screen, keybind cheatsheet)
+- **spicetify-nix**: Declarative Spotify theming with Spicetify
+- **awww**: Wayland wallpaper daemon (used by Noctalia)
 
 ### Repository Structure
 ```
@@ -69,7 +71,8 @@ This is **Daniel's NixOS Configuration Repository** - a declarative, flake-based
 **Cross-Platform Tools:**
 - tmux (with vim-aware navigation)
 - zoxide, fzf, ripgrep, bat, eza
-- Catppuccin theming everywhere
+- Catppuccin theming (static apps)
+- Noctalia dynamic theming (wallpaper-based colors for Ghostty, Neovim, Spotify)
 
 **Server (Kamino):**
 - Home Assistant
@@ -91,6 +94,7 @@ These just targets provide consistent build behavior and proper error handling.
 - `just deploy-kamino` - Deploy Kamino server
 - `just nix-gc` - Garbage collection
 - `just bootstrap-mac` - Automated macOS setup
+- `just noctalia-sync` - Sync Noctalia UI changes back to repo (runs automatically before home-manager-switch)
 
 ## Version Management
 - **nixpkgs follows nixos-unstable** - expect latest packages and APIs
@@ -181,16 +185,18 @@ For a **personal config with 3 hosts**, CLAUDE.md is likely sufficient. Consider
 - Server deployment is automated (see `docs/SERVER.md`)
 - **swwwitch** is a custom Go-based wallpaper switcher for awww, maintained in a separate repo at `github.com/Danielbook/swwwitch`
 - **WireGuard VPN** is managed via NetworkManager (not declarative NixOS config) - see `docs/WIREGUARD.md` for setup
+- **Noctalia config** is version controlled in `home/daniel/weepinbell/noctalia/` - files are copied (not symlinked) on activation so UI editing still works. Run `just noctalia-sync` to save changes back to repo (happens automatically on `just home-manager-switch`)
 
 ## Quick Reference
 - **Primary user**: daniel
 - **Primary workstation**: weepinbell (NixOS + Hyprland)
 - **Laptop**: coruscant (macOS + nix-darwin)
 - **Server**: kamino (Home Assistant + monitoring)
-- **Theme**: Catppuccin (everywhere)
+- **Theme**: Catppuccin (static) + Noctalia dynamic colors (wallpaper-based)
 - **Shell**: zsh with starship prompt
-- **Editor**: Neovim (with Copilot, LSP, Treesitter)
-- **Terminal**: Ghostty (Linux) / default (macOS)
+- **Editor**: Neovim (with Copilot, LSP, Treesitter, base16 dynamic colors)
+- **Terminal**: Ghostty (Linux, Noctalia themed) / default (macOS)
 - **Desktop shell**: Noctalia (bar, notifications, lock screen)
-- **Wallpaper switcher**: swwwitch (custom Go CLI for awww)
+- **Music**: Spotify with Spicetify (Comfy theme, Noctalia colors)
+- **Wallpaper**: awww daemon with Noctalia integration
 - **VPN**: WireGuard via NetworkManager (OPNsense home router)
