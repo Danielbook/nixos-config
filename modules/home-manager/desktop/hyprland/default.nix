@@ -14,6 +14,7 @@
     "${nhModules}/services/noctalia"
     "${nhModules}/services/kanshi"
     "${nhModules}/services/awww"
+    "${nhModules}/services/hypridle"
   ];
 
   # Consistent cursor theme across all applications.

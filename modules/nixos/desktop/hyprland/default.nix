@@ -50,7 +50,6 @@
 
     brightnessctl
     grim
-    hypridle
     hyprpaper
     hyprpicker
     libnotify
