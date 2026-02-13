@@ -15,6 +15,7 @@
     "${nhModules}/services/kanshi"
     "${nhModules}/services/awww"
     "${nhModules}/services/hypridle"
+    "${nhModules}/services/raop-volume-guard"
   ];
 
   # Consistent cursor theme across all applications.
