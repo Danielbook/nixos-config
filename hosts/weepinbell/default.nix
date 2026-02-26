@@ -13,6 +13,7 @@
     "${nixosModules}/desktop/hyprland"
     "${nixosModules}/services/tlp"
     "${nixosModules}/services/usb-serial"
+    "${nixosModules}/services/audio-lowlatency"
     "${nixosModules}/nvidia"
     "${nixosModules}/memory-protection"
   ];

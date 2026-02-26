@@ -79,5 +79,8 @@
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="2817", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="0817", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0409", ATTR{idProduct}=="005a", ATTR{power/autosuspend}="-1"
+
+    # Disable autosuspend for USB audio class devices (audio interfaces)
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="01", ATTR{power/autosuspend}="-1"
   '';
 }
