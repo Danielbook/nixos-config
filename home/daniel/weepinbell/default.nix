@@ -26,6 +26,7 @@ in {
   # Essential packages for this machine
   home.packages = with pkgs; [
     bitwarden-desktop # Password manager
+    feishin # Navidrome/Subsonic music player
     # google-chrome # Installed via programs.chromium below with custom flags
     nodejs_24 # Node.js runtime
     nixos-anywhere # Remote NixOS deployment tool
@@ -33,6 +34,7 @@ in {
     # spotify - installed by spicetify-nix module
     thunderbird # Email client
     inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default # Monitor configuration tool
+    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default # Zen browser (Firefox-based)
   ];
 
   # Secrets management with sops-nix

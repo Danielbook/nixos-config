@@ -129,6 +129,27 @@
         "type": "github"
       }
     },
+    "home-manager_2": {
+      "inputs": {
+        "nixpkgs": [
+          "zen-browser",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1771756436,
+        "narHash": "sha256-Tl2I0YXdhSTufGqAaD1ySh8x+cvVsEI1mJyJg12lxhI=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "5bd3589390b431a63072868a90c0f24771ff4cbb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
     "hyprdynamicmonitors": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -293,7 +314,8 @@
         "plasma-manager": "plasma-manager",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
-        "walls": "walls"
+        "walls": "walls",
+        "zen-browser": "zen-browser"
       }
     },
     "rust-overlay": {
@@ -401,6 +423,27 @@
       "original": {
         "owner": "dharmx",
         "repo": "walls",
+        "type": "github"
+      }
+    },
+    "zen-browser": {
+      "inputs": {
+        "home-manager": "home-manager_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772005916,
+        "narHash": "sha256-aFYnT0gStcu1PVTh2Xzd0n8PIEKmqvTgrVkpv49qc6M=",
+        "owner": "0xc000022070",
+        "repo": "zen-browser-flake",
+        "rev": "044299e83752f78f9fc5d6a648f7f3dd84bb3b18",
+        "type": "github"
+      },
+      "original": {
+        "owner": "0xc000022070",
+        "repo": "zen-browser-flake",
         "type": "github"
       }
     }
