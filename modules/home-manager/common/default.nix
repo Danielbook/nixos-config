@@ -29,6 +29,7 @@
     ../programs/tmux
     ../programs/vscode
     # ../programs/vscodium
+    ../programs/yabridge
     ../programs/yazi
     ../programs/zoxide
     ../programs/zsh
@@ -78,6 +79,7 @@
     terraform # Infrastructure as code tool
     unzip # Archive extraction utility
     claude-code # Claude Code editor
+    playwright-mcp # Playwright MCP server with pre-patched browsers
 
     # Linux-specific packages
     # google-chrome # Moved to host-specific config with custom flags
@@ -100,8 +102,10 @@
     permissions = {
       allow = [
         "Bash(*)"
+        "Read(*)"
         "WebSearch"
         "WebFetch"
+        "mcp__playwright__*"
       ];
       deny = [
         "Bash(git commit*)"

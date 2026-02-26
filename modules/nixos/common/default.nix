@@ -206,6 +206,11 @@
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
+    settings = {
+      General = {
+        Experimental = true; # Required for WebAuthn/passkeys cross-device (caBLE) via BLE
+      };
+    };
   };
 
   # Enable Thunderbolt/USB4 support for USB-C hubs and docks
@@ -291,6 +296,8 @@
       "wheel" # Sudo privileges
       "fuse" # Filesystem mounting permissions
       "docker" # Docker daemon access
+      "audio" # Direct audio device access and PAM limits
+      "bluetooth" # Bluetooth device access (needed for WebAuthn/passkeys)
     ];
     isNormalUser = true; # Standard user account (not system)
     shell = pkgs.zsh; # Default shell
