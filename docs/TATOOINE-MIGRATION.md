@@ -6,7 +6,7 @@ This document outlines the migration of tatooine from Debian 12 (Proxmox VM) to 
 **Current Setup:**
 - OS: Debian 12 (Bookworm) in Proxmox VM
 - Hardware: Intel i7-8700K (12 cores), NVIDIA GTX 1070, 2GB RAM, 64GB disk
-- Services: Jellyfin, Immich, Jellyseerr, n8n, Tailscale, Watchtower, Portainer Agent, Authentik Outpost
+- Services: Jellyfin, Immich, Seerr, n8n, Tailscale, Watchtower, Portainer Agent, Authentik Outpost
 - Storage: CIFS mount from TrueNAS (//10.10.40.10/data) for media and photos
 
 **Target State:**
@@ -277,7 +277,7 @@ If nixos-anywhere keeps failing, use traditional installation:
 ### Tailscale
 - Requires privileged container with NET_ADMIN capability
 - Authkey in .env file needs to be valid
-- Serves Jellyfin and Jellyseerr on the tailnet
+- Serves Jellyfin and Seerr on the tailnet
 
 ## Post-Migration Tasks
 

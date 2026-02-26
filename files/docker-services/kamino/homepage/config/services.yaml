@@ -118,14 +118,19 @@
                         enableBlocks: true
                         enableNowPlaying: true
 
-        - Jellyseerr:
-                icon: jellyseerr.svg
+        - Seerr:
+                icon: seerr.svg
                 description: 🎫 Media requests
-                href: https://jellyseerr.local.bookorjeman.com
+                href: https://seerr.local.bookorjeman.com
                 widget:
                         type: jellyseerr
                         url: http://10.10.40.12:5055
-                        key: {{HOMEPAGE_VAR_JELLYSEERR_KEY}}
+                        key: {{HOMEPAGE_VAR_SEERR_KEY}}
+
+        - Navidrome:
+                icon: navidrome.svg
+                description: "\U0001F3B5 Music streaming"
+                href: https://navidrome.local.bookorjeman.com
 
 - Media Automation:
         - Sonarr:

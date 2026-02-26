@@ -188,7 +188,7 @@
         group = "docker";
         mode = "0440";
       };
-      "kamino/homepage/jellyseerr-key" = {
+      "kamino/homepage/seerr-key" = {
         owner = "root";
         group = "docker";
         mode = "0440";

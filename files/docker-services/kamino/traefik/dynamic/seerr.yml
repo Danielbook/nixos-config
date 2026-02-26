@@ -1,0 +1,18 @@
+http:
+  routers:
+    seerr:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`seerr.local.bookorjeman.com`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: seerr
+
+  services:
+    seerr:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.40.12:5055"
+        passHostHeader: true

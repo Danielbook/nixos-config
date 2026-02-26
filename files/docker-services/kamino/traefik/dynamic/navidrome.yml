@@ -1,18 +1,18 @@
 http:
   routers:
-    jellyseerr:
+    navidrome:
       entryPoints:
         - "websecure"
-      rule: "Host(`jellyseerr.local.bookorjeman.com`)"
+      rule: "Host(`navidrome.local.bookorjeman.com`)"
       middlewares:
         - default-headers
         - https-redirectscheme
       tls: {}
-      service: jellyseerr
+      service: navidrome
 
   services:
-    jellyseerr:
+    navidrome:
       loadBalancer:
         servers:
-          - url: "http://10.10.40.12:5055"
+          - url: "http://10.10.40.11:4533"
         passHostHeader: true

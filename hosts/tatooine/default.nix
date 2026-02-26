@@ -33,7 +33,7 @@
   ];
 
   # Tatooine-specific firewall configuration
-  # Media server with Jellyfin, Immich, Jellyseerr, n8n
+  # Media server with Jellyfin, Immich, Seerr, n8n
   networking.firewall = {
     allowedTCPPorts = [
       # Jellyfin
@@ -42,8 +42,8 @@
       # Immich
       2283  # Immich web interface
 
-      # Jellyseerr
-      5055  # Jellyseerr web interface
+      # Seerr
+      5055  # Seerr web interface
 
       # n8n
       5678  # n8n automation
