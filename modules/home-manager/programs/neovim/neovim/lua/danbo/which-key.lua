@@ -132,7 +132,8 @@ wk.add({
 
 	-- Standalone leader keys
 	{ "<leader>pv", desc = "Open File Explorer (Ex)" },
-	{ "<leader>q", desc = "Quit" },
+	{ "<leader>q", desc = "Close Buffer" },
+	{ "<leader>Q", desc = "Quit All" },
 	{ "<leader>w", desc = "Save File" },
 	{ "<leader>f", desc = "Format Buffer" },
 	{ "<leader>u", desc = "Toggle Undo Tree" },

@@ -21,7 +21,12 @@ keymap("i", "<C-c>", "<Esc>")
 
 -- Save and quit
 keymap("n", "<leader>w", ":w<CR>", { desc = "Save file" })
-keymap("n", "<leader>q", ":q<CR>", { desc = "Quit" })
+keymap("n", "<leader>q", function()
+	local buf = vim.api.nvim_get_current_buf()
+	vim.cmd("bp")
+	vim.api.nvim_buf_delete(buf, {})
+end, { desc = "Close buffer" })
+keymap("n", "<leader>Q", ":qa<CR>", { desc = "Quit all" })
 
 -- Insert blank lines above/below without leaving current line
 keymap("n", "[<Space>", "O<Esc>j", { desc = "Add blank line above" })
@@ -42,7 +47,14 @@ keymap("n", "<leader>nb", "<cmd>Neotree buffers reveal float<CR>", { desc = "Sho
 -- Telescope
 local telescope = require("telescope.builtin")
 keymap("n", "<leader>sf", telescope.find_files)
-keymap("n", "<leader>sb", telescope.buffers)
+keymap("n", "<leader>sb", function()
+	telescope.buffers({
+		attach_mappings = function(_, map)
+			map("n", "<leader>q", require("telescope.actions").delete_buffer)
+			return true
+		end,
+	})
+end)
 keymap("n", "<C-p>", telescope.git_files, opts)
 keymap("n", "<leader>sw", function()
 	local word = vim.fn.expand("<cword>")

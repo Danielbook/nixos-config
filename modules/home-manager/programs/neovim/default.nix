@@ -44,6 +44,9 @@ in {
           jsdoc
           lua
           nix
+          python
+          rust
+          toml
           typescript
         ]);
     in
@@ -97,6 +100,8 @@ in {
       alejandra                         # Nix code formatter
       gopls                             # Go language server
       isort                             # Python import sorter
+      pyright                           # Python language server
+      rust-analyzer                     # Rust language server
       lua-language-server               # Lua language server
       markdownlint-cli                  # Markdown linter
       nil                               # Nix language server

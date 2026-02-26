@@ -158,6 +158,36 @@ local servers = {
 			},
 		},
 	},
+	rust_analyzer = {
+		filetypes = { "rust" },
+		root_markers = { "Cargo.toml", "rust-project.json" },
+		settings = {
+			["rust-analyzer"] = {
+				inlayHints = {
+					chainingHints = { enable = true },
+					parameterHints = { enable = true },
+					typeHints = { enable = true },
+					closingBraceHints = { enable = true },
+				},
+				check = {
+					command = "clippy",
+				},
+			},
+		},
+	},
+	pyright = {
+		filetypes = { "python" },
+		root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
+		settings = {
+			python = {
+				analysis = {
+					autoSearchPaths = true,
+					useLibraryCodeForTypes = true,
+					diagnosticMode = "openFilesOnly",
+				},
+			},
+		},
+	},
 	tailwindcss = {},
 	nil_ls = {},
 	nixd = {
