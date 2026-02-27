@@ -3,6 +3,7 @@
   programs.yazi = {
     enable = true;
     enableZshIntegration = true; # Adds 'y' wrapper command for better navigation
+    shellWrapperName = "y";
 
     settings = {
       mgr = {

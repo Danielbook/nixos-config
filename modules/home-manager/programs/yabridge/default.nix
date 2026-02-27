@@ -9,7 +9,7 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
   # Carla as standalone plugin host for jamming
 
   home.packages = with pkgs; [
-    wineWowPackages.stagingFull # 32+64bit Wine with staging patches (esync/fsync)
+    wineWow64Packages.stagingFull # 32+64bit Wine with staging patches (esync/fsync)
     yabridge # VST bridge: runs Windows VST plugins in Linux hosts
     yabridgectl # CLI tool to manage yabridge plugin directories
     carla # Modular audio plugin host (standalone + rack mode)
