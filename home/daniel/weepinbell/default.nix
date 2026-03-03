@@ -52,6 +52,7 @@ in {
     package = pkgs.google-chrome;
     commandLineArgs = [
       "--enable-features=TouchpadOverscrollHistoryNavigation"
+      "--disable-features=AudioServiceSandbox"
     ];
   };
 
@@ -78,6 +79,7 @@ in {
     Service = {
       ExecStart = "${inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/hyprdynamicmonitors --disable-power-events";
       Restart = "on-failure";
+      RestartSec = 5;
     };
     Install.WantedBy = ["graphical-session.target"];
   };

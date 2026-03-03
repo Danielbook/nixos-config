@@ -1,15 +1,9 @@
 # SOPS configuration for secrets management
 keys:
-  # Daniel's Age public key (used for kamino and weepinbell)
+  # Daniel's Age public key (used for weepinbell)
   - &daniel age1pxc3l7nck3ku25nd66f5ul0c0gkhtnjmnr3zk0ftmm2yt3qn0q8strdzdy
 
 creation_rules:
-  # Kamino server secrets
-  - path_regex: hosts/kamino/secrets\.yaml$
-    key_groups:
-      - age:
-          - *daniel
-
   # Weepinbell home-manager secrets
   - path_regex: home/daniel/weepinbell/secrets\.yaml$
     key_groups:

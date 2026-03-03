@@ -7,7 +7,9 @@ local lsp = require("danbo.lsp")
 local sources = {
 	null_ls.builtins.formatting.alejandra,
 	null_ls.builtins.formatting.stylua,
-	null_ls.builtins.formatting.prettier, -- Always enabled, respects project configs
+	null_ls.builtins.formatting.prettier.with({
+		prefer_local = "node_modules/.bin",
+	}),
 }
 
 null_ls.setup({

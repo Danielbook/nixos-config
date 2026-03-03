@@ -5,12 +5,13 @@
   ...
 }: {
   imports = [
-    ../programs/aerospace
     ../programs/alacritty
     ../programs/atuin
     ../programs/bat
     ../programs/brave
     ../programs/btop
+    ../programs/carapace
+    ../programs/direnv
     ../programs/fastfetch
     ../programs/firefox
     ../programs/fuzzel
@@ -79,6 +80,7 @@
     terraform # Infrastructure as code tool
     unzip # Archive extraction utility
     claude-code # Claude Code editor
+    opencode # Open-source AI coding agent for the terminal
     playwright-mcp # Playwright MCP server with pre-patched browsers
 
     # Linux-specific packages

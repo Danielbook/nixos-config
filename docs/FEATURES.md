@@ -1,127 +1,69 @@
-# ✨ Features
+# Features
 
-This document details all features available across different platforms.
-
-## 🐧 Linux (NixOS) Features
-
-### Desktop Environment
-- **🪟 Hyprland**: Modern Wayland compositor with smooth animations and extensive customization
-- **🎨 Noctalia Shell**: Beautiful desktop shell built on Quickshell
+## Desktop Environment
+- **Hyprland**: Modern Wayland compositor with smooth animations and extensive customization
+- **Noctalia Shell**: Beautiful desktop shell built on Quickshell
   - Bar with workspaces, window title, system tray, and clock
   - Built-in notification center with history
   - Control center with quick settings
   - Integrated lock screen with PAM authentication
   - Media controls and system monitoring
   - Network, Bluetooth, and volume controls
-- **💤 Hypridle**: Automatic screen dimming and locking
-- **🖼️ Kanshi**: Dynamic display configuration
+- **Hypridle**: Automatic screen dimming and locking
+- **Kanshi**: Dynamic display configuration
 
-### Graphics & Hardware
-- **🔧 NVIDIA Prime**: Hybrid graphics with proper offloading support
-- **⚡ TLP**: Advanced power management for laptops
-- **💡 Brightness Control**: Keyboard shortcuts for screen and keyboard backlight
+## Graphics & Hardware
+- **NVIDIA Prime**: Hybrid graphics with proper offloading support
+- **TLP**: Advanced power management for laptops
+- **Brightness Control**: Keyboard shortcuts for screen and keyboard backlight
 
-### Screenshot & Media
-- **📸 Hyprshot**: Flexible screenshot tool with region and window capture
-- **🎨 Satty**: Modern screenshot annotation tool
-- **🎥 Screen Recording**: Integrated recording functionality
-- **👁️ OCR Support**: Text recognition from images with wl-ocr
+## Screenshot & Media
+- **Hyprshot**: Flexible screenshot tool with region and window capture
+- **Satty**: Modern screenshot annotation tool
+- **Screen Recording**: Integrated recording functionality
+- **OCR Support**: Text recognition from images with wl-ocr
 
-### Tools & Utilities
-- **📋 Cliphist**: Clipboard history manager
-- **🎨 Hyprpicker**: Color picker tool
-- **🖼️ awww**: Wayland wallpaper daemon with smooth transitions
-- **🌅 Wlsunset**: Automatic screen temperature adjustment
+## Tools & Utilities
+- **Cliphist**: Clipboard history manager
+- **Hyprpicker**: Color picker tool
+- **awww**: Wayland wallpaper daemon with smooth transitions
+- **Wlsunset**: Automatic screen temperature adjustment
 
-## 🍎 macOS (Darwin) Features
+## Terminal & Shell
+- **Ghostty**: Modern terminal emulator with JetBrains Mono, transparent background, tmux integration
+- **Tmux**: Terminal multiplexer with vim-aware navigation and custom status bar
+- **Starship**: Beautiful cross-shell prompt with git integration
+- **Zsh**: Enhanced shell with oh-my-zsh framework
 
-### Window Management
-- **🏗️ AeroSpace**: Tiling window manager with vim-style navigation
-- **📐 Smart Layouts**: Automatic window arrangement with workspaces
+## Development Tools
+- **Neovim**: Highly customized editor with LSP, Treesitter, Telescope, Neo-tree, Catppuccin theme
+- **Git**: Version control with delta pager
+- **Development Languages**: Node.js, Python, Go, Rust support
 
-### System Integration
-- **⚙️ System Defaults**: Automated macOS preferences
-  - Dock configuration (auto-hide, tile size)
-  - Finder enhancements (extensions, path bar)
-  - Trackpad settings (tap to click, three-finger drag)
-  - Keyboard configuration (Caps Lock → Escape)
-- **🔐 TouchID Integration**: TouchID for sudo authentication
-- **🍺 Homebrew Management**: Declarative GUI application installation
+## Navigation & Productivity
+- **Zoxide**: Smart directory jumping with frequency tracking
+- **Fzf**: Fuzzy finder for commands and files
+- **Bat**: Enhanced cat with syntax highlighting
+- **Btop**: Beautiful system resource monitor
+- **Eza**: Modern ls replacement with icons
+- **Ripgrep**: Fast text search tool
 
-### Applications (via Homebrew)
-- **🚀 Raycast**: Enhanced Spotlight replacement
-- **🎵 Spotify**: Music streaming
-- **💬 Discord**: Communication
-- **📝 Obsidian**: Note taking
-- **💻 Visual Studio Code**: Code editor
+## File Management
+- **Yazi**: Modern terminal file manager
 
-## 🌐 Cross-Platform Features
+## Password Management
+- **Bitwarden**: Password manager with CLI integration
+- **SSH Keys**: Bitwarden SSH agent support
 
-### Terminal & Shell
-- **👻 Ghostty**: Modern terminal emulator with:
-  - Crisp font rendering with JetBrains Mono Nerd Font
-  - Transparent background (80% opacity)
-  - Automatic tmux session management
-  - Catppuccin Macchiato theme
-- **📟 Tmux**: Terminal multiplexer with:
-  - Vim-aware pane navigation
-  - Custom status bar
-  - Project selector integration
-- **⭐ Starship**: Beautiful cross-shell prompt with git integration
-- **🐚 Zsh**: Enhanced shell with oh-my-zsh framework
+## Theme
+- **Catppuccin Macchiato**: Consistent dark theme across terminal, editor, shell, desktop, and status bar
 
-### Development Tools
-- **📝 Neovim**: Highly customized text editor with:
-  - LSP support for multiple languages
-  - Treesitter syntax highlighting
-  - Telescope fuzzy finder
-  - Neo-tree file explorer
-  - Catppuccin theme
-  - Extensive keybindings
-- **🔧 Git**: Version control with delta pager
-- **📦 Development Languages**: Node.js, Python, Go, Rust support
+## Security
+- **Encrypted Secrets**: sops-nix with Age encryption
+- **SSH Hardening**: Secure configurations
+- **Host Firewall**: Restrictive firewall rules
 
-### Navigation & Productivity
-- **📂 Zoxide**: Smart directory jumping with frequency tracking
-- **🔍 Fzf**: Fuzzy finder for commands and files
-- **🦇 Bat**: Enhanced cat with syntax highlighting
-- **📊 Btop**: Beautiful system resource monitor
-- **🌳 Eza**: Modern ls replacement with icons
-- **🔎 Ripgrep**: Fast text search tool
-
-### File Management
-- **📁 Yazi**: Modern terminal file manager
-- **📦 Compression**: Built-in support for zip, unzip, tar
-
-### Password Management
-- **🔐 Bitwarden**: Password manager with CLI integration
-- **🔑 SSH Keys**: Bitwarden SSH agent support
-
-### Theme
-- **🎨 Catppuccin Macchiato**: Consistent dark theme across:
-  - Terminal (Ghostty)
-  - Editor (Neovim)
-  - Shell (Starship prompt)
-  - Desktop (Hyprland)
-  - Status bar (Noctalia)
-
-## 🔐 Security Features
-
-- **🛡️ Encrypted Secrets**: sops-nix with Age encryption
-- **🔒 SSH Hardening**: Secure server configurations
-- **🔥 Host Firewalls**: Restrictive firewall rules
-- **📱 2FA Support**: Multi-factor authentication integration
-
-## 📦 Package Management
-
-- **❄️ Nix Flakes**: Reproducible package management
-- **🏠 Home Manager**: User environment configuration
-- **📦 Flatpak** (Linux): Sandboxed application support
-- **🍺 Homebrew** (macOS): GUI application management
-
-## 🚀 Performance
-
-- **⚡ Fast Boot**: Optimized systemd services
-- **💾 Automatic Cleanup**: Nix garbage collection
-- **🔄 Rollback Support**: Easy system recovery
-- **📊 Resource Efficient**: Minimal background processes
+## Package Management
+- **Nix Flakes**: Reproducible package management
+- **Home Manager**: User environment configuration
+- **Flatpak**: Sandboxed application support

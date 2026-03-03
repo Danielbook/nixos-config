@@ -13,15 +13,9 @@ animate.setup({
 		}),
 	},
 
-	-- Scroll animation
+	-- Scroll animation (disabled: conflicts with holding C-d/C-u for rapid scrolling)
 	scroll = {
-		enable = true,
-		timing = animate.gen_timing.cubic({ duration = 150, unit = "total" }),
-		subscroll = animate.gen_subscroll.equal({
-			predicate = function(total_scroll)
-				return total_scroll > 1
-			end,
-		}),
+		enable = false,
 	},
 
 	-- Window resize animation

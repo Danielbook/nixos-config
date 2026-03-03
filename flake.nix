@@ -13,30 +13,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # macOS system configuration management
-    nix-darwin = {
-      url = "github:nix-darwin/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Declarative Flatpak application management
     nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.6.0";
 
-    # KDE Plasma desktop configuration management
-    plasma-manager = {
-      url = "github:nix-community/plasma-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
-
     # Hardware-specific optimizations and drivers
     hardware.url = "github:nixos/nixos-hardware";
-
-    # Declarative disk partitioning for automated deployment
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # Catppuccin color scheme for consistent theming
     catppuccin.url = "github:catppuccin/nix";
@@ -88,10 +69,8 @@
     self,
     awww,
     catppuccin,
-    disko,
     home-manager,
     hyprdynamicmonitors,
-    nix-darwin,
     nixpkgs,
     noctalia,
     sops-nix,
@@ -145,31 +124,13 @@
         ];
       };
 
-    # Function for Darwin system configuration
-    mkDarwinConfiguration = system: hostname: username:
-      nix-darwin.lib.darwinSystem {
-        inherit system;
-        specialArgs = {
-          inherit inputs outputs hostname;
-          userConfig = users.${username};
-          darwinModules = "${self}/modules/darwin";
-        };
-        modules = [./hosts/${hostname}];
-      };
   in {
     nixosConfigurations = {
       weepinbell = mkNixosConfiguration "weepinbell" "daniel";
-      kamino = mkNixosConfiguration "kamino" "daniel";
-      tatooine = mkNixosConfiguration "tatooine" "daniel";
-    };
-
-    darwinConfigurations = {
-      coruscant = mkDarwinConfiguration "x86_64-darwin" "coruscant" "daniel";
     };
 
     homeConfigurations = {
       "daniel@weepinbell" = mkHomeConfiguration "x86_64-linux" "daniel" "weepinbell";
-      "daniel@coruscant" = mkHomeConfiguration "x86_64-darwin" "daniel" "coruscant";
     };
 
     overlays = import ./overlays {inherit inputs;};

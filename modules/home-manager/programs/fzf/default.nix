@@ -4,6 +4,7 @@ in {
   # Install fzf via home-manager module
   programs.fzf = {
     enable = true;
+    enableZshIntegration = true;
 
     defaultCommand = "find .";
     defaultOptions = [

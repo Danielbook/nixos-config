@@ -194,32 +194,6 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `v` | 📍 Visual select (in copy mode) |
 | `y` | 📄 Yank selection (in copy mode) |
 
-## 🍎 AeroSpace (macOS)
-
-**Main Modifier:** `Alt`
-
-### 🪟 Window Management
-| Shortcut | Action |
-|----------|--------|
-| `Alt + Shift + Enter` | 🖥️ Open terminal |
-| `Alt + h/j/k/l` | 👆 Navigate windows (vim-style) |
-| `Alt + Shift + h/j/k/l` | 📦 Move windows |
-| `Alt + f` | 📺 Toggle fullscreen |
-| `Alt + Shift + Space` | 📌 Toggle floating |
-
-### 🏠 Workspace Management
-| Shortcut | Action |
-|----------|--------|
-| `Alt + 1-9` | 🏠 Switch to workspace 1-9 |
-| `Alt + Shift + 1-9` | 📦 Move window to workspace 1-9 |
-
-### 🔄 Layout Management
-| Shortcut | Action |
-|----------|--------|
-| `Alt + s` | ↔️ Split horizontally |
-| `Alt + v` | ↕️ Split vertically |
-| `Alt + r` | 🔄 Reload AeroSpace config |
-
 ## 🔍 Global Shortcuts
 
 ### 📋 Clipboard (via Cliphist)

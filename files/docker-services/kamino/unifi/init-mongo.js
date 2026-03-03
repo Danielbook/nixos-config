@@ -1,2 +1,0 @@
-db.getSiblingDB("unifi").createUser({user: "daniel", pwd: "q5j2CPMmxEFkFDtzTkCVX8Aa9KfmAS4D6SHe322hecX3vXX8RNe2bA9j8Z3bJevF", roles: [{role: "dbOwner", db: "unifi"}]});
-db.getSiblingDB("unifi_stat").createUser({user: "daniel", pwd: "q5j2CPMmxEFkFDtzTkCVX8Aa9KfmAS4D6SHe322hecX3vXX8RNe2bA9j8Z3bJevF", roles: [{role: "dbOwner", db: "unifi_stat"}]});

@@ -3,8 +3,7 @@
   pkgs,
   config,
   ...
-}:
-lib.mkIf (!pkgs.stdenv.isDarwin) {
+}: {
   # Wine + yabridge for running Windows VST plugins (Neural DSP, etc.)
   # Carla as standalone plugin host for jamming
 

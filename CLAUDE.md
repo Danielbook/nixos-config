@@ -4,14 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Declarative, flake-based Nix configuration for 4 hosts, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
+Declarative, flake-based Nix configuration for 1 host, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
 
 | Host | Platform | Purpose |
 |------|----------|---------|
 | `weepinbell` | NixOS + Hyprland | Primary workstation |
-| `coruscant` | macOS + nix-darwin | MacBook Pro |
-| `kamino` | NixOS headless | Home automation server |
-| `tatooine` | NixOS headless | Media server |
 
 ## Build Commands
 
@@ -20,12 +17,9 @@ Declarative, flake-based Nix configuration for 4 hosts, 1 user (daniel). Uses ni
 ```bash
 just nixos-rebuild          # NixOS system rebuild
 just home-manager-switch    # Home Manager switch
-just darwin-rebuild         # macOS rebuild
 just flake-check            # Validate before building
 just flake-update           # Update all flake inputs
 just nix-gc                 # Garbage collection
-just deploy-kamino          # Server deploy via nixos-anywhere
-just deploy-tatooine        # Media server deploy
 just noctalia-sync          # Sync Noctalia UI changes to repo
 ```
 
@@ -51,7 +45,5 @@ When making changes, update the relevant docs:
 - **Keybindings** → `docs/KEYBINDINGS.md`
 - **Neovim** → `docs/NEOVIM.md`
 - **Secrets** → `docs/SECRETS.md`
-- **Server infra** → `docs/SERVER.md`
-- **macOS** → `docs/MACOS.md`
 - **Features** → `docs/FEATURES.md`
 - **Module patterns** → `docs/ARCHITECTURE.md`

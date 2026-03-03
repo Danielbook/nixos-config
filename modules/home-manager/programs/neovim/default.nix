@@ -48,6 +48,7 @@ in {
           rust
           toml
           typescript
+          svelte
         ]);
     in
       with pkgs.vimPlugins; [
@@ -98,6 +99,7 @@ in {
 
     extraPackages = with pkgs; [
       alejandra                         # Nix code formatter
+      biome                             # Biome linter/formatter
       gopls                             # Go language server
       isort                             # Python import sorter
       pyright                           # Python language server
@@ -108,6 +110,7 @@ in {
       nixd                              # Alternative Nix language server
       nodePackages.bash-language-server # Bash language server
       nodePackages.prettier            # Code formatter for web languages
+      nodePackages.svelte-language-server # Svelte language server
       shellcheck                        # Shell script static analysis
       shfmt                             # Shell script formatter
       stylua                            # Lua code formatter

@@ -354,6 +354,7 @@
 
   # Zsh configuration
   programs.zsh.enable = true;
+  environment.pathsToLink = ["/share/zsh"];
 
   # System fonts
   fonts.packages = with pkgs; [

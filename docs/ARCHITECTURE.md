@@ -2,13 +2,12 @@
 
 ## Flake Structure
 
-`flake.nix` defines three builder functions that inject `specialArgs` into modules:
+`flake.nix` defines two builder functions that inject `specialArgs` into modules:
 
 | Function | specialArgs | Module path variable |
 |----------|-------------|---------------------|
 | `mkNixosConfiguration` | `inputs`, `outputs`, `hostname`, `userConfig`, `nixosModules` | `nixosModules = "${self}/modules/nixos"` |
 | `mkHomeConfiguration` | `inputs`, `outputs`, `userConfig`, `nhModules` | `nhModules = "${self}/modules/home-manager"` |
-| `mkDarwinConfiguration` | `inputs`, `outputs`, `hostname`, `userConfig`, `darwinModules` | `darwinModules = "${self}/modules/darwin"` |
 
 `userConfig` is an attrset: `{ name, fullName, email, avatar }` — modules use it for git config, user creation, etc.
 
@@ -41,17 +40,14 @@ Relative imports (`../programs/git`) are used only inside `common/default.nix` a
 
 ## Module Organization
 
-Three separate module trees with strict separation:
+Two separate module trees with strict separation:
 
-- **`modules/nixos/`** — System-level: `common/`, `desktop/{hyprland,kde}`, `nvidia/`, `server/headless/`, `services/{tlp,audio-lowlatency,usb-serial}`, `memory-protection/`
-- **`modules/home-manager/`** — User-space: `common/` (Linux aggregator), `common-darwin/` (macOS aggregator), `desktop/{hyprland,kde}`, `programs/` (30+ programs), `services/`, `misc/`, `scripts/`
-- **`modules/darwin/`** — macOS system-level: `common/`, `desktop/`
+- **`modules/nixos/`** — System-level: `common/`, `desktop/hyprland/`, `nvidia/`, `services/{tlp,audio-lowlatency,usb-serial}`, `memory-protection/`
+- **`modules/home-manager/`** — User-space: `common/` (aggregator), `desktop/hyprland/`, `programs/` (30+ programs), `services/`, `misc/`, `scripts/`
 
 **Key patterns:**
 - `common/` modules are **aggregators** — they import 20-30 sub-modules (programs, services). Import `common` to get the full stack.
-- `common-darwin/` is a separate macOS-specific aggregator (different subset of programs).
 - `desktop/hyprland/` (home-manager) imports related services: noctalia, awww, cliphist, kanshi, hypridle, gtk, qt, xdg.
-- `server/headless/` imports `common` then uses `lib.mkForce` to strip desktop packages/services.
 
 ## Overlays
 
@@ -59,7 +55,7 @@ Three separate module trees with strict separation:
 - **`stable-packages`** — Makes `pkgs.stable.*` available (nixpkgs-stable/nixos-25.05). Used in modules via `outputs.overlays.stable-packages`.
 - **`vim-plugins-from-source`** — Builds specific vim plugins from source (workaround for hash issues).
 
-Home Manager configs apply overlays automatically (set in `mkHomeConfiguration`). NixOS/Darwin modules apply them explicitly.
+Home Manager configs apply overlays automatically (set in `mkHomeConfiguration`). NixOS modules apply them explicitly.
 
 ## Noctalia Config
 

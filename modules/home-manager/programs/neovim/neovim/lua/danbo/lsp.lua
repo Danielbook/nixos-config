@@ -188,6 +188,9 @@ local servers = {
 			},
 		},
 	},
+	biome = {},
+	svelte = {},
+	eslint = {},
 	tailwindcss = {},
 	nil_ls = {},
 	nixd = {
