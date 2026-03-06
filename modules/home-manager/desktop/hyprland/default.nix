@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   nhModules,
   pkgs,
@@ -12,7 +11,6 @@
     "${nhModules}/misc/xdg"
     "${nhModules}/services/cliphist"
     "${nhModules}/services/noctalia"
-    "${nhModules}/services/kanshi"
     "${nhModules}/services/awww"
     "${nhModules}/services/hypridle"
     "${nhModules}/services/raop-volume-guard"

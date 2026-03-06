@@ -1,29 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: let
-  fromGitHub = {
-    repo,
-    ref ? null,
-    rev ? null,
-  }: let
-    gitArgs = lib.filterAttrs (name: value: value != null) {
-      url = "https://github.com/${repo}.git";
-      inherit ref;
-      inherit rev;
-    };
-    src = builtins.fetchGit gitArgs;
-  in
-    pkgs.vimUtils.buildVimPlugin {
-      inherit src;
-      pname = "${lib.strings.sanitizeDerivationName repo}";
-      version =
-        if rev != null
-        then rev
-        else ref;
-    };
-in {
+{pkgs, ...}: {
   # Neovim text editor configuration
   programs.neovim = {
     enable = true;

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{...}: {
   # Source scripts from the home-manager store
   home.file = {
     ".local/bin" = {

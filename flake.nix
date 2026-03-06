@@ -4,8 +4,6 @@
   inputs = {
     # Core NixOS package repository (bleeding edge)
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # Stable NixOS packages for compatibility
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
 
     # User environment and dotfile management
     home-manager = {
@@ -16,11 +14,11 @@
     # Declarative Flatpak application management
     nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.6.0";
 
-    # Hardware-specific optimizations and drivers
-    hardware.url = "github:nixos/nixos-hardware";
-
     # Catppuccin color scheme for consistent theming
-    catppuccin.url = "github:catppuccin/nix";
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Secrets management with age encryption
     sops-nix = {
@@ -62,25 +60,20 @@
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
   };
 
   outputs = {
     self,
-    awww,
     catppuccin,
     home-manager,
     hyprdynamicmonitors,
     nixpkgs,
     noctalia,
-    sops-nix,
-    walls,
     ...
   } @ inputs: let
     inherit (self) outputs;
-
-    system = "x86_64-linux";
-    pkgs = import nixpkgs {inherit system;};
 
     # Define user configurations
     users = {
@@ -108,6 +101,7 @@
       home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           inherit system;
+          config.allowUnfree = true;
           overlays = builtins.attrValues outputs.overlays;
         };
         extraSpecialArgs = {
@@ -133,6 +127,18 @@
       "daniel@weepinbell" = mkHomeConfiguration "x86_64-linux" "daniel" "weepinbell";
     };
 
-    overlays = import ./overlays {inherit inputs;};
+    overlays = import ./overlays {};
+
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
+
+    devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
+      packages = with nixpkgs.legacyPackages.x86_64-linux; [
+        nixfmt
+        deadnix
+        statix
+        just
+        sops
+      ];
+    };
   };
 }

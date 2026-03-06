@@ -39,5 +39,12 @@
     # OOM killer tuning
     "vm.oom_kill_allocating_task" = 1;  # Kill the task that triggered OOM
     "vm.panic_on_oom" = 0;  # Don't panic on OOM, try to recover
+
+    # Kernel hardening
+    "kernel.kptr_restrict" = 2;
+    "kernel.dmesg_restrict" = 1;
+    "kernel.yama.ptrace_scope" = 2;
+    "kernel.unprivileged_bpf_disabled" = 1;
+    "net.core.bpf_jit_harden" = 2;
   };
 }

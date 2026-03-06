@@ -1,4 +1,4 @@
-{userConfig, pkgs, ...}: {
+{userConfig, ...}: {
   # SSH configuration with Bitwarden SSH agent
   programs.ssh = {
     enable = true;

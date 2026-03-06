@@ -9,13 +9,8 @@
 }: {
   # Nixpkgs configuration
   nixpkgs = {
-    overlays = [
-      outputs.overlays.stable-packages
-    ];
-
-    config = {
-      allowUnfree = true;
-    };
+    overlays = builtins.attrValues outputs.overlays;
+    config.allowUnfree = true;
   };
 
   # Register flake inputs for nix commands
@@ -157,6 +152,13 @@
     };
   };
 
+  # Explicit firewall configuration
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ ];
+    allowedUDPPorts = [ ];
+  };
+
 # Removed complex udev rules - letting NixOS handle power management with defaults
 
   # Disable systemd services that are affecting the boot time
@@ -176,7 +178,7 @@
   # Simple resume commands (runs as root, but can trigger user services)
   powerManagement.resumeCommands = ''
     # Restart noctalia-shell for the user session
-    sudo -u daniel systemctl --user restart noctalia-shell.service 2>/dev/null || true
+    sudo -u ${userConfig.name} systemctl --user restart noctalia-shell.service 2>/dev/null || true
   '';
   
   # Additional systemd network-related configurations
@@ -235,9 +237,11 @@
 
   # X server keyboard: US + SE, Alt+Shift to toggle
   services.xserver = {
-    xkb.layout = "us,se";
-    xkb.options = "grp:alt_shift_toggle";
-    xkb.variant = "";
+    xkb = {
+      layout = "us,se";
+      options = "grp:alt_shift_toggle";
+      variant = "";
+    };
     excludePackages = with pkgs; [xterm];
   };
 
@@ -336,15 +340,21 @@
     just # Modern task runner (replacement for make)
     bitwarden-cli # Password manager CLI for secrets management
     wireguard-tools # WireGuard VPN utilities (wg, wg-quick) for NetworkManager integration
+    openssl # Cryptography toolkit (TLS, certificates, key generation)
+    unixtools.xxd # Hex dump / reverse hex dump utility
   ];
 
   # Enable firmware for better hardware support
   hardware.enableRedistributableFirmware = true;
 
   # Docker containerization platform
-  virtualisation.docker.enable = true; # Enable Docker daemon
-  virtualisation.docker.rootless.enable = true; # Rootless Docker for security
-  virtualisation.docker.rootless.setSocketVariable = true; # Set DOCKER_HOST variable
+  virtualisation.docker = {
+    enable = true;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
+  };
 
   # Allow user-level mounting
   programs.fuse.userAllowOther = true;
@@ -367,5 +377,14 @@
   services.locate.enable = true;
 
   # OpenSSH daemon
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+      KbdInteractiveAuthentication = false;
+      X11Forwarding = false;
+      AllowUsers = [ "daniel" ];
+    };
+  };
 }

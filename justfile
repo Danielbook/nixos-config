@@ -93,14 +93,51 @@ nix-gc:
     @echo "✅ Garbage collection complete."
 
 # =============================================================================
+# Code Quality
+# =============================================================================
+
+# Format all Nix files
+format:
+    @nix fmt
+
+# Check formatting without modifying
+format-check:
+    @nix fmt -- --check .
+
+# Run linters (statix + deadnix)
+lint:
+    @nix run nixpkgs#deadnix -- --fail .
+    @nix run nixpkgs#statix -- check .
+
+# Run all checks
+check-all: format-check lint flake-check
+
+# =============================================================================
 # Utilities
 # =============================================================================
 
 # Sync Noctalia config changes back to the repo
 noctalia-sync:
-    @echo "🎨 Syncing Noctalia config to repo..."
-    @cp ~/.config/noctalia/settings.json home/daniel/weepinbell/noctalia/
-    @cp ~/.config/noctalia/user-templates.toml home/daniel/weepinbell/noctalia/
-    @cp ~/.config/noctalia/plugins.json home/daniel/weepinbell/noctalia/
-    @echo "✅ Noctalia config synced!"
-    @echo "💡 Don't forget to commit the changes"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    src="$HOME/.config/noctalia"
+    dest="home/daniel/weepinbell/noctalia"
+    if [ ! -d "$src" ]; then
+        echo "⚠️  Noctalia config dir not found at $src, skipping sync"
+        exit 0
+    fi
+    changed=0
+    for file in settings.json user-templates.toml plugins.json; do
+        if [ -f "$src/$file" ]; then
+            if ! diff -q "$src/$file" "$dest/$file" >/dev/null 2>&1; then
+                cp "$src/$file" "$dest/$file"
+                echo "  Updated $file"
+                changed=1
+            fi
+        fi
+    done
+    if [ "$changed" -eq 0 ]; then
+        echo "🎨 Noctalia config already in sync"
+    else
+        echo "🎨 Noctalia config synced!"
+    fi

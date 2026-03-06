@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{...}: {
   # Enable OpenGL for Intel integrated graphics only
   hardware.graphics = {
     enable = true;

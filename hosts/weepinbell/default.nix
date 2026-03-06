@@ -3,10 +3,6 @@
   nixosModules,
   ...
 }: {
-  ##### Base hardware profile (pulls in good defaults)
-  # If you use flakes, import nixos-hardware:
-  # inputs.nixos-hardware.url = "github:NixOS/nixos-hardware";
-  # then:
   imports = [
     ./hardware-configuration.nix
     "${nixosModules}/common"
@@ -14,7 +10,7 @@
     "${nixosModules}/services/tlp"
     "${nixosModules}/services/usb-serial"
     "${nixosModules}/services/audio-lowlatency"
-    "${nixosModules}/nvidia"
+    "${nixosModules}/graphics"
     "${nixosModules}/memory-protection"
   ];
 

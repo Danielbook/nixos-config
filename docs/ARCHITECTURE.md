@@ -20,7 +20,7 @@ Modules are referenced via **string interpolation** of the path variables, not r
 imports = [
   "${nixosModules}/common"
   "${nixosModules}/desktop/hyprland"
-  "${nixosModules}/nvidia"
+  "${nixosModules}/graphics"
 ];
 
 # In a home config:
@@ -42,20 +42,19 @@ Relative imports (`../programs/git`) are used only inside `common/default.nix` a
 
 Two separate module trees with strict separation:
 
-- **`modules/nixos/`** — System-level: `common/`, `desktop/hyprland/`, `nvidia/`, `services/{tlp,audio-lowlatency,usb-serial}`, `memory-protection/`
+- **`modules/nixos/`** — System-level: `common/`, `desktop/hyprland/`, `graphics/`, `services/{tlp,audio-lowlatency,usb-serial}`, `memory-protection/`
 - **`modules/home-manager/`** — User-space: `common/` (aggregator), `desktop/hyprland/`, `programs/` (30+ programs), `services/`, `misc/`, `scripts/`
 
 **Key patterns:**
 - `common/` modules are **aggregators** — they import 20-30 sub-modules (programs, services). Import `common` to get the full stack.
-- `desktop/hyprland/` (home-manager) imports related services: noctalia, awww, cliphist, kanshi, hypridle, gtk, qt, xdg.
+- `desktop/hyprland/` (home-manager) imports related services: noctalia, awww, cliphist, hypridle, gtk, qt, xdg.
 
 ## Overlays
 
 `overlays/default.nix` exports:
-- **`stable-packages`** — Makes `pkgs.stable.*` available (nixpkgs-stable/nixos-25.05). Used in modules via `outputs.overlays.stable-packages`.
 - **`vim-plugins-from-source`** — Builds specific vim plugins from source (workaround for hash issues).
 
-Home Manager configs apply overlays automatically (set in `mkHomeConfiguration`). NixOS modules apply them explicitly.
+All overlays are applied automatically via `builtins.attrValues outputs.overlays` in both `mkHomeConfiguration` (flake.nix) and `modules/nixos/common/default.nix`.
 
 ## Noctalia Config
 

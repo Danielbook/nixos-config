@@ -1,13 +1,4 @@
-{inputs, ...}: {
-  # When applied, the stable nixpkgs set will be
-  # accessible through 'pkgs.stable'
-  stable-packages = final: _prev: {
-    stable = import inputs.nixpkgs-stable {
-      system = final.stdenv.hostPlatform.system;
-      config.allowUnfree = true;
-    };
-  };
-
+{...}: {
   # Build lualine.nvim from source (work around nixpkgs hash mismatch bug)
   vim-plugins-from-source = final: prev: {
     vimPlugins = prev.vimPlugins // {

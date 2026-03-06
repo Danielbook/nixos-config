@@ -21,6 +21,9 @@ just flake-check            # Validate before building
 just flake-update           # Update all flake inputs
 just nix-gc                 # Garbage collection
 just noctalia-sync          # Sync Noctalia UI changes to repo
+just format                 # Format Nix files (nixfmt-rfc-style)
+just lint                   # Run statix + deadnix
+just check-all              # Format + lint + flake check
 ```
 
 ## Architecture

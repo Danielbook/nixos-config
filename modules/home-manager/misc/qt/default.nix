@@ -3,15 +3,14 @@
   lib,
   pkgs,
   ...
-}:
-with lib; let
+}: let
   variant = config.catppuccin.flavor;
   accent = config.catppuccin.accent;
 
   catppuccin-kvantum-pkg = pkgs.catppuccin-kvantum.override {inherit variant accent;};
   catppuccin-theme-name = "catppuccin-${variant}-${accent}";
 
-  qtCtAppearanceConfig = generators.toINI {} {
+  qtCtAppearanceConfig = lib.generators.toINI {} {
     Appearance = {
       icon_theme = config.gtk.iconTheme.name;
     };

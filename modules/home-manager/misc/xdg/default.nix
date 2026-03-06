@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   ...
@@ -19,11 +18,11 @@
       ];
 
       defaultApplications = {
-        "text/html" = "google-chrome.desktop";
-        "x-scheme-handler/http" = "google-chrome.desktop";
-        "x-scheme-handler/https" = "google-chrome.desktop";
-        "x-scheme-handler/about" = "google-chrome.desktop";
-        "x-scheme-handler/unknown" = "google-chrome.desktop";
+        "text/html" = lib.mkDefault "google-chrome.desktop";
+        "x-scheme-handler/http" = lib.mkDefault "google-chrome.desktop";
+        "x-scheme-handler/https" = lib.mkDefault "google-chrome.desktop";
+        "x-scheme-handler/about" = lib.mkDefault "google-chrome.desktop";
+        "x-scheme-handler/unknown" = lib.mkDefault "google-chrome.desktop";
       };
     };
 
