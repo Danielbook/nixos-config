@@ -16,6 +16,7 @@
     ../programs/fuzzel
     ../programs/fzf
     ../programs/ghostty
+    ../programs/gh
     ../programs/git
     ../programs/go
     ../programs/gpg

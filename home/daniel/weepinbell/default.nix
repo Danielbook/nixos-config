@@ -35,6 +35,7 @@ in {
     thunderbird # Email client
     inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default # Monitor configuration tool
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default # Zen browser (Firefox-based)
+    inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default # Git worktree management CLI
   ];
 
   # Secrets management with sops-nix

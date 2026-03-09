@@ -128,6 +128,11 @@
           tmux attach-session -t default 2>/dev/null || tmux new-session -s default
         fi
       ''
+
+      # Worktrunk (wt) shell integration — must load after compinit
+      (lib.mkOrder 1100 ''
+        eval "$(wt config shell init zsh)"
+      '')
     ];
   };
 }

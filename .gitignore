@@ -12,6 +12,7 @@ secrets.nix
 
 # Logs
 logs/
+debug.log
 
 # Network/infra exports
 kea-reservations.csv
