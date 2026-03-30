@@ -1,6 +1,6 @@
 # Daniel's Nix Configuration
 
-> Declarative, flake-based NixOS configuration for a single Hyprland workstation with modern development tools, AI coding agents, and encrypted secrets.
+> Declarative, flake-based NixOS configuration with a dendritic (multi-host-ready) architecture. A shared trunk branches into host-type-specific layers: desktop hosts grow compositor branches, servers stay lean on the trunk.
 
 ## Quick Links
 
@@ -20,12 +20,31 @@ nixos-config
 │   └── daniel/
 │       └── weepinbell/ # Host-specific HM overrides + Noctalia settings
 ├── modules/
-│   ├── nixos/          # System-level modules (graphics, services, etc.)
-│   └── home-manager/   # User-space modules (programs, desktop, services)
+│   ├── nixos/          # System-level modules
+│   │   ├── common/     # Universal trunk (all hosts)
+│   │   ├── desktop/    # Desktop layer: common/ + hyprland/
+│   │   ├── graphics/   # Per-host GPU configuration
+│   │   └── services/   # Opt-in services (tlp, audio, usb-serial)
+│   └── home-manager/   # User-space modules
+│       ├── common/     # Universal trunk (CLI tools, 20+ programs)
+│       ├── desktop/    # Desktop layer: common/ (GUI apps) + hyprland/
+│       ├── programs/   # Individual program modules
+│       ├── services/   # Individual service modules
+│       └── scripts/    # CLI scripts + desktop/ scripts
 ├── overlays/           # Nixpkgs overlays (vim plugins from source)
 ├── docs/               # Documentation
 ├── justfile            # Task runner for builds, formatting, and linting
 └── flake.nix           # Flake configuration and inputs
+```
+
+### Dendritic Module Layers
+
+```
+common (all hosts: nix settings, SSH, Docker, CLI tools)
+├── desktop/common (desktop hosts: PipeWire, Bluetooth, fonts, GUI apps)
+│   ├── desktop/hyprland (Hyprland compositor + services)
+│   └── desktop/<other> (future: Kodi, etc.)
+└── (servers skip desktop entirely)
 ```
 
 ## Flake Inputs
