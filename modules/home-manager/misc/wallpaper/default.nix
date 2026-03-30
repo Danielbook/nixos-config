@@ -2,9 +2,7 @@
   lib,
   inputs,
   ...
-}: let
-  walls = inputs.walls;
-in {
+}: {
   options.wallpaper = {
     default = lib.mkOption {
       type = lib.types.path;
@@ -15,6 +13,6 @@ in {
 
   config = {
     # Stable symlink to walls collection for Noctalia wallpaper management
-    home.file.".local/share/wallpapers".source = walls;
+    home.file.".local/share/wallpapers".source = inputs.walls;
   };
 }

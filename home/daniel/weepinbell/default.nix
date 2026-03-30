@@ -59,13 +59,6 @@ in {
     ];
   };
 
-  # HyprDynamicMonitors - manual configuration management
-  # Disable the built-in module to use custom config files
-  # home.hyprdynamicmonitors = {
-  #   enable = true;
-  #   extraFlags = ["--disable-power-events"];
-  # };
-
   # HyprDynamicMonitors configuration files (managed manually)
   xdg.configFile."hyprdynamicmonitors/config.toml".source = ./hyprdynamicmonitors/config.toml;
   xdg.configFile."hyprdynamicmonitors/hyprconfigs/home.go.tmpl".source = ./hyprdynamicmonitors/hyprconfigs/home.go.tmpl;

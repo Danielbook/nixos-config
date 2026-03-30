@@ -30,7 +30,6 @@
     ../programs/starship
     ../programs/tmux
     ../programs/vscode
-    # ../programs/vscodium
     ../programs/yabridge
     ../programs/yazi
     ../programs/zoxide
@@ -82,8 +81,6 @@
     # awww # Wayland wallpaper daemon (provided via flake input in services/awww)
     tesseract # OCR engine for text recognition
     wl-clipboard # Wayland clipboard manager
-    xdg-desktop-portal # Desktop integration portal
-    xdg-desktop-portal-hyprland # Hyprland-specific desktop portal
     xterm # X terminal emulator (fallback)
   ];
 

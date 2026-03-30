@@ -41,11 +41,6 @@
     };
   };
 
-  # Custom script for clipboard integration
-  home.packages = with pkgs; [
-    cliphist  # Required for clipboard functionality
-  ];
-
   # Script for clipboard integration with fuzzel
   xdg.configFile."fuzzel/fuzzel-clipboard.sh" = {
     text = ''

@@ -123,14 +123,6 @@
           diff-args = ["$left" "$right"];
         };
       };
-      
-      # Signing configuration (commented out, enable if you have GPG setup)
-      # signing = {
-      #   sign-all = true;
-      #   backend = "gpg";
-      #   key = userConfig.email;  # or specific key ID
-      # };
-      
       # Aliases for common operations
       aliases = {
         # Short log with limited entries

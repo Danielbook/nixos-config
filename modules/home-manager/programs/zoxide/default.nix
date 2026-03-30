@@ -1,4 +1,4 @@
-{...}: {
+_: {
   # Zoxide - a smarter cd command
   programs.zoxide = {
     enable = true;

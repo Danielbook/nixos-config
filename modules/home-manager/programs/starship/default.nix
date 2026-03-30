@@ -1,4 +1,4 @@
-{...}: {
+_: {
   # Starship configuration
   programs.starship = {
     enable = true;

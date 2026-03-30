@@ -15,10 +15,6 @@
     Hyprland
   '';
 
-  # Alternative: Use gtkgreet for a GUI login
-  # Uncomment the following to use gtkgreet instead of tuigreet:
-  # services.greetd.settings.default_session.command = "${pkgs.gtkgreet}/bin/gtkgreet -l -c Hyprland";
-
   # Call dbus-update-activation-environment on login
   services.xserver.updateDbusEnvironment = true;
 
@@ -35,10 +31,6 @@
 
   # Enable security services
   security.polkit.enable = true;
-  security.pam.services = {
-    # Noctalia lock screen uses its own PAM config
-  };
-
   # List of Hyprland specific packages
   environment.systemPackages = with pkgs; [
     file-roller # archive manager
@@ -50,13 +42,11 @@
 
     brightnessctl
     grim
-    hyprpaper
     hyprpicker
     libnotify
     networkmanagerapplet
     # pamixer # Temporarily disabled due to build issues
     pavucontrol
-    wireplumber # Audio session manager
     slurp
     wf-recorder
     wlr-randr
