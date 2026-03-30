@@ -1,153 +1,119 @@
 # Daniel's Nix Configuration
 
-> A declarative NixOS configuration featuring a Hyprland desktop, modern development environments, and encrypted secrets management.
+> Declarative, flake-based NixOS configuration for a single Hyprland workstation with modern development tools, AI coding agents, and encrypted secrets.
 
 ## Quick Links
 
+- **[Architecture](docs/ARCHITECTURE.md)** - Module patterns, specialArgs, and import conventions
 - **[Features](docs/FEATURES.md)** - Detailed feature list
 - **[Keybindings](docs/KEYBINDINGS.md)** - Complete keyboard shortcut reference
 - **[Neovim](docs/NEOVIM.md)** - LSP, Treesitter, Telescope, and Fugitive setup
-- **[Secrets Management](docs/SECRETS.md)** - sops-nix and Age encryption
+- **[Secrets](docs/SECRETS.md)** - sops-nix and Age encryption
 
 ## Repository Structure
 
 ```
 nixos-config
-├── hosts/              # Machine-specific configurations
-│   └── weepinbell/     # Primary NixOS workstation
+├── hosts/              # Machine-specific NixOS configurations
+│   └── weepinbell/     # Primary workstation (NixOS + Hyprland)
 ├── home/               # User-specific Home Manager configs
-├── modules/            # Reusable configuration modules
-│   ├── nixos/          # System-level NixOS modules
-│   └── home-manager/   # User-space configurations
+│   └── daniel/
+│       └── weepinbell/ # Host-specific HM overrides + Noctalia settings
+├── modules/
+│   ├── nixos/          # System-level modules (graphics, services, etc.)
+│   └── home-manager/   # User-space modules (programs, desktop, services)
+├── overlays/           # Nixpkgs overlays (vim plugins from source)
 ├── docs/               # Documentation
-├── justfile            # Build commands
-└── flake.nix           # Main flake configuration
+├── justfile            # Task runner for builds, formatting, and linting
+└── flake.nix           # Flake configuration and inputs
 ```
 
-## Key Dependencies
+## Flake Inputs
 
-- **nixpkgs**: Latest packages from nixos-unstable
-- **home-manager**: User environment management
-- **sops-nix**: Encrypted secrets with Age encryption
-- **catppuccin**: Beautiful pastel theme system-wide
+| Input | Purpose |
+|-------|---------|
+| **nixpkgs** | nixos-unstable (bleeding edge) |
+| **home-manager** | User environment and dotfile management |
+| **sops-nix** | Encrypted secrets with Age encryption |
+| **catppuccin** | System-wide Catppuccin Macchiato theming |
+| **noctalia** | Desktop shell (bar, notifications, lock screen) |
+| **awww** | Wayland wallpaper daemon |
+| **hyprdynamicmonitors** | Dynamic monitor configuration for Hyprland |
+| **spicetify-nix** | Declarative Spotify theming |
+| **zen-browser** | Firefox-based privacy browser |
+| **nix-flatpak** | Declarative Flatpak management (v0.6.0) |
+| **worktrunk** | Git worktree management CLI |
+| **walls** | Curated wallpaper collection |
 
 ## Highlights
 
 ### Desktop
-- **Hyprland** Wayland compositor with smooth animations
-- **Noctalia Shell** desktop shell (bar, notifications, lock screen)
-- **Ghostty** modern terminal with tmux integration
-- **NVIDIA Prime** hybrid graphics support
-- **Screenshots** with Hyprshot + Satty annotation
+- **Hyprland** Wayland compositor with smooth animations and NVIDIA Prime support
+- **Noctalia Shell** desktop shell (bar, notifications, lock screen, wallpaper engine)
+- **awww** wallpaper daemon with curated wallpaper collection
+- **Ghostty** + **Kitty** + **Alacritty** terminal emulators
+- **Hyprshot** + **Satty** screenshot and annotation pipeline
+- **EasyEffects** audio processing with custom presets
+- **Flatpak** apps managed declaratively via nix-flatpak
+- **Hypridle** with robust suspend/resume lockscreen recovery
 
 ### Development
-- **Neovim** with LSP, Treesitter, Telescope, Fugitive, GitHub Copilot AI ([see full docs](docs/NEOVIM.md))
+- **Neovim** with LSP, Treesitter, Telescope, Fugitive, GitHub Copilot ([docs](docs/NEOVIM.md))
+- **AI coding agents**: Claude Code, Codex, OpenCode
+- **Git** with SSH commit signing and GitLab conditional includes
+- **Jujutsu** modern VCS alongside Git
 - **Tmux** with vim-aware navigation
-- **Catppuccin** theme across all applications
-- **Modern CLI tools** (zoxide, fzf, ripgrep, bat, eza)
+- **Direnv** + **Nix develop** for per-project shells
+
+### CLI Tools
+atuin, bat, btop, carapace, dust, eza, fastfetch, fd, fzf, jq, lazydocker, lazygit, ripgrep, sesh, starship, television, yazi, zoxide, zsh
+
+### Theming
+- **Catppuccin Macchiato** (lavender accent) across all applications
+- **Spicetify** Spotify theming integrated with Noctalia
 
 ## Quick Start
 
 ```bash
-# Clone repository
 git clone https://github.com/Danielbook/nixos-config.git
 cd nixos-config
 
-# Build and switch
 just nixos-rebuild
 just home-manager-switch
 ```
 
-## Common Commands
+## Commands
 
 ```bash
-# Show all available commands
-just --list
+just --list               # Show all available commands
 
-# Update all packages
-just flake-update
+# Build
+just nixos-rebuild        # NixOS system rebuild
+just home-manager-switch  # Home Manager switch
+just flake-check          # Validate flake configuration
+just flake-update         # Update all flake inputs
+just nix-gc               # Garbage collection
 
-# NixOS system rebuild
-just nixos-rebuild
+# Code quality
+just format               # Format Nix files (nixfmt-rfc-style)
+just lint                 # Run statix + deadnix
+just check-all            # Format + lint + flake check
 
-# Home Manager switch
-just home-manager-switch
-
-# Garbage collection
-just nix-gc
-
-# Validate configuration
-just flake-check
+# Utilities
+just noctalia-sync        # Sync Noctalia UI changes to repo
 ```
 
 ## Secrets Management
 
 All secrets are encrypted with **sops-nix** and **Age encryption**:
 
-- **Encrypted at rest** in version control
-- **Runtime decryption** by NixOS
-- **Fine-grained permissions** per service
+- Encrypted at rest in version control
+- Runtime decryption by NixOS
+- Fine-grained permissions per service
 
 See [Secrets Management Guide](docs/SECRETS.md) for details.
 
-## Adding a New Machine
-
-### 1. Update flake.nix
-
-```nix
-nixosConfigurations = {
-  newmachine = mkNixosConfiguration "newmachine" "newuser";
-};
-
-homeConfigurations = {
-  "newuser@newmachine" = mkHomeConfiguration "x86_64-linux" "newuser" "newmachine";
-};
-```
-
-### 2. Create host configuration
-
-```bash
-mkdir -p hosts/newmachine
-sudo nixos-generate-config --show-hardware-config > hosts/newmachine/hardware-configuration.nix
-```
-
-### 3. Create home configuration
-
-```bash
-mkdir -p home/newuser/newmachine
-```
-
-### 4. Deploy
-
-```bash
-git add .
-just nixos-rebuild
-just home-manager-switch
-```
-
-## Customization
-
-### Add Packages
-
-**NixOS system packages:**
-```nix
-# modules/nixos/common/default.nix
-environment.systemPackages = with pkgs; [
-  your-package
-];
-```
-
-**User packages:**
-```nix
-# modules/home-manager/common/default.nix
-home.packages = with pkgs; [
-  your-package
-];
-```
-
 ## Troubleshooting
-
-### Build Failures
 
 ```bash
 # Validate configuration
@@ -155,22 +121,10 @@ just flake-check
 
 # Show detailed error trace
 nixos-rebuild switch --show-trace
-```
 
-### Home Manager Issues
-
-```bash
-# Check home-manager logs
+# Check Home Manager logs
 journalctl --user -u home-manager-${USER}.service
-
-# Rebuild with verbose output
-home-manager switch --show-trace
 ```
-
-## Additional Resources
-
-- [NixOS Manual](https://nixos.org/manual/nixos/stable/)
-- [Home Manager Manual](https://nix-community.github.io/home-manager/)
 
 ## License
 
