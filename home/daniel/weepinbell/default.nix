@@ -10,6 +10,7 @@
 in {
   imports = [
     "${nhModules}/common"
+    "${nhModules}/desktop/common"
     "${nhModules}/desktop/hyprland"
     inputs.sops-nix.homeManagerModules.sops
     # hyprdynamicmonitors - managed via TUI in ~/.config/hyprdynamicmonitors/

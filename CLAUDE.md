@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Declarative, flake-based Nix configuration for 1 host, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
+Declarative, flake-based Nix configuration with a dendritic (multi-host-ready) architecture. 1 host, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
 
 | Host | Platform | Purpose |
 |------|----------|---------|
 | `weepinbell` | NixOS + Hyprland | Primary workstation |
+
+Modules are layered: `common` (universal for all hosts) and `desktop/common` (shared by desktop hosts). Adding a new host requires a host config, home config, and flake entry — servers skip desktop imports, desktops compose from the desktop layer.
 
 ## Build Commands
 

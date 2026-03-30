@@ -103,7 +103,7 @@
       };
 
     # Function for Home Manager configuration
-    mkHomeConfiguration = system: username: hostname:
+    mkHomeConfiguration = system: username: hostname: {extraModules ? []}:
       home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           inherit system;
@@ -117,11 +117,7 @@
         };
         modules = [
           ./home/${username}/${hostname}
-          catppuccin.homeModules.catppuccin
-          hyprdynamicmonitors.homeManagerModules.default
-          noctalia.homeModules.default
-          inputs.spicetify-nix.homeManagerModules.default
-        ];
+        ] ++ extraModules;
       };
 
   in {
@@ -130,7 +126,14 @@
     };
 
     homeConfigurations = {
-      "daniel@weepinbell" = mkHomeConfiguration "x86_64-linux" "daniel" "weepinbell";
+      "daniel@weepinbell" = mkHomeConfiguration "x86_64-linux" "daniel" "weepinbell" {
+        extraModules = [
+          catppuccin.homeModules.catppuccin
+          hyprdynamicmonitors.homeManagerModules.default
+          noctalia.homeModules.default
+          inputs.spicetify-nix.homeManagerModules.default
+        ];
+      };
     };
 
     overlays = import ./overlays {};
