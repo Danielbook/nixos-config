@@ -1,6 +1,7 @@
 {
   userConfig,
   pkgs,
+  lib,
   ...
 }: {
   imports = [
@@ -66,10 +67,11 @@
     pipenv # Python virtual environment manager
     python3 # Python 3 interpreter
     ripgrep # Fast grep alternative with better defaults
+    sesh # Smart tmux session manager
+    television # Blazingly fast general purpose fuzzy finder TUI
     terraform # Infrastructure as code tool
     unzip # Archive extraction utility
-    claude-code # Claude Code editor
-    codex # OpenAI Codex CLI coding agent
+    # claude-code and codex installed via npm in home.activation (always latest)
     opencode # Open-source AI coding agent for the terminal
     playwright-mcp # Playwright MCP server with pre-patched browsers
 
@@ -84,6 +86,16 @@
     xdg-desktop-portal-hyprland # Hyprland-specific desktop portal
     xterm # X terminal emulator (fallback)
   ];
+
+  # Install latest claude-code and codex via npm (nixpkgs lags behind)
+  home.activation.installNpmCLITools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    export npm_config_prefix="$HOME/.npm-global"
+    PATH="${pkgs.nodejs_24}/bin:$PATH"
+    $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/npm install -g \
+      @anthropic-ai/claude-code@latest \
+      @openai/codex@latest \
+      2>&1 | tail -5
+  '';
 
   # Claude Code global settings
   home.file.".claude/settings.json".text = builtins.toJSON {

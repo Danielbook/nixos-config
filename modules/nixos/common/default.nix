@@ -155,8 +155,8 @@
   # Explicit firewall configuration
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ ];
-    allowedUDPPorts = [ ];
+    allowedTCPPorts = [ 5173 53317 ];
+    allowedUDPPorts = [ 53317 ];
   };
 
 # Removed complex udev rules - letting NixOS handle power management with defaults
@@ -175,12 +175,6 @@
   };
 
 
-  # Simple resume commands (runs as root, but can trigger user services)
-  powerManagement.resumeCommands = ''
-    # Restart noctalia-shell for the user session
-    sudo -u ${userConfig.name} systemctl --user restart noctalia-shell.service 2>/dev/null || true
-  '';
-  
   # Additional systemd network-related configurations
   systemd.network.wait-online = {
     timeout = 30;  # Increase timeout for better reliability

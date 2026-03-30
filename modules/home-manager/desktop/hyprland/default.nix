@@ -33,6 +33,12 @@
 
   };
 
+  # Resume lockscreen recovery script for suspend/resume
+  home.file.".local/bin/resume-lockscreen" = {
+    source = ./resume-lockscreen.sh;
+    executable = true;
+  };
+
   # Toggle mirror script for presentations/conference rooms
   home.file.".local/bin/toggle-mirror" = {
     text = ''

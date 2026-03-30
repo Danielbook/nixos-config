@@ -3,15 +3,22 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
+    includes = [
+      {
+        condition = "hasconfig:remote.*.url:git@gitlab.*/**";
+        contents.user.signingKey = "~/.ssh/id_rsa";
+      }
+    ];
     settings = {
       user = {
         name = userConfig.fullName;
         email = userConfig.email;
       };
-      #signing = {
-      #key = userConfig.gitKey;
-      #    signByDefault = true;
-      #};
+      gpg.format = "ssh";
+      signing = {
+        key = "~/.ssh/id_ed25519";
+        signByDefault = true;
+      };
       pull.rebase = "true";                    # Always rebase when pulling
       push.autoSetupRemote = "true";           # Auto-setup remote tracking for new branches
     };

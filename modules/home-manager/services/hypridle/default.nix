@@ -3,9 +3,9 @@
     enable = true;
     settings = {
       general = {
-        lock_cmd = "noctalia-shell ipc call lockScreen lock";
+        lock_cmd = "pidof noctalia-shell || noctalia-shell ipc call lockScreen lock";
         before_sleep_cmd = "loginctl lock-session";
-        after_sleep_cmd = "hyprctl dispatch dpms on";
+        after_sleep_cmd = "~/.local/bin/resume-lockscreen";
       };
       listener = [
         {

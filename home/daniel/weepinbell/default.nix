@@ -32,6 +32,8 @@ in {
     nixos-anywhere # Remote NixOS deployment tool
     pgadmin4-desktopmode # PostgreSQL administration tool
     # spotify - installed by spicetify-nix module
+    figma-linux # Unofficial Figma desktop client for Linux
+    localsend # Local file sharing
     thunderbird # Email client
     inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default # Monitor configuration tool
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default # Zen browser (Firefox-based)
@@ -85,6 +87,9 @@ in {
     Install.WantedBy = ["graphical-session.target"];
   };
 
+  # Give Intel GPU time to re-establish Wayland outputs before noctalia restarts after crash
+  systemd.user.services.noctalia-shell.Service.RestartSec = "3s";
+
   # Spicetify - Spotify theming (integrated with Noctalia)
   programs.spicetify = let
     spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -110,21 +115,33 @@ in {
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "application/x-extension-htm" = "firefox.desktop";
-      "application/x-extension-html" = "firefox.desktop";
-      "application/x-extension-shtml" = "firefox.desktop";
-      "application/x-extension-xht" = "firefox.desktop";
-      "application/x-extension-xhtml" = "firefox.desktop";
-      "application/xhtml+xml" = "firefox.desktop";
-      "text/html" = "firefox.desktop";
-      "x-scheme-handler/about" = "firefox.desktop";
-      "x-scheme-handler/chrome" = ["chromium-browser.desktop"];
-      "x-scheme-handler/ftp" = "firefox.desktop";
-      "x-scheme-handler/http" = "firefox.desktop";
-      "x-scheme-handler/https" = "firefox.desktop";
-      "x-scheme-handler/unknown" = "firefox.desktop";
-      "application/pdf" = "firefox.desktop";
+      "application/x-extension-htm" = "google-chrome.desktop";
+      "application/x-extension-html" = "google-chrome.desktop";
+      "application/x-extension-shtml" = "google-chrome.desktop";
+      "application/x-extension-xht" = "google-chrome.desktop";
+      "application/x-extension-xhtml" = "google-chrome.desktop";
+      "application/xhtml+xml" = "google-chrome.desktop";
+      "text/html" = "google-chrome.desktop";
+      "x-scheme-handler/about" = "google-chrome.desktop";
+      "x-scheme-handler/chrome" = "google-chrome.desktop";
+      "x-scheme-handler/ftp" = "google-chrome.desktop";
+      "x-scheme-handler/http" = "google-chrome.desktop";
+      "x-scheme-handler/https" = "google-chrome.desktop";
+      "x-scheme-handler/unknown" = "google-chrome.desktop";
+      "application/pdf" = "google-chrome.desktop";
+      "x-scheme-handler/figma" = "figma-linux.desktop";
     };
+  };
+
+  # Fix Figma Linux login: add URI scheme handler so browser auth can call back
+  xdg.desktopEntries.figma-linux = {
+    name = "Figma Linux";
+    comment = "Unofficial Figma desktop application for Linux";
+    exec = "figma-linux %U";
+    icon = "figma-linux";
+    terminal = false;
+    type = "Application";
+    mimeType = ["x-scheme-handler/figma"];
   };
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
