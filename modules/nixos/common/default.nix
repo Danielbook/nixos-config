@@ -122,9 +122,7 @@
   # Essential system packages
   environment.systemPackages = with pkgs; [
     fuse3
-    gcc
     glib
-    gnumake
     killall
     ethtool
     usbutils

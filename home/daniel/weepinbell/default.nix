@@ -29,8 +29,7 @@ in {
     bitwarden-desktop # Password manager
     feishin # Navidrome/Subsonic music player
     # google-chrome # Installed via programs.chromium below with custom flags
-    nodejs_24 # Node.js runtime
-    nixos-anywhere # Remote NixOS deployment tool
+nixos-anywhere # Remote NixOS deployment tool
     pgadmin4-desktopmode # PostgreSQL administration tool
     # spotify - installed by spicetify-nix module
     figma-linux # Unofficial Figma desktop client for Linux

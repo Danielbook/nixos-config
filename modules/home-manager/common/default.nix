@@ -14,7 +14,7 @@
     ../programs/fzf
     ../programs/gh
     ../programs/git
-    ../programs/go
+
     ../programs/gpg
     ../programs/jujutsu
     ../programs/lazygit
@@ -52,11 +52,8 @@
     lazydocker
     nh
     openconnect
-    pipenv
-    python3
     ripgrep
     television
-    terraform
     unzip
     opencode
     playwright-mcp
