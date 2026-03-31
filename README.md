@@ -5,6 +5,7 @@
 ## Quick Links
 
 - **[Architecture](docs/ARCHITECTURE.md)** - Module patterns, specialArgs, and import conventions
+- **[CLI Tools](docs/CLI-TOOLS.md)** - All CLI tools with project links
 - **[Features](docs/FEATURES.md)** - Detailed feature list
 - **[Keybindings](docs/KEYBINDINGS.md)** - Complete keyboard shortcut reference
 - **[Neovim](docs/NEOVIM.md)** - LSP, Treesitter, Telescope, and Fugitive setup

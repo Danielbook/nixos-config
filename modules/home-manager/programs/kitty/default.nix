@@ -22,30 +22,7 @@
       };
 
       settings = {
-        # Catppuccin Macchiato colors
-        background = "#000000";
-        foreground = "#cad3f5";
-        cursor = "#f4dbd6";
-        selection_background = "#5b6078";
-        selection_foreground = "#cad3f5";
-
-        # Catppuccin Macchiato palette
-        color0 = "#494d64"; # black
-        color1 = "#ed8796"; # red
-        color2 = "#a6da95"; # green
-        color3 = "#eed49f"; # yellow
-        color4 = "#8aadf4"; # blue
-        color5 = "#f5bde6"; # magenta
-        color6 = "#8bd5ca"; # cyan
-        color7 = "#b8c0e0"; # white
-        color8 = "#5b6078"; # bright black
-        color9 = "#ed8796"; # bright red
-        color10 = "#a6da95"; # bright green
-        color11 = "#eed49f"; # bright yellow
-        color12 = "#8aadf4"; # bright blue
-        color13 = "#f5bde6"; # bright magenta
-        color14 = "#8bd5ca"; # bright cyan
-        color15 = "#a5adcb"; # bright white
+        # Colors managed by Noctalia
 
         # Apple glass effect
         background_opacity = "0.7";

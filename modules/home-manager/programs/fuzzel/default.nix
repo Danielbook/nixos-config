@@ -19,16 +19,7 @@
         exit-on-keyboard-focus-loss = "no";
       };
 
-      # Catppuccin Macchiato theme to match your system
-      colors = {
-        background = "24273add";
-        text = "cad3f5ff";
-        match = "ed8796ff";
-        selection = "5b6078dd";
-        selection-text = "cad3f5ff";
-        selection-match = "f5a97fff";
-        border = "b4befeff";
-      };
+      # Colors managed by Noctalia
 
       border = {
         width = 2;

@@ -30,7 +30,4 @@
       };
     };
   };
-
-  # Enable catppuccin theming for yazi
-  catppuccin.yazi.enable = true;
 }

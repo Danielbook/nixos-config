@@ -25,6 +25,5 @@
     };
   };
 
-  # Enable Catppuccin theme for Alacritty
-  catppuccin.alacritty.enable = true;
+  xdg.configFile."alacritty/alacritty.toml".force = true;
 }

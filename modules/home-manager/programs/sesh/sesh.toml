@@ -1,0 +1,54 @@
+[[session]]
+name = "nixos-config"
+path = "~/Documents/repositories/nixos-config"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "aline"
+path = "~/Documents/repositories/aline"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "fartlek"
+path = "~/Documents/repositories/fartlek"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "claude-code-subagents"
+path = "~/Documents/repositories/claude-code-subagents"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "figma-to-code"
+path = "~/Documents/repositories/figma-to-code"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "webviewer-frontend"
+path = "~/Documents/repositories/webviewer-frontend"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "react-ui-frontend-library"
+path = "~/Documents/repositories/react-ui-frontend-library"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "nixos-kiosk"
+path = "~/Documents/repositories/nixos-kiosk"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[window]]
+name = "git"
+startup_script = "lazygit"
+
+[[window]]
+name = "terminal"

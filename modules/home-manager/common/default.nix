@@ -19,6 +19,7 @@
     ../programs/jujutsu
     ../programs/lazygit
     ../programs/neovim
+    ../programs/sesh
     ../programs/ssh
     ../programs/starship
     ../programs/tmux
@@ -54,7 +55,6 @@
     pipenv
     python3
     ripgrep
-    sesh
     television
     terraform
     unzip
