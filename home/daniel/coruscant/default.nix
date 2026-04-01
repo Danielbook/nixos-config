@@ -40,14 +40,37 @@ nixos-anywhere # Remote NixOS deployment tool
     inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default # Git worktree management CLI
   ];
 
+  # Fetch Age private key from Bitwarden before sops decrypts
+  # Requires: `bw login && export BW_SESSION=$(bw unlock --raw)` before running HM switch
+  home.activation.fetchAgeKey = lib.hm.dag.entryBefore ["sops-nix"] ''
+    mkdir -p ${config.home.homeDirectory}/.config/sops/age
+    if command -v bw >/dev/null 2>&1; then
+      if ! bw unlock --check >/dev/null 2>&1; then
+        echo "WARNING: Bitwarden is locked — skipping Age key fetch. Run: export BW_SESSION=\$(bw unlock --raw)"
+      else
+        KEY=$(bw get notes "SOPS_AGE_KEY" 2>/dev/null) || true
+        if [ -n "$KEY" ]; then
+          echo "$KEY" > ${config.home.homeDirectory}/.config/sops/age/keys.txt
+          chmod 600 ${config.home.homeDirectory}/.config/sops/age/keys.txt
+        fi
+      fi
+    fi
+  '';
+
   # Secrets management with sops-nix
   sops = {
-    age.keyFile = "/home/daniel/.config/sops/age/keys.txt";
+    age.keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
     defaultSopsFile = ./secrets.yaml;
+    secrets.testiny_api_key = {};
   };
 
   # Stop the CLI's auto-updater; Nix will handle upgrades.
   home.sessionVariables.DISABLE_AUTOUPDATER = "1";
+
+  # Source sops secrets as environment variables in the shell
+  programs.zsh.initContent = lib.mkOrder 1200 ''
+    export TESTINY_API_KEY="$(cat ${config.sops.secrets.testiny_api_key.path} 2>/dev/null)"
+  '';
 
   # Configure Chrome/Chromium with touchpad gesture support
   programs.chromium = {
