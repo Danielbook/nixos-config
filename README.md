@@ -15,17 +15,21 @@
 
 ```
 nixos-config
-├── hosts/              # Machine-specific NixOS configurations
-│   └── weepinbell/     # Primary workstation (NixOS + Hyprland)
+├── hosts/              # Machine-specific system configurations
+│   ├── coruscant/      # Primary workstation (NixOS + Hyprland)
+│   └── dagobah/        # Intel Mac (nix-darwin)
 ├── home/               # User-specific Home Manager configs
 │   └── daniel/
-│       └── weepinbell/ # Host-specific HM overrides + Noctalia settings
+│       ├── coruscant/  # Host-specific HM overrides + Noctalia settings
+│       └── dagobah/    # macOS home config
 ├── modules/
-│   ├── nixos/          # System-level modules
+│   ├── nixos/          # NixOS system-level modules
 │   │   ├── common/     # Universal trunk (all hosts)
 │   │   ├── desktop/    # Desktop layer: common/ + hyprland/
 │   │   ├── graphics/   # Per-host GPU configuration
 │   │   └── services/   # Opt-in services (tlp, audio, usb-serial)
+│   ├── nix-darwin/     # macOS system-level modules
+│   │   └── common/     # macOS trunk (Homebrew, system defaults)
 │   └── home-manager/   # User-space modules
 │       ├── common/     # Universal trunk (CLI tools, 20+ programs)
 │       ├── desktop/    # Desktop layer: common/ (GUI apps) + hyprland/
@@ -63,6 +67,7 @@ common (all hosts: nix settings, SSH, Docker, CLI tools)
 | **zen-browser** | Firefox-based privacy browser |
 | **nix-flatpak** | Declarative Flatpak management (v0.6.0) |
 | **worktrunk** | Git worktree management CLI |
+| **nix-darwin** | macOS system management |
 | **walls** | Curated wallpaper collection |
 
 ## Highlights
@@ -108,7 +113,8 @@ just home-manager-switch
 just --list               # Show all available commands
 
 # Build
-just nixos-rebuild        # NixOS system rebuild
+just nixos-rebuild        # NixOS system rebuild (Linux)
+just darwin-rebuild       # nix-darwin system rebuild (macOS)
 just home-manager-switch  # Home Manager switch
 just flake-check          # Validate flake configuration
 just flake-update         # Update all flake inputs

@@ -1,4 +1,10 @@
-{userConfig, ...}: {
+{
+  config,
+  userConfig,
+  ...
+}: let
+  bwSocket = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
+in {
   # SSH configuration with Bitwarden SSH agent
   programs.ssh = {
     enable = true;
@@ -7,7 +13,7 @@
     # Use Bitwarden as SSH agent
     extraConfig = ''
       Host *
-        IdentityAgent /home/${userConfig.name}/.bitwarden-ssh-agent.sock
+        IdentityAgent ${bwSocket}
     '';
 
     # Apply settings to all hosts
@@ -25,6 +31,6 @@
 
   # Set environment variables for Bitwarden SSH agent
   home.sessionVariables = {
-    SSH_AUTH_SOCK = "/home/${userConfig.name}/.bitwarden-ssh-agent.sock";
+    SSH_AUTH_SOCK = bwSocket;
   };
 }

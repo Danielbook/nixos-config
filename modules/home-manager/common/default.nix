@@ -29,35 +29,42 @@
     ../scripts
   ];
 
-  # Nicely reload system units when changing configs
-  systemd.user.startServices = "sd-switch";
+  # Nicely reload system units when changing configs (Linux only)
+  systemd.user.startServices = lib.mkIf pkgs.stdenv.isLinux "sd-switch";
 
   # Home-Manager configuration for the user's home environment
   home = {
     username = userConfig.name;
-    homeDirectory = "/home/${userConfig.name}";
+    homeDirectory =
+      if pkgs.stdenv.isDarwin
+      then "/Users/${userConfig.name}"
+      else "/home/${userConfig.name}";
   };
 
   # Essential CLI packages
-  home.packages = with pkgs; [
-    bash
-    bruno
-    dig
-    dust
-    eza
-    fd
-    github-copilot-cli
-    glab
-    jq
-    lazydocker
-    nh
-    openconnect
-    ripgrep
-    television
-    unzip
-    opencode
-    playwright-mcp
-  ];
+  home.packages =
+    (with pkgs; [
+      bash
+      bruno
+      dig
+      dust
+      eza
+      fd
+      github-copilot-cli
+      glab
+      jq
+      lazydocker
+      nodejs_24
+      openconnect
+      ripgrep
+      television
+      unzip
+      opencode
+      playwright-mcp
+    ])
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      pkgs.nh
+    ];
 
   # Install latest claude-code and codex via npm (nixpkgs lags behind)
   home.activation.installNpmCLITools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

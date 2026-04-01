@@ -1,11 +1,17 @@
 # SOPS configuration for secrets management
 keys:
-  # Daniel's Age public key (used for weepinbell)
+  # Daniel's Age public key
   - &daniel age1pxc3l7nck3ku25nd66f5ul0c0gkhtnjmnr3zk0ftmm2yt3qn0q8strdzdy
 
 creation_rules:
-  # Weepinbell home-manager secrets
-  - path_regex: home/daniel/weepinbell/secrets\.yaml$
+  # Coruscant home-manager secrets
+  - path_regex: home/daniel/coruscant/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+
+  # Dagobah home-manager secrets
+  - path_regex: home/daniel/dagobah/secrets\.yaml$
     key_groups:
       - age:
           - *daniel

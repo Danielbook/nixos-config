@@ -7,6 +7,7 @@
 | Function | specialArgs | Module path variable |
 |----------|-------------|---------------------|
 | `mkNixosConfiguration` | `inputs`, `outputs`, `hostname`, `userConfig`, `nixosModules` | `nixosModules = "${self}/modules/nixos"` |
+| `mkDarwinConfiguration` | `inputs`, `outputs`, `hostname`, `userConfig`, `darwinModules` | `darwinModules = "${self}/modules/nix-darwin"` |
 | `mkHomeConfiguration` | `inputs`, `outputs`, `userConfig`, `nhModules` | `nhModules = "${self}/modules/home-manager"` |
 
 `mkHomeConfiguration` accepts an `extraModules` parameter for host-specific flake modules (e.g., catppuccin, spicetify, noctalia). Servers pass `{}` to skip desktop flake modules.
@@ -47,12 +48,28 @@ Relative imports (`../programs/git`) are used only inside `common/default.nix` a
 The module tree branches from a universal trunk into host-type-specific layers:
 
 ```
-common (all hosts)
-├── desktop/common (desktop hosts: workstation, HTPC)
+common (all hosts, all platforms)
+├── desktop/common (desktop hosts: workstation, HTPC — Linux only)
 │   ├── desktop/hyprland (Hyprland compositor)
 │   └── desktop/<other> (future: Kodi, etc.)
+├── (macOS hosts import common + individual GUI programs)
 └── (server hosts skip desktop entirely)
 ```
+
+### Platform Conditionals
+
+Shared home-manager modules use `pkgs.stdenv.isDarwin` / `pkgs.stdenv.isLinux` for the few platform-specific bits:
+- `systemd.user.startServices` — Linux only
+- `home.homeDirectory` — `/home/` vs `/Users/`
+- `nh` package — Linux only (NixOS helper)
+- `services.gpg-agent` — Linux only (macOS uses native pinentry)
+- systemctl completion preview in zsh — Linux only
+
+### nix-darwin Modules (`modules/nix-darwin/`)
+
+| Module | Purpose |
+|--------|---------|
+| `common/` | Nix settings, Homebrew, macOS system defaults, Touch ID sudo |
 
 ### NixOS Modules (`modules/nixos/`)
 
@@ -81,6 +98,38 @@ common (all hosts)
 | `misc/` | Desktop | gtk, qt, wallpaper, xdg (imported by desktop/hyprland) |
 
 ## Adding a New Host
+
+### macOS (nix-darwin)
+
+1. Create `hosts/<hostname>/default.nix`:
+```nix
+{ hostname, darwinModules, ... }: {
+  imports = [ "${darwinModules}/common" ];
+  networking.hostName = hostname;
+}
+```
+
+2. Create `home/<username>/<hostname>/default.nix`:
+```nix
+{ nhModules, inputs, ... }: {
+  imports = [
+    "${nhModules}/common"
+    "${nhModules}/programs/ghostty"
+    "${nhModules}/programs/vscode"
+    inputs.sops-nix.homeManagerModules.sops
+  ];
+  programs.home-manager.enable = true;
+  home.stateVersion = "25.05";
+}
+```
+
+3. Add to `flake.nix`:
+```nix
+darwinConfigurations.<hostname> = mkDarwinConfiguration "<hostname>" "daniel";
+homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "x86_64-darwin" "daniel" "<hostname>" {
+  extraModules = [ catppuccin.homeModules.catppuccin ];
+};
+```
 
 ### Server (headless)
 
@@ -144,4 +193,4 @@ All overlays are applied automatically via `builtins.attrValues outputs.overlays
 
 ## Noctalia Config
 
-Noctalia config lives in `home/daniel/weepinbell/noctalia/` — files are **copied** (not symlinked) on activation so the GUI can edit them. `just noctalia-sync` copies runtime changes back to the repo (runs automatically before `just home-manager-switch`).
+Noctalia config lives in `home/daniel/coruscant/noctalia/` — files are **copied** (not symlinked) on activation so the GUI can edit them. `just noctalia-sync` copies runtime changes back to the repo (runs automatically before `just home-manager-switch`).
