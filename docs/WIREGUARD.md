@@ -7,7 +7,7 @@ This guide covers setting up WireGuard VPN to access your home network (OPNsense
 - **VPN Type**: WireGuard (modern, fast, secure)
 - **Management**: NetworkManager (GUI + CLI)
 - **Home Router**: OPNsense with WireGuard server
-- **Client**: weepinbell (NixOS workstation)
+- **Client**: coruscant (NixOS workstation)
 - **Secrets**: Managed by NetworkManager's encrypted keyring (no SOPS needed)
 
 ## 📦 Prerequisites

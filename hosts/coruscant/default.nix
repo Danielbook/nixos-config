@@ -6,6 +6,7 @@
   imports = [
     ./hardware-configuration.nix
     "${nixosModules}/common"
+    "${nixosModules}/desktop/common"
     "${nixosModules}/desktop/hyprland"
     "${nixosModules}/services/tlp"
     "${nixosModules}/services/usb-serial"

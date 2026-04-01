@@ -92,9 +92,10 @@
         zstyle ':fzf-tab:complete:git-(checkout|diff|log|merge|rebase|reset|switch):*' fzf-preview \
           'git log --oneline --graph --color=always --date=short $word 2>/dev/null'
 
+        ${lib.optionalString pkgs.stdenv.isLinux ''
         # Previews: systemctl
         zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null'
-
+        ''}
         # Previews: environment variables
         zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview \
           'echo "''${(P)word}"'
@@ -130,7 +131,6 @@
 
         # Auto-start tmux for interactive shells
         if [[ -z "$TMUX" ]] && [[ -n "$PS1" ]] && [[ -t 0 ]]; then
-          # Try to attach to an existing unattached session, otherwise create a new one
           tmux attach-session -t default 2>/dev/null || tmux new-session -s default
         fi
       ''

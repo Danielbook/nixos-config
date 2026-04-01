@@ -7,6 +7,5 @@
     };
   };
 
-  # Enable catppuccin theming for btop.
-  catppuccin.btop.enable = true;
+  xdg.configFile."btop/btop.conf".force = true;
 }

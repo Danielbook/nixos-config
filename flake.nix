@@ -1,5 +1,5 @@
 {
-  description = "My take on this NixOS thing";
+  description = "My take on this Nix thing";
 
   inputs = {
     # Core NixOS package repository (bleeding edge)
@@ -68,6 +68,12 @@
       url = "github:max-sixty/worktrunk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # macOS system management
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -75,11 +81,15 @@
     catppuccin,
     home-manager,
     hyprdynamicmonitors,
+    nix-darwin,
     nixpkgs,
     noctalia,
     ...
   } @ inputs: let
     inherit (self) outputs;
+
+    systems = ["x86_64-linux" "x86_64-darwin"];
+    forAllSystems = nixpkgs.lib.genAttrs systems;
 
     # Define user configurations
     users = {
@@ -102,8 +112,19 @@
         modules = [./hosts/${hostname}];
       };
 
+    # Function for nix-darwin system configuration
+    mkDarwinConfiguration = hostname: username:
+      nix-darwin.lib.darwinSystem {
+        specialArgs = {
+          inherit inputs outputs hostname;
+          userConfig = users.${username};
+          darwinModules = "${self}/modules/nix-darwin";
+        };
+        modules = [./hosts/${hostname}];
+      };
+
     # Function for Home Manager configuration
-    mkHomeConfiguration = system: username: hostname:
+    mkHomeConfiguration = system: username: hostname: {extraModules ? []}:
       home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           inherit system;
@@ -117,6 +138,21 @@
         };
         modules = [
           ./home/${username}/${hostname}
+        ] ++ extraModules;
+      };
+
+  in {
+    nixosConfigurations = {
+      coruscant = mkNixosConfiguration "coruscant" "daniel";
+    };
+
+    darwinConfigurations = {
+      dagobah = mkDarwinConfiguration "dagobah" "daniel";
+    };
+
+    homeConfigurations = {
+      "daniel@coruscant" = mkHomeConfiguration "x86_64-linux" "daniel" "coruscant" {
+        extraModules = [
           catppuccin.homeModules.catppuccin
           hyprdynamicmonitors.homeManagerModules.default
           noctalia.homeModules.default
@@ -124,27 +160,27 @@
         ];
       };
 
-  in {
-    nixosConfigurations = {
-      weepinbell = mkNixosConfiguration "weepinbell" "daniel";
-    };
-
-    homeConfigurations = {
-      "daniel@weepinbell" = mkHomeConfiguration "x86_64-linux" "daniel" "weepinbell";
+      "daniel@dagobah" = mkHomeConfiguration "x86_64-darwin" "daniel" "dagobah" {
+        extraModules = [
+          catppuccin.homeModules.catppuccin
+        ];
+      };
     };
 
     overlays = import ./overlays {};
 
-    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
+    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
 
-    devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
-      packages = with nixpkgs.legacyPackages.x86_64-linux; [
-        nixfmt
-        deadnix
-        statix
-        just
-        sops
-      ];
-    };
+    devShells = forAllSystems (system: {
+      default = nixpkgs.legacyPackages.${system}.mkShell {
+        packages = with nixpkgs.legacyPackages.${system}; [
+          nixfmt
+          deadnix
+          statix
+          just
+          sops
+        ];
+      };
+    });
   };
 }

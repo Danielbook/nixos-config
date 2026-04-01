@@ -1,10 +1,11 @@
 # Daniel's Nix Configuration
 
-> Declarative, flake-based NixOS configuration for a single Hyprland workstation with modern development tools, AI coding agents, and encrypted secrets.
+> Declarative, flake-based NixOS configuration with a dendritic (multi-host-ready) architecture. A shared trunk branches into host-type-specific layers: desktop hosts grow compositor branches, servers stay lean on the trunk.
 
 ## Quick Links
 
 - **[Architecture](docs/ARCHITECTURE.md)** - Module patterns, specialArgs, and import conventions
+- **[CLI Tools](docs/CLI-TOOLS.md)** - All CLI tools with project links
 - **[Features](docs/FEATURES.md)** - Detailed feature list
 - **[Keybindings](docs/KEYBINDINGS.md)** - Complete keyboard shortcut reference
 - **[Neovim](docs/NEOVIM.md)** - LSP, Treesitter, Telescope, and Fugitive setup
@@ -14,18 +15,41 @@
 
 ```
 nixos-config
-├── hosts/              # Machine-specific NixOS configurations
-│   └── weepinbell/     # Primary workstation (NixOS + Hyprland)
+├── hosts/              # Machine-specific system configurations
+│   ├── coruscant/      # Primary workstation (NixOS + Hyprland)
+│   └── dagobah/        # Intel Mac (nix-darwin)
 ├── home/               # User-specific Home Manager configs
 │   └── daniel/
-│       └── weepinbell/ # Host-specific HM overrides + Noctalia settings
+│       ├── coruscant/  # Host-specific HM overrides + Noctalia settings
+│       └── dagobah/    # macOS home config
 ├── modules/
-│   ├── nixos/          # System-level modules (graphics, services, etc.)
-│   └── home-manager/   # User-space modules (programs, desktop, services)
+│   ├── nixos/          # NixOS system-level modules
+│   │   ├── common/     # Universal trunk (all hosts)
+│   │   ├── desktop/    # Desktop layer: common/ + hyprland/
+│   │   ├── graphics/   # Per-host GPU configuration
+│   │   └── services/   # Opt-in services (tlp, audio, usb-serial)
+│   ├── nix-darwin/     # macOS system-level modules
+│   │   └── common/     # macOS trunk (Homebrew, system defaults)
+│   └── home-manager/   # User-space modules
+│       ├── common/     # Universal trunk (CLI tools, 20+ programs)
+│       ├── desktop/    # Desktop layer: common/ (GUI apps) + hyprland/
+│       ├── programs/   # Individual program modules
+│       ├── services/   # Individual service modules
+│       └── scripts/    # CLI scripts + desktop/ scripts
 ├── overlays/           # Nixpkgs overlays (vim plugins from source)
 ├── docs/               # Documentation
 ├── justfile            # Task runner for builds, formatting, and linting
 └── flake.nix           # Flake configuration and inputs
+```
+
+### Dendritic Module Layers
+
+```
+common (all hosts: nix settings, SSH, Docker, CLI tools)
+├── desktop/common (desktop hosts: PipeWire, Bluetooth, fonts, GUI apps)
+│   ├── desktop/hyprland (Hyprland compositor + services)
+│   └── desktop/<other> (future: Kodi, etc.)
+└── (servers skip desktop entirely)
 ```
 
 ## Flake Inputs
@@ -43,6 +67,7 @@ nixos-config
 | **zen-browser** | Firefox-based privacy browser |
 | **nix-flatpak** | Declarative Flatpak management (v0.6.0) |
 | **worktrunk** | Git worktree management CLI |
+| **nix-darwin** | macOS system management |
 | **walls** | Curated wallpaper collection |
 
 ## Highlights
@@ -88,7 +113,8 @@ just home-manager-switch
 just --list               # Show all available commands
 
 # Build
-just nixos-rebuild        # NixOS system rebuild
+just nixos-rebuild        # NixOS system rebuild (Linux)
+just darwin-rebuild       # nix-darwin system rebuild (macOS)
 just home-manager-switch  # Home Manager switch
 just flake-check          # Validate flake configuration
 just flake-update         # Update all flake inputs

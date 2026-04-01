@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{pkgs, lib, ...}: {
   # Install gpg via home-manager module
   programs.gpg = {
     enable = true;
@@ -26,7 +26,7 @@
     };
   };
 
-  services.gpg-agent = {
+  services.gpg-agent = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
     defaultCacheTtl = 86400;
     enableSshSupport = false;  # Disabled to use Bitwarden SSH agent

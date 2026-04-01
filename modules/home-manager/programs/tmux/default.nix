@@ -53,8 +53,19 @@
         # Clear screen with prefix + l
         bind C-l send-keys 'C-l'
 
-        # Open a project in a separate window
-        bind-key -n C-f run-shell "tmux new-window -t 10 -n project-selector cd-to-project"
+        # Sesh session picker (prefix + f)
+        bind-key "f" run-shell "sesh connect \"$(
+          sesh list --icons | fzf-tmux -p 55%,60% \
+            --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
+            --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' \
+            --bind 'tab:down,btab:up' \
+            --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
+            --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
+            --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)' \
+            --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
+            --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
+            --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)' \
+        )\""
 
         # Copy mode improvements
         bind-key -T copy-mode-vi v send-keys -X begin-selection

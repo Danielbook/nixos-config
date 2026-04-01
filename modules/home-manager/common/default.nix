@@ -5,84 +5,66 @@
   ...
 }: {
   imports = [
-    ../programs/alacritty
     ../programs/atuin
     ../programs/bat
-    ../programs/brave
     ../programs/btop
     ../programs/carapace
     ../programs/direnv
     ../programs/fastfetch
-    ../programs/firefox
-    ../programs/fuzzel
     ../programs/fzf
-    ../programs/ghostty
     ../programs/gh
     ../programs/git
-    ../programs/go
+
     ../programs/gpg
     ../programs/jujutsu
-    ../programs/kitty
     ../programs/lazygit
     ../programs/neovim
-    ../programs/obs-studio
+    ../programs/sesh
     ../programs/ssh
     ../programs/starship
     ../programs/tmux
-    ../programs/vscode
-    ../programs/yabridge
     ../programs/yazi
     ../programs/zoxide
     ../programs/zsh
     ../scripts
-    ../services/easyeffects
-    ../services/flatpak
   ];
 
-  # Nicely reload system units when changing configs
-  systemd.user.startServices = "sd-switch";
+  # Nicely reload system units when changing configs (Linux only)
+  systemd.user.startServices = lib.mkIf pkgs.stdenv.isLinux "sd-switch";
 
   # Home-Manager configuration for the user's home environment
   home = {
     username = userConfig.name;
-    homeDirectory = "/home/${userConfig.name}";
+    homeDirectory =
+      if pkgs.stdenv.isDarwin
+      then "/Users/${userConfig.name}"
+      else "/home/${userConfig.name}";
   };
 
-  # Essential user packages for daily workflow (Linux)
-  home.packages = with pkgs; [
-    # Cross-platform packages
-    bash # Bash shell (fallback/compatibility)
-    bruno # Open-source API testing tool (Postman alternative)
-    dig # DNS lookup utility
-    dust # Modern disk usage analyzer (du replacement)
-    eza # Modern ls replacement with colors and icons
-    fd # Fast find alternative for files/directories
-    github-copilot-cli # GitHub Copilot CLI
-    glab # GitLab CLI for managing repos, issues, MRs
-    jq # JSON processor and formatter
-    lazydocker # Docker container management TUI
-    nh # NixOS helper for rebuilding and managing generations
-    openconnect # Cisco AnyConnect VPN client
-    pipenv # Python virtual environment manager
-    python3 # Python 3 interpreter
-    ripgrep # Fast grep alternative with better defaults
-    sesh # Smart tmux session manager
-    television # Blazingly fast general purpose fuzzy finder TUI
-    terraform # Infrastructure as code tool
-    unzip # Archive extraction utility
-    # claude-code and codex installed via npm in home.activation (always latest)
-    opencode # Open-source AI coding agent for the terminal
-    playwright-mcp # Playwright MCP server with pre-patched browsers
-
-    # Linux-specific packages
-    # google-chrome # Moved to host-specific config with custom flags
-    prusa-slicer # 3D printer slicer for Prusa printers
-    satty # Modern Wayland screenshot annotation tool (replaces swappy)
-    # awww # Wayland wallpaper daemon (provided via flake input in services/awww)
-    tesseract # OCR engine for text recognition
-    wl-clipboard # Wayland clipboard manager
-    xterm # X terminal emulator (fallback)
-  ];
+  # Essential CLI packages
+  home.packages =
+    (with pkgs; [
+      bash
+      bruno
+      dig
+      dust
+      eza
+      fd
+      github-copilot-cli
+      glab
+      jq
+      lazydocker
+      nodejs_24
+      openconnect
+      ripgrep
+      television
+      unzip
+      opencode
+      playwright-mcp
+    ])
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      pkgs.nh
+    ];
 
   # Install latest claude-code and codex via npm (nixpkgs lags behind)
   home.activation.installNpmCLITools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

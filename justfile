@@ -1,4 +1,4 @@
-# justfile - Modern task runner for NixOS configuration management
+# justfile - Modern task runner for Nix configuration management
 # Usage: just <recipe>
 # List all recipes: just --list
 
@@ -57,11 +57,17 @@ install-nix:
 # Local System Management
 # =============================================================================
 
-# Rebuild the NixOS configuration
+# Rebuild the NixOS configuration (Linux only)
 nixos-rebuild:
     @echo "🔄 Rebuilding NixOS configuration..."
     @sudo nixos-rebuild switch --flake {{flake}}
     @echo "✅ NixOS rebuild complete."
+
+# Rebuild the nix-darwin configuration (macOS only)
+darwin-rebuild:
+    @echo "🔄 Rebuilding nix-darwin configuration..."
+    @darwin-rebuild switch --flake {{flake}}
+    @echo "✅ nix-darwin rebuild complete."
 
 # Switch the Home Manager configuration
 home-manager-switch:
@@ -121,7 +127,7 @@ noctalia-sync:
     #!/usr/bin/env bash
     set -euo pipefail
     src="$HOME/.config/noctalia"
-    dest="home/daniel/weepinbell/noctalia"
+    dest="home/daniel/coruscant/noctalia"
     if [ ! -d "$src" ]; then
         echo "⚠️  Noctalia config dir not found at $src, skipping sync"
         exit 0
