@@ -10,7 +10,13 @@
   # Nixpkgs configuration
   nixpkgs = {
     overlays = builtins.attrValues outputs.overlays;
-    config.allowUnfree = true;
+    config.allowUnfreePredicate = pkg:
+      builtins.elem (lib.getName pkg) [
+        "nvidia-x11"
+        "nvidia-settings"
+        "nvidia-persistenced"
+        "nvidia-vaapi-driver"
+      ];
   };
 
   # Register flake inputs for nix commands
@@ -155,6 +161,10 @@
   # Zsh
   programs.zsh.enable = true;
   environment.pathsToLink = ["/share/zsh"];
+
+  # nix-ld: run dynamically linked executables built for generic Linux
+  # (e.g. the native `claude` binary from the @anthropic-ai/claude-code npm package)
+  programs.nix-ld.enable = true;
 
   # Additional services
   services.locate.enable = true;

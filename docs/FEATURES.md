@@ -13,7 +13,7 @@
 - **Kanshi**: Dynamic display configuration
 
 ## Graphics & Hardware
-- **NVIDIA Prime**: Hybrid graphics with proper offloading support
+- **NVIDIA Prime Sync**: Intel iGPU + NVIDIA dGPU on coruscant; HDMI routed through dGPU, open kernel modules
 - **TLP**: Advanced power management for laptops
 - **Brightness Control**: Keyboard shortcuts for screen and keyboard backlight
 

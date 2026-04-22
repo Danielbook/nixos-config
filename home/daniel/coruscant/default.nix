@@ -27,6 +27,7 @@ in {
   # Essential packages for this machine
   home.packages = with pkgs; [
     bitwarden-desktop # Password manager
+    darktable # Open-source photo editor (Lightroom alternative)
     feishin # Navidrome/Subsonic music player
     # google-chrome # Installed via programs.chromium below with custom flags
 nixos-anywhere # Remote NixOS deployment tool
