@@ -123,11 +123,11 @@
     excludePackages = with pkgs; [ xterm ];
   };
 
-  # Wayland environment variables for Intel graphics
+  # Wayland session env vars. GPU-specific vars (LIBVA_DRIVER_NAME,
+  # GBM_BACKEND, VDPAU_DRIVER, __GLX_VENDOR_LIBRARY_NAME) live in the
+  # per-host graphics module so they can track the active GPU.
   environment.variables = {
     NIXOS_OZONE_WL = "1";
-    LIBVA_DRIVER_NAME = "iHD";
-    VDPAU_DRIVER = "va_gl";
   };
 
   # Xwayland support

@@ -63,6 +63,13 @@ nixos-rebuild:
     @sudo nixos-rebuild switch --flake {{flake}}
     @echo "✅ NixOS rebuild complete."
 
+# Build NixOS config and set as default for next boot (no live activation).
+# Use for kernel/driver swaps that can't be applied to a running system.
+nixos-rebuild-boot:
+    @echo "🔄 Building NixOS configuration for next boot..."
+    @sudo nixos-rebuild boot --flake {{flake}}
+    @echo "✅ Build staged — reboot to activate."
+
 # Rebuild the nix-darwin configuration (macOS only)
 darwin-rebuild:
     @echo "🔄 Rebuilding nix-darwin configuration..."

@@ -1,24 +1,45 @@
-{...}: {
-  # Enable OpenGL for Intel integrated graphics only
+{
+  config,
+  pkgs,
+  ...
+}: {
+  # Intel iGPU + NVIDIA RTX 3060 Mobile (GA106) — PRIME Sync.
+  # dGPU drives HDMI and all rendering; iGPU stays present for KMS handoff.
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    extraPackages = [pkgs.nvidia-vaapi-driver];
+    extraPackages32 = [pkgs.pkgsi686Linux.nvidia-vaapi-driver];
   };
 
-  # Use Intel graphics driver only (no NVIDIA)
-  services.xserver.videoDrivers = ["modesetting"];
+  boot.kernelParams = [
+    "nvidia-drm.modeset=1"
+    "nvidia-drm.fbdev=1"
+  ];
 
-  # Disable NVIDIA GPU entirely to improve suspend/resume and battery life
-  boot.extraModprobeConfig = ''
-    # Disable NVIDIA GPU
-    blacklist nvidia
-    blacklist nvidia_drm
-    blacklist nvidia_modeset
-    blacklist nouveau
-    # Keep Intel graphics working
-    options i915 modeset=1
-  '';
+  boot.initrd.kernelModules = ["nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
 
-  # Power management: disable NVIDIA GPU completely
-  boot.blacklistedKernelModules = ["nvidia" "nvidia_drm" "nvidia_modeset" "nouveau"];
+  services.xserver.videoDrivers = ["nvidia"];
+
+  hardware.nvidia = {
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    open = true;
+    modesetting.enable = true;
+    nvidiaSettings = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = false;
+
+    prime = {
+      sync.enable = true;
+      intelBusId = "PCI:0@0:2:0";
+      nvidiaBusId = "PCI:1@0:0:0";
+    };
+  };
+
+  environment.variables = {
+    LIBVA_DRIVER_NAME = "nvidia";
+    GBM_BACKEND = "nvidia-drm";
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    VDPAU_DRIVER = "va_gl";
+  };
 }
