@@ -73,13 +73,14 @@ nixos-anywhere # Remote NixOS deployment tool
     export TESTINY_API_KEY="$(cat ${config.sops.secrets.testiny_api_key.path} 2>/dev/null)"
   '';
 
-  # Configure Chrome/Chromium with touchpad gesture support
+  # Configure Chrome/Chromium with touchpad gesture support + Intel HW video decode.
   programs.chromium = {
     enable = true;
     package = pkgs.google-chrome;
     commandLineArgs = [
-      "--enable-features=TouchpadOverscrollHistoryNavigation"
+      "--enable-features=TouchpadOverscrollHistoryNavigation,VaapiVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxGL,VaapiVideoEncoder"
       "--disable-features=AudioServiceSandbox"
+      "--ignore-gpu-blocklist"
     ];
   };
 
