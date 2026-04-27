@@ -83,9 +83,9 @@
       markdownlint-cli                  # Markdown linter
       nil                               # Nix language server
       nixd                              # Alternative Nix language server
-      nodePackages.bash-language-server # Bash language server
-      nodePackages.prettier            # Code formatter for web languages
-      nodePackages.svelte-language-server # Svelte language server
+      bash-language-server              # Bash language server
+      prettier                          # Code formatter for web languages
+      svelte-language-server            # Svelte language server
       shellcheck                        # Shell script static analysis
       shfmt                             # Shell script formatter
       stylua                            # Lua code formatter

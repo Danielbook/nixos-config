@@ -3,7 +3,8 @@
   nhModules,
   pkgs,
   ...
-}: {
+}:
+{
   imports = [
     "${nhModules}/misc/gtk"
     "${nhModules}/misc/qt"
@@ -79,7 +80,7 @@
 
   dconf.settings = {
     "org/blueman/general" = {
-      "plugin-list" = lib.mkForce ["!StatusNotifierItem"];
+      "plugin-list" = lib.mkForce [ "!StatusNotifierItem" ];
     };
 
     "org/blueman/plugins/powermanager" = {
