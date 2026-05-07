@@ -77,8 +77,11 @@
       2>&1 | tail -5
   '';
 
-  # Claude Code global settings
-  home.file.".claude/settings.json".text = builtins.toJSON {
+  # Claude Code global settings — seeded once, then owned by Claude Code at runtime
+  # so `claude plugin install/uninstall` can mutate it. To re-seed defaults from
+  # this config, delete ~/.claude/settings.json and rebuild.
+  home.activation.seedClaudeSettings = let
+    defaults = pkgs.writeText "claude-settings-defaults.json" (builtins.toJSON {
     enabledPlugins = {
       "frontend-design@claude-code-plugins" = true;
     };
@@ -151,7 +154,15 @@
         }];
       }];
     };
-  };
+    });
+  in lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    settings="$HOME/.claude/settings.json"
+    if [ ! -e "$settings" ] || [ -L "$settings" ]; then
+      $DRY_RUN_CMD mkdir -p "$HOME/.claude"
+      $DRY_RUN_CMD rm -f "$settings"
+      $DRY_RUN_CMD install -m 0644 ${defaults} "$settings"
+    fi
+  '';
 
   # Catpuccin flavor and accent
   catppuccin = {
