@@ -236,6 +236,9 @@ keymap("n", "<leader>pp", "<cmd>Precognition peek<CR>", { desc = "Peek Precognit
 -- Markview
 keymap("n", "<leader>mv", "<cmd>Markview toggle<CR>", { desc = "Toggle Markview" })
 
+-- Markdown preview (browser, via markdown-preview.nvim)
+keymap("n", "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", { desc = "Toggle markdown preview" })
+
 -- Gitsigns (buffer-local keymaps set on attach)
 vim.api.nvim_create_autocmd("User", {
 	pattern = "GitSignsAttach",

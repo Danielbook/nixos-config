@@ -106,7 +106,7 @@
         # Source home-manager session variables
         [[ -f ~/.nix-profile/etc/profile.d/hm-session-vars.sh ]] && source ~/.nix-profile/etc/profile.d/hm-session-vars.sh
 
-        # npm global tools (claude-code, codex) installed via HM activation
+        # npm global tools (claude-code, codex, pi) installed via HM activation
         export PATH="$HOME/.npm-global/bin''${PATH:+:}$PATH"
 
         # vi mode

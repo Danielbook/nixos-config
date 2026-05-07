@@ -1,3 +1,7 @@
+-- Loaded first so MiniIcons.mock_nvim_web_devicons() registers before any
+-- plugin (lualine, alpha, telescope, neo-tree, noice) resolves devicons.
+require("danbo.mini-modules")
+
 require("danbo.alpha")
 require("danbo.catppuccin")
 require("danbo.cmp")
@@ -14,6 +18,7 @@ require("danbo.ts-autotag")
 require("danbo.telescope")
 require("danbo.lualine")
 require("danbo.markview")
+require("danbo.markdown-preview")
 require("danbo.remap")
 require("danbo.set")
 require("danbo.which-key")

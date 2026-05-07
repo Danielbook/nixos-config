@@ -66,13 +66,14 @@
       pkgs.nh
     ];
 
-  # Install latest claude-code and codex via npm (nixpkgs lags behind)
+  # Install latest claude-code, codex, and pi via npm (nixpkgs lags behind)
   home.activation.installNpmCLITools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export npm_config_prefix="$HOME/.npm-global"
     PATH="${pkgs.nodejs_24}/bin:$PATH"
     $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/npm install -g \
       @anthropic-ai/claude-code@latest \
       @openai/codex@latest \
+      @mariozechner/pi-coding-agent@latest \
       2>&1 | tail -5
   '';
 

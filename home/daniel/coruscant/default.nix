@@ -105,9 +105,6 @@ nixos-anywhere # Remote NixOS deployment tool
     Install.WantedBy = ["graphical-session.target"];
   };
 
-  # Give Intel GPU time to re-establish Wayland outputs before noctalia restarts after crash
-  systemd.user.services.noctalia-shell.Service.RestartSec = "3s";
-
   # Spicetify - Spotify theming (integrated with Noctalia)
   programs.spicetify = let
     spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};

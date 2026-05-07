@@ -5,6 +5,8 @@
     package = pkgs.neovim-unwrapped;
     defaultEditor = true;
     withNodeJs = true;
+    withRuby = false;
+    withPython3 = false;
     viAlias = true;
     vimAlias = true;
 
@@ -49,7 +51,7 @@
         nvim-treesitter-textobjects       # Textobjects for treesitter (af, if, etc.)
         nvim-ts-autotag                   # Auto close/rename HTML tags
         nvim-web-devicons                 # File type icons
-        peek-nvim                         # Markdown preview
+        markdown-preview-nvim             # Browser-based markdown preview (mermaid + plantuml/dot)
         markview-nvim                     # Markdown rendering and live preview in buffer
         plenary-nvim                      # Lua utility library
         telescope-fzf-native-nvim         # FZF integration for Telescope
@@ -76,6 +78,7 @@
       alejandra                         # Nix code formatter
       biome                             # Biome linter/formatter
       gopls                             # Go language server
+      graphviz                          # `dot` CLI (for rendering graphviz/DOT)
       isort                             # Python import sorter
       pyright                           # Python language server
       rust-analyzer                     # Rust language server

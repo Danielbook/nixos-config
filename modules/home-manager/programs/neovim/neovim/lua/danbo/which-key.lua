@@ -129,6 +129,17 @@ wk.add({
 	-- Markdown
 	{ "<leader>m", group = " Markdown" },
 	{ "<leader>mv", desc = "Toggle Markview" },
+	{ "<leader>mp", desc = "Toggle markdown preview (browser)" },
+
+	-- Surround (mini.surround)
+	{ "s", group = "󰅪 Surround", mode = { "n", "v" } },
+	{ "sa", desc = "Add surrounding", mode = { "n", "v" } },
+	{ "sd", desc = "Delete surrounding" },
+	{ "sr", desc = "Replace surrounding" },
+	{ "sf", desc = "Find surrounding (right)" },
+	{ "sF", desc = "Find surrounding (left)" },
+	{ "sh", desc = "Highlight surrounding" },
+	{ "sn", desc = "Update n_lines" },
 
 	-- Standalone leader keys
 	{ "<leader>pv", desc = "Open File Explorer (Ex)" },
