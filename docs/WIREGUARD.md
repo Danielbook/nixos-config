@@ -7,8 +7,15 @@ This guide covers setting up WireGuard VPN to access your home network (OPNsense
 - **VPN Type**: WireGuard (modern, fast, secure)
 - **Management**: NetworkManager (GUI + CLI)
 - **Home Router**: OPNsense with WireGuard server
-- **Client**: coruscant (NixOS workstation)
+- **Client**: coruscant (NixOS workstation), plus phone (WireGuard app)
 - **Secrets**: Managed by NetworkManager's encrypted keyring (no SOPS needed)
+
+### This Network's Actual Topology
+
+- **WireGuard subnet**: `10.11.11.0/24` (OPNsense WG interface `wg0` = `10.11.11.1`, listens UDP `51820` on WAN)
+- **coruscant client**: `10.11.11.6/32`, full tunnel (`0.0.0.0/0, ::/0`), DNS `10.11.11.1`
+- **Server endpoint**: `vpn.bookorjeman.com:51820`
+- **DDNS**: WAN is DHCP (IP changes), so the endpoint is a **hostname** kept current by OPNsense `os-ddclient` → Cloudflare. **Never hardcode the WAN IP** — it will break on the next lease change. See [Dynamic DNS](#-dynamic-dns-cloudflare) below.
 
 ## 📦 Prerequisites
 
@@ -91,33 +98,32 @@ nmcli connection up "Home VPN"
 
 ## 📋 Common WireGuard Config File Format
 
-Your OPNsense-generated config should look something like this:
+Your OPNsense-generated config should look something like this (values match this network):
 
 ```ini
 [Interface]
 PrivateKey = CLIENT_PRIVATE_KEY_HERE
-Address = 10.0.0.2/24
-DNS = 192.168.1.1
+Address = 10.11.11.6/32
+DNS = 10.11.11.1
 
 [Peer]
 PublicKey = ROUTER_PUBLIC_KEY_HERE
 PresharedKey = OPTIONAL_PSK_HERE
-Endpoint = your-home-ip-or-domain.com:51820
-AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
+Endpoint = vpn.bookorjeman.com:51820
+AllowedIPs = 0.0.0.0/0, ::/0
 PersistentKeepalive = 25
 ```
 
 **Key Fields Explained:**
 - **PrivateKey**: Your client's private key (kept secret, managed by NetworkManager)
-- **Address**: Your VPN IP address
-- **DNS**: DNS server to use when connected (usually your router)
+- **Address**: Your VPN IP address (this client = `10.11.11.6/32`)
+- **DNS**: DNS server to use when connected (the router, `10.11.11.1`)
 - **PublicKey**: Your router's public key
-- **Endpoint**: Your home's public IP or dynamic DNS + WireGuard port
+- **Endpoint**: **Always the DDNS hostname** `vpn.bookorjeman.com:51820`, never a raw WAN IP (DHCP, changes)
 - **AllowedIPs**: Which networks to route through VPN
-  - `10.0.0.0/24` - WireGuard network
-  - `192.168.1.0/24` - Your home LAN (adjust to your subnet)
-  - `0.0.0.0/0` - Route ALL traffic through VPN (full tunnel)
-- **PersistentKeepalive**: Keep connection alive through NAT (25 seconds recommended)
+  - `0.0.0.0/0, ::/0` - Route ALL traffic through VPN (full tunnel — current setup)
+  - For split tunnel instead: `10.11.11.0/24` (WG net) + your home LAN/VLAN subnets (`10.10.x.0/24`)
+- **PersistentKeepalive**: Keep connection alive through NAT (25 seconds — required here)
 
 ## 🔧 Configuration Tips
 
@@ -163,7 +169,60 @@ nmcli connection modify "Home VPN" ipv4.dns "192.168.1.1"
 nmcli connection modify "Home VPN" ipv4.dns-search "home.local"
 ```
 
+## 🌐 Dynamic DNS (Cloudflare)
+
+The home WAN IP is **DHCP and changes** (e.g. `176.10.255.123` → `.79` on a lease renewal). A hardcoded endpoint IP silently breaks on every change. Fix: point the WireGuard endpoint at a hostname kept current by OPNsense.
+
+### How it works
+
+1. **OPNsense `os-ddclient`** (Services → Dynamic DNS) watches the WAN interface and pushes the current WAN IP to a Cloudflare A record.
+2. Clients use the hostname `vpn.bookorjeman.com:51820` as the endpoint.
+3. NetworkManager (and the phone app) **re-resolve the hostname on each reconnect**, so a `down`/`up` always lands on the current IP.
+
+### OPNsense setup
+
+1. System → Firmware → Plugins → install `os-ddclient`.
+2. Services → Dynamic DNS → Settings → add account:
+   - **Service**: `Cloudflare`
+   - **Username**: `bookorjeman.com` (the zone)
+   - **Password**: Cloudflare API token (token `opnsense-ddns-vpn`, scoped **DNS Edit + Zone Read** on `bookorjeman.com`, no expiry)
+   - **Zone**: `bookorjeman.com`
+   - **Hostname(s)**: `vpn.bookorjeman.com` (also tracks `bookorjeman.com`, `www`, `local`, `*.local`)
+   - **Check ip method**: `Interface [IPv4]`, **Interface to monitor**: `WAN`
+   - **Force SSL**: ✓
+3. Save → force update.
+
+### Cloudflare setup
+
+- DNS → Records → `A` record `vpn` → WAN IP, **TTL 1 min**.
+- ⚠️ **Proxy status MUST be "DNS only" (grey cloud).** The orange-cloud proxy only forwards HTTP/S and will **drop WireGuard UDP**, killing the tunnel. Verify the record never resolves to a Cloudflare IP (`104.x`/`172.67.x`).
+
+### Verify
+
+```bash
+dig +short vpn.bookorjeman.com   # must return the real WAN IP, not a Cloudflare IP
+```
+
 ## 🔍 Troubleshooting
+
+### "VPN suddenly stopped working" → stale endpoint (most common)
+
+Almost always the **WAN IP changed** and a client is still pointing at the old IP.
+
+```bash
+sudo wg show
+```
+
+- **`latest handshake` missing + `0 B received`** (only bytes *sent*) = packets leave but the server never answers → endpoint is stale/wrong, UDP `51820` is closed on WAN, or a key mismatch.
+- Confirm the live WAN IP in OPNsense (Interfaces → Overview → WAN) and compare to `dig +short vpn.bookorjeman.com`.
+- **Fix:** ensure the endpoint is the **hostname**, not a raw IP, then reconnect so it re-resolves:
+  ```bash
+  sudo nmcli connection modify home-vpn wireguard.peers \
+    'SERVER_PUBKEY allowed-ips=0.0.0.0/0;::/0 endpoint=vpn.bookorjeman.com:51820 persistent-keepalive=25'
+  nmcli connection down home-vpn; nmcli connection up home-vpn
+  sudo wg show   # want: latest handshake: Now, nonzero received
+  ```
+- A live tunnel does **not** re-resolve the hostname mid-session — if the IP flips while connected, reconnect once.
 
 ### Check Connection Status
 
@@ -365,12 +424,48 @@ nmcli connection delete "Home VPN"
 nmcli connection import type wireguard file ~/home-vpn.conf
 ```
 
+## 📦 Declarative Setup (this repo)
+
+The `home-vpn` tunnel on **coruscant is fully declarative** — no manual import needed. Defined in `hosts/coruscant/default.nix`:
+
+- **Private key**: stored sops-encrypted in `hosts/coruscant/secrets.yaml` (NixOS-level sops-nix). Encrypted to two recipients: daniel's personal age key (Bitwarden-backed, recovery) and the coruscant host key.
+- **Boot decrypt**: `sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ]` — the host SSH key decrypts the secret at activation, unattended (no Bitwarden prompt during `nixos-rebuild`).
+- **Connection**: `sops.templates."home-vpn.nmconnection"` renders the NM keyfile (private key injected) directly to `/etc/NetworkManager/system-connections/home-vpn.nmconnection`. NM picks it up. `autoconnect=false` → toggle from tray / `nmcli` as usual.
+- **Endpoint**: `vpn.bookorjeman.com:51820` (DDNS, see above). `10.11.11.6/32`, full tunnel.
+
+Rebuild a machine from scratch → the tunnel reappears automatically. Nothing to re-import.
+
+### Rotating the client key (declarative)
+
+Write a fresh key straight into sops (never printed), then update the OPNsense peer:
+
+```bash
+cd ~/Documents/repositories/nixos-config && umask 077 && \
+PRIV=$(wg genkey) && \
+PUB=$(printf '%s' "$PRIV" | wg pubkey) && \
+printf 'wg_home_private_key: %s\n' "$PRIV" > hosts/coruscant/secrets.yaml && \
+unset PRIV && \
+nix develop --command sops --encrypt --in-place hosts/coruscant/secrets.yaml && \
+echo "NEW PUBLIC KEY: $PUB"
+```
+
+Then: OPNsense → VPN → WireGuard → Peers → coruscant peer (`10.11.11.6/32`) → set Public Key to the printed value → Save → Apply. Then `just nixos-rebuild` and toggle. Swapping the peer's public key is the revocation — the old private key grants nothing once the server stops accepting it.
+
+> ⚠️ The secrets file must be `git add`ed (it's encrypted) — Nix flakes ignore untracked files, so an un-added `secrets.yaml` fails the build with "not tracked by Git".
+
+### Machine recovery (host key lost)
+
+If coruscant is reinstalled, its host key changes and can no longer decrypt the secret. Recover with your personal (Bitwarden) age key:
+
+```bash
+# on the rebuilt machine, get the new host age recipient
+nix run nixpkgs#ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub
+# update the &coruscant anchor in .sops.yaml to the new value, then re-encrypt:
+nix develop --command sops updatekeys hosts/coruscant/secrets.yaml
+```
+
+`updatekeys` works because your personal key (in `.sops.yaml`) can still decrypt. Worst case (machine + Bitwarden both gone): just rotate the key per above — WireGuard keys are cheap.
+
 ## 🔄 After NixOS Rebuild
 
-After running `just nixos-rebuild`, the `wireguard-tools` package will be available. You'll need to:
-
-1. Reboot or log out/in for changes to take full effect
-2. Import your WireGuard config (one-time setup)
-3. Connect to VPN as needed
-
-Your NetworkManager connection profiles persist across rebuilds, so you only need to import once.
+On coruscant the connection is declarative (see above) — `just nixos-rebuild` renders it; no import step. For a **new host** without the declarative config, import once via NetworkManager; profiles then persist across rebuilds.

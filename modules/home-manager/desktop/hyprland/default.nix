@@ -12,7 +12,6 @@
     "${nhModules}/misc/xdg"
     "${nhModules}/services/cliphist"
     "${nhModules}/services/noctalia"
-    "${nhModules}/services/awww"
     "${nhModules}/services/hypridle"
     "${nhModules}/services/raop-volume-guard"
   ];
@@ -24,6 +23,17 @@
     package = pkgs.yaru-theme;
     name = "Yaru";
     size = 24;
+  };
+
+  # hyprland-session.target — anchor for user services that should run under Hyprland
+  systemd.user.targets.hyprland-session = {
+    Unit = {
+      Description = "Hyprland compositor session";
+      Documentation = [ "man:systemd.special(7)" ];
+      BindsTo = [ "graphical-session.target" ];
+      Wants = [ "graphical-session-pre.target" ];
+      After = [ "graphical-session-pre.target" ];
+    };
   };
 
   # Source hyprland config from the home-manager store

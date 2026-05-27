@@ -1,9 +1,20 @@
 # SOPS configuration for secrets management
 keys:
-  # Daniel's Age public key
+  # Daniel's Age public key (personal, backed by Bitwarden — durable recovery key)
   - &daniel age1pxc3l7nck3ku25nd66f5ul0c0gkhtnjmnr3zk0ftmm2yt3qn0q8strdzdy
+  # Coruscant host key (derived from /etc/ssh/ssh_host_ed25519_key via ssh-to-age).
+  # Convenience recipient for unattended boot decrypt; regenerable on reinstall.
+  - &coruscant age1a3h3kn2fzrdx6ysq57lmselk77yj6lk4x0vs6mrr05ge28rtxfqspf8h3n
 
 creation_rules:
+  # Coruscant SYSTEM secrets (NixOS-level: WireGuard private key, etc.).
+  # Must precede the global rule below. Encrypted to daniel (recovery) + host key (boot decrypt).
+  - path_regex: hosts/coruscant/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *coruscant
+
   # Coruscant home-manager secrets
   - path_regex: home/daniel/coruscant/secrets\.yaml$
     key_groups:

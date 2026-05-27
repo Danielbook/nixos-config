@@ -17,7 +17,7 @@ in {
     '';
 
     # Apply settings to all hosts
-    matchBlocks."*" = {
+    settings."*" = {
       serverAliveInterval = 60;
       serverAliveCountMax = 3;
       compression = true;

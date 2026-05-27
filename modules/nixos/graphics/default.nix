@@ -35,7 +35,12 @@
     open = true;
     modesetting.enable = true;
     nvidiaSettings = true;
-    powerManagement.enable = false;
+    # powerManagement.enable=true installs nvidia-{suspend,resume,hibernate}.service
+    # and sets NVreg_PreserveVideoMemoryAllocations=1 so VRAM survives suspend.
+    # Was false ("to prevent crashes") — that was the cause: on resume the GSP
+    # firmware OOM'd / heartbeat-timed-out, crashing GPU clients (noctalia lockscreen).
+    powerManagement.enable = true;
+    # finegrained stays false: it needs render-offload/bus PM, not used under PRIME sync.
     powerManagement.finegrained = false;
 
     prime = {

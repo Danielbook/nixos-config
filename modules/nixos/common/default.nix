@@ -54,7 +54,7 @@
     loader.efi.canTouchEfiVariables = true;
     loader.systemd-boot = {
       enable = true;
-      configurationLimit = 10;
+      configurationLimit = 5;
     };
     loader.timeout = 10;
   };

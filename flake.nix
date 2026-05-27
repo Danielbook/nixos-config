@@ -38,12 +38,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Wayland wallpaper daemon (swww replacement)
-    awww = {
-      url = "git+https://codeberg.org/LGFae/awww";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Noctalia desktop shell (bar, notifications, lock screen)
     noctalia = {
       url = "github:noctalia-dev/noctalia-shell";
