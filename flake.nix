@@ -90,7 +90,7 @@
       daniel = {
         avatar = ./files/avatar/face;
         email = "daniel@bookorjeman.se";
-        fullName = "Daniel Book";
+        fullName = "Daniel Böök";
         name = "daniel";
       };
     };

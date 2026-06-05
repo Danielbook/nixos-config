@@ -43,7 +43,10 @@
   boot = {
     kernelPackages = pkgs.linuxPackages;
     kernelParams = [
-      "mem_sleep_default=deep"
+      # s2idle, not deep S3: deep S3 entry-hangs on this Optimus laptop after a few
+      # suspend cycles (ACPI D-Notifier 0x11, open nvidia driver can't handle the
+      # dGPU power-state handshake). s2idle = what Windows Modern Standby uses here.
+      "mem_sleep_default=s2idle"
 
       # Network driver stability parameters
       "r8152.enable_aldps=0"

@@ -1,48 +1,54 @@
 [[session]]
 name = "nixos-config"
-path = "~/Documents/repositories/nixos-config"
-startup_command = "nvim"
-windows = ["git", "terminal"]
-
-[[session]]
-name = "aline"
-path = "~/Documents/repositories/aline"
+path = "~/Documents/repositories/personal/nixos-config"
 startup_command = "nvim"
 windows = ["git", "terminal"]
 
 [[session]]
 name = "fartlek"
-path = "~/Documents/repositories/fartlek"
+path = "~/Documents/repositories/personal/fartlek"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "aline"
+path = "~/Documents/repositories/work/aline"
 startup_command = "nvim"
 windows = ["git", "terminal"]
 
 [[session]]
 name = "claude-code-subagents"
-path = "~/Documents/repositories/claude-code-subagents"
+path = "~/Documents/repositories/work/claude-code-subagents"
 startup_command = "nvim"
 windows = ["git", "terminal"]
 
 [[session]]
 name = "figma-to-code"
-path = "~/Documents/repositories/figma-to-code"
+path = "~/Documents/repositories/work/figma-to-code"
 startup_command = "nvim"
 windows = ["git", "terminal"]
 
 [[session]]
 name = "webviewer-frontend"
-path = "~/Documents/repositories/webviewer-frontend"
+path = "~/Documents/repositories/work/webviewer-frontend"
+startup_command = "nvim"
+windows = ["git", "terminal"]
+
+[[session]]
+name = "favorites-browser"
+path = "~/Documents/repositories/work/favorites-browser"
 startup_command = "nvim"
 windows = ["git", "terminal"]
 
 [[session]]
 name = "react-ui-frontend-library"
-path = "~/Documents/repositories/react-ui-frontend-library"
+path = "~/Documents/repositories/work/react-ui-frontend-library"
 startup_command = "nvim"
 windows = ["git", "terminal"]
 
 [[session]]
 name = "nixos-kiosk"
-path = "~/Documents/repositories/nixos-kiosk"
+path = "~/Documents/repositories/work/nixos-kiosk"
 startup_command = "nvim"
 windows = ["git", "terminal"]
 

@@ -164,6 +164,11 @@
     fi
   '';
 
+  # Caveman plugin default intensity (plugin itself installed imperatively)
+  xdg.configFile."caveman/config.json".text = builtins.toJSON {
+    defaultMode = "ultra";
+  };
+
   # Catpuccin flavor and accent
   catppuccin = {
     flavor = "macchiato";

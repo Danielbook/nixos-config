@@ -2,7 +2,30 @@
   userConfig,
   pkgs,
   ...
-}: {
+}:
+let
+  # Single source of truth: ethernet connected -> WiFi off, otherwise WiFi on.
+  # Called by both the NM dispatcher (link up/down) and the resume hook, since a
+  # resume from suspend/hibernate does not reliably replay link events.
+  reconcileWifi = pkgs.writeShellApplication {
+    name = "reconcile-wifi";
+    runtimeInputs = [
+      pkgs.networkmanager
+      pkgs.util-linux
+      pkgs.gnugrep
+    ];
+    text = ''
+      if nmcli -t -f TYPE,STATE device status | grep -q '^ethernet:connected$'; then
+        nmcli radio wifi off
+        logger "reconcile-wifi: WiFi off (ethernet connected)"
+      else
+        nmcli radio wifi on
+        logger "reconcile-wifi: WiFi on (no ethernet connected)"
+      fi
+    '';
+  };
+in
+{
   # Boot cosmetics (graphical splash)
   boot = {
     consoleLogLevel = 0;
@@ -25,29 +48,14 @@
       {
         source = pkgs.writeText "prefer-ethernet" ''
           #!/bin/sh
-          # Automatically disable WiFi when ethernet is connected
-          # and re-enable when ethernet is disconnected
-
+          # On ethernet link up/down, reconcile WiFi state.
           interface="$1"
           action="$2"
-
-          case "$action" in
-            "up")
-              if [[ "$interface" =~ ^(eth|en) ]]; then
-                # Ethernet came up, disable WiFi
-                nmcli radio wifi off
-                logger "NetworkManager: Disabled WiFi because ethernet ($interface) is connected"
-              fi
-              ;;
-            "down")
-              if [[ "$interface" =~ ^(eth|en) ]]; then
-                # Ethernet went down, check if any other ethernet is up
-                if ! nmcli device status | grep -E '^(eth|en).*connected'; then
-                  # No ethernet connected, enable WiFi
-                  nmcli radio wifi on
-                  logger "NetworkManager: Enabled WiFi because no ethernet is connected"
-                fi
-              fi
+          case "$interface" in
+            eth*|en*)
+              case "$action" in
+                up | down) ${reconcileWifi}/bin/reconcile-wifi ;;
+              esac
               ;;
           esac
         '';
@@ -77,9 +85,20 @@
     };
   };
 
+  # Reconcile WiFi/ethernet on resume from suspend/hibernate. NM link events are
+  # not reliably replayed across a resume (e.g. ethernet unplugged while asleep),
+  # so re-run the same logic the dispatcher uses. Brief sleep lets NM settle.
+  powerManagement.resumeCommands = ''
+    ${pkgs.coreutils}/bin/sleep 2
+    ${reconcileWifi}/bin/reconcile-wifi
+  '';
+
   # Desktop-specific firewall ports
   networking.firewall = {
-    allowedTCPPorts = [ 5173 53317 ];
+    allowedTCPPorts = [
+      5173
+      53317
+    ];
     allowedUDPPorts = [ 53317 ];
   };
 
@@ -160,7 +179,10 @@
     # RAOP (AirPlay) discovery for streaming to AirPlay devices
     extraConfig.pipewire-pulse."raop-discover" = {
       "pulse.cmd" = [
-        { cmd = "load-module"; args = "module-raop-discover"; }
+        {
+          cmd = "load-module";
+          args = "module-raop-discover";
+        }
       ];
     };
   };

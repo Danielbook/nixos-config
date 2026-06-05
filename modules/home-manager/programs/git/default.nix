@@ -8,6 +8,20 @@
         condition = "hasconfig:remote.*.url:git@gitlab.*/**";
         contents.user.signingKey = "~/.ssh/id_rsa";
       }
+      {
+        condition = "gitdir:~/Documents/repositories/personal/";
+        contents.user = {
+          name = "Daniel Böök";
+          email = "daniel@bookorjeman.se";
+        };
+      }
+      {
+        condition = "gitdir:~/Documents/repositories/work/";
+        contents.user = {
+          name = "Daniel Böök";
+          email = "daniel.book@configura.com";
+        };
+      }
     ];
     settings = {
       user = {

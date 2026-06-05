@@ -6,7 +6,6 @@ set -euo pipefail
 MAX_WAIT=10
 
 sleep 1
-hyprctl dispatch dpms on
 
 # If noctalia survived, just ensure screen is locked
 if pgrep -x noctalia-shell >/dev/null 2>&1; then
