@@ -1,6 +1,13 @@
-{...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   programs.ghostty = {
     enable = true;
+    # nixpkgs has no darwin build for ghostty — install via homebrew cask there,
+    # but still let home-manager manage the config (package = null skips install).
+    package = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin null;
     settings = {
       # Font configuration
       font-family = "JetBrainsMono Nerd Font";

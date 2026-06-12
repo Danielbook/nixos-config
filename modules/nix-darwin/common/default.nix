@@ -70,6 +70,7 @@
     casks = [
       "bitwarden"
       "chatgpt"
+      "ghostty"
       "claude"
       "discord"
       "home-assistant"
