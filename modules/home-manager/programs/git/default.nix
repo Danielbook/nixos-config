@@ -39,6 +39,9 @@
       };
       pull.rebase = "true";                    # Always rebase when pulling
       push.autoSetupRemote = "true";           # Auto-setup remote tracking for new branches
+      # Push/pull GitHub over SSH (Bitwarden SSH agent) even when the remote is
+      # an HTTPS URL — avoids the interactive "Username for https://github.com" prompt.
+      url."git@github.com:".insteadOf = "https://github.com/";
       credential."https://git.configura.com".helper = [
         ""
         "${pkgs.glab}/bin/glab auth git-credential"
