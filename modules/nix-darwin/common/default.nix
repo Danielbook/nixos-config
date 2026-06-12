@@ -69,7 +69,9 @@
     onActivation.cleanup = "zap";
     casks = [
       "bitwarden"
+      "brave-browser"
       "chatgpt"
+      "firefox"
       "ghostty"
       "claude"
       "discord"
