@@ -69,6 +69,16 @@
     onActivation.cleanup = "zap";
     casks = [
       "bitwarden"
+      "chatgpt"
+      "claude"
+      "discord"
+      "home-assistant"
+      "messenger"
+      "microsoft-excel"
+      "microsoft-outlook"
+      "microsoft-powerpoint"
+      "microsoft-teams"
+      "whatsapp"
     ];
   };
 
