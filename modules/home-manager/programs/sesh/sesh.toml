@@ -1,56 +1,71 @@
+[default_session]
+preview_command = "tmux capture-pane -ep -t {}"
+
 [[session]]
 name = "nixos-config"
 path = "~/Documents/repositories/personal/nixos-config"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
-name = "fartlek"
-path = "~/Documents/repositories/personal/fartlek"
+name = "cadmus"
+path = "~/Documents/repositories/work/cadmus-cli"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
 name = "aline"
 path = "~/Documents/repositories/work/aline"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
+
+[[session]]
+name = "spectrum-shared-resources"
+path = "~/Documents/repositories/work/spectrum-shared-resources"
+startup_command = "nvim"
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
 name = "claude-code-subagents"
 path = "~/Documents/repositories/work/claude-code-subagents"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
 name = "figma-to-code"
 path = "~/Documents/repositories/work/figma-to-code"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
 name = "webviewer-frontend"
 path = "~/Documents/repositories/work/webviewer-frontend"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
 name = "favorites-browser"
 path = "~/Documents/repositories/work/favorites-browser"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
 name = "react-ui-frontend-library"
 path = "~/Documents/repositories/work/react-ui-frontend-library"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
 
 [[session]]
 name = "nixos-kiosk"
 path = "~/Documents/repositories/work/nixos-kiosk"
 startup_command = "nvim"
-windows = ["git", "terminal"]
+windows = ["git", "terminal", "yazi"]
+
+[[session]]
+name = "spectrum-web-shared-resources"
+path = "~/Documents/repositories/work/spectrum-web-shared-resources"
+startup_command = "nvim"
+windows = ["git", "terminal", "yazi"]
 
 [[window]]
 name = "git"
@@ -58,3 +73,7 @@ startup_script = "lazygit"
 
 [[window]]
 name = "terminal"
+
+[[window]]
+name = "yazi"
+startup_script = "yazi"

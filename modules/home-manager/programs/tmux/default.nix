@@ -58,6 +58,7 @@
           sesh list --icons | fzf-tmux -p 55%,60% \
             --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
             --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' \
+            --preview 'sesh preview {2..}' --preview-window 'right:55%' \
             --bind 'tab:down,btab:up' \
             --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
             --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \

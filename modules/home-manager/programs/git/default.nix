@@ -1,4 +1,8 @@
-{userConfig, ...}: {
+{
+  userConfig,
+  pkgs,
+  ...
+}: {
   # Install git via home-manager module
   programs.git = {
     enable = true;
@@ -35,6 +39,10 @@
       };
       pull.rebase = "true";                    # Always rebase when pulling
       push.autoSetupRemote = "true";           # Auto-setup remote tracking for new branches
+      credential."https://git.configura.com".helper = [
+        ""
+        "${pkgs.glab}/bin/glab auth git-credential"
+      ];
     };
   };
 

@@ -4,12 +4,12 @@ local M = {}
 
 local function on_attach(client, bufnr)
 	-- Disable inlay hints by default (use <leader>th to toggle)
-	if client.supports_method("textDocument/inlayHint") then
+	if client:supports_method("textDocument/inlayHint") then
 		vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
 	end
 
 	-- Enable document highlight (highlight other uses of symbol under cursor)
-	if client.supports_method("textDocument/documentHighlight") then
+	if client:supports_method("textDocument/documentHighlight") then
 		local group = vim.api.nvim_create_augroup("LspDocumentHighlight", { clear = false })
 		vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
 		vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
@@ -25,7 +25,7 @@ local function on_attach(client, bufnr)
 	end
 
 	-- Format on save with any LSP that supports it
-	if client.supports_method("textDocument/formatting") then
+	if client:supports_method("textDocument/formatting") then
 		local group = vim.api.nvim_create_augroup("LspFormatOnSave", { clear = false })
 		vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
 

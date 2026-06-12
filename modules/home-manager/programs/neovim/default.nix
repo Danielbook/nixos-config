@@ -1,4 +1,11 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  # Lua rocks needed at runtime: jsregexp (luasnip transforms), tiktoken_core
+  # (CopilotChat token counting). home-manager sources our config from the repo
+  # and sets wrapRc=false, which disables the wrapper's normal extraLuaPackages
+  # cpath setup — so inject the env explicitly via extraWrapperArgs below.
+  neovimLua = pkgs.neovim-unwrapped.lua;
+  luaEnv = neovimLua.withPackages (ps: with ps; [jsregexp tiktoken_core]);
+in {
   # Neovim text editor configuration
   programs.neovim = {
     enable = true;
@@ -16,12 +23,14 @@
       nvim-treesitter-with-plugins = pkgs.vimPlugins.nvim-treesitter.withPlugins (treesitter-plugins:
         with treesitter-plugins; [
           bash
+          diff
           go
           javascript
           jsdoc
           lua
           nix
           python
+          regex
           rust
           toml
           typescript
@@ -74,12 +83,27 @@
         precognition-nvim                 # Show available motion hints
       ];
 
+    # Put the Lua rocks on package.path/cpath via env (see luaEnv note above).
+    # `;;` preserves Neovim's default search paths.
+    extraWrapperArgs = [
+      "--prefix"
+      "LUA_CPATH"
+      ";"
+      "${neovimLua.pkgs.getLuaCPath luaEnv};;"
+      "--prefix"
+      "LUA_PATH"
+      ";"
+      "${neovimLua.pkgs.getLuaPath luaEnv};;"
+    ];
+
     extraPackages = with pkgs; [
       alejandra                         # Nix code formatter
       biome                             # Biome linter/formatter
+      go                                # Go toolchain (gopls runs `go env`/`go list`)
       gopls                             # Go language server
       graphviz                          # `dot` CLI (for rendering graphviz/DOT)
       isort                             # Python import sorter
+      lynx                              # CopilotChat URL content fetching
       pyright                           # Python language server
       rust-analyzer                     # Rust language server
       lua-language-server               # Lua language server
@@ -94,6 +118,7 @@
       stylua                            # Lua code formatter
       tailwindcss-language-server       # Tailwind CSS language server
       terraform-ls                      # Terraform language server
+      tree-sitter                       # CLI for ad-hoc :TSInstall (grammars Nix-managed)
       vscode-langservers-extracted      # HTML/CSS/JSON language servers
       vtsls                             # TypeScript/JavaScript LSP with enhanced CodeLens
       yaml-language-server              # YAML language server
