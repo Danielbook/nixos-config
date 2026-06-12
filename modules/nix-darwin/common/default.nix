@@ -76,7 +76,6 @@
       "claude"
       "discord"
       "home-assistant"
-      "messenger"
       "microsoft-excel"
       "microsoft-outlook"
       "microsoft-powerpoint"
@@ -85,8 +84,13 @@
     ];
   };
 
-  # Touch ID for sudo
-  security.pam.services.sudo_local.touchIdAuth = true;
+  # Touch ID for sudo. `reattach` pulls in pam_reattach so the prompt also
+  # works inside tmux (Ghostty auto-attaches tmux); without it sudo silently
+  # falls back to a password prompt in a tmux session.
+  security.pam.services.sudo_local = {
+    touchIdAuth = true;
+    reattach = true;
+  };
 
   system.stateVersion = 6;
 }

@@ -72,6 +72,9 @@
         bind-key -T copy-mode-vi v send-keys -X begin-selection
         bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
         bind-key -T copy-mode-vi r send-keys -X rectangle-toggle
+        # Mouse drag-select copies to the macOS clipboard (otherwise it only
+        # lands in tmux's internal buffer and never reaches pbcopy).
+        bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "pbcopy"
 
         # Apply Tc for various terminal types
         set -ga terminal-overrides ",xterm-256color:RGB:smcup@:rmcup@"

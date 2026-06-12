@@ -10,7 +10,9 @@
 lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
   programs.aerospace = {
     enable = true;
-    userSettings = {
+    # Let Home Manager manage the launchd agent; `start-at-login` is overridden accordingly.
+    launchd.enable = true;
+    settings = {
       start-at-login = true;
 
       # Tiling defaults
