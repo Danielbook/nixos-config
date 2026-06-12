@@ -12,7 +12,6 @@
     "${nhModules}/programs/ghostty"
     "${nhModules}/programs/kitty"
     "${nhModules}/programs/vscode"
-    inputs.sops-nix.homeManagerModules.sops
   ];
 
   programs.home-manager.enable = true;
@@ -20,12 +19,6 @@
   home.packages = [
     inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
-
-  # Secrets management
-  sops = {
-    age.keyFile = "/Users/daniel/.config/sops/age/keys.txt";
-    defaultSopsFile = ./secrets.yaml;
-  };
 
   # Catpuccin flavor and accent
   catppuccin = {

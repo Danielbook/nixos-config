@@ -9,7 +9,7 @@ Declarative, flake-based Nix configuration with a dendritic (multi-host-ready) a
 | Host | Platform | Purpose |
 |------|----------|---------|
 | `coruscant` | NixOS + Hyprland | Primary workstation |
-| `dagobah` | macOS (nix-darwin) | Intel Mac |
+| `dagobah` | macOS (nix-darwin) | Apple Silicon MacBook Pro |
 
 Modules are layered: `common` (universal for all hosts) and `desktop/common` (shared by desktop hosts). Adding a new host requires a host config, home config, and flake entry — servers skip desktop imports, desktops compose from the desktop layer.
 

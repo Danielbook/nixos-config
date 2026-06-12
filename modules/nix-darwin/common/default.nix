@@ -27,6 +27,9 @@
     home = "/Users/${userConfig.name}";
   };
 
+  # Required by recent nix-darwin for homebrew and user-scoped system.defaults
+  system.primaryUser = userConfig.name;
+
   # System packages
   environment.systemPackages = with pkgs; [
     sops

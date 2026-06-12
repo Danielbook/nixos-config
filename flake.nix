@@ -82,7 +82,7 @@
   } @ inputs: let
     inherit (self) outputs;
 
-    systems = ["x86_64-linux" "x86_64-darwin"];
+    systems = ["x86_64-linux" "aarch64-darwin"];
     forAllSystems = nixpkgs.lib.genAttrs systems;
 
     # Define user configurations
@@ -154,7 +154,7 @@
         ];
       };
 
-      "daniel@dagobah" = mkHomeConfiguration "x86_64-darwin" "daniel" "dagobah" {
+      "daniel@dagobah" = mkHomeConfiguration "aarch64-darwin" "daniel" "dagobah" {
         extraModules = [
           catppuccin.homeModules.catppuccin
         ];

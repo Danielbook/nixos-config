@@ -126,7 +126,7 @@ Shared home-manager modules use `pkgs.stdenv.isDarwin` / `pkgs.stdenv.isLinux` f
 3. Add to `flake.nix`:
 ```nix
 darwinConfigurations.<hostname> = mkDarwinConfiguration "<hostname>" "daniel";
-homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "x86_64-darwin" "daniel" "<hostname>" {
+homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "aarch64-darwin" "daniel" "<hostname>" {
   extraModules = [ catppuccin.homeModules.catppuccin ];
 };
 ```
