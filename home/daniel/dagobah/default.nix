@@ -6,6 +6,7 @@
 }: {
   imports = [
     "${nhModules}/common"
+    "${nhModules}/programs/aerospace"
     "${nhModules}/programs/alacritty"
     "${nhModules}/programs/brave"
     "${nhModules}/programs/firefox"
