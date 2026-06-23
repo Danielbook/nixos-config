@@ -3,7 +3,8 @@
   nhModules,
   pkgs,
   ...
-}: {
+}:
+{
   imports = [
     "${nhModules}/common"
     "${nhModules}/programs/aerospace"

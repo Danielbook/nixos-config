@@ -153,4 +153,3 @@ All command-line tools used across this NixOS configuration, organized by catego
 | `hyprshot` | Hyprland screenshot tool |
 | `ocr` | Screen region OCR to clipboard |
 | `screen-recorder` | Toggle Wayland screen recording |
-| `waybar-restart` | Restart waybar status bar |

@@ -44,6 +44,10 @@ lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
           run = "move-node-to-workspace 2";
         }
         {
+          "if".app-id = "com.google.Chrome";
+          run = "move-node-to-workspace 2";
+        }
+        {
           "if".app-id = "com.microsoft.teams2";
           run = "move-node-to-workspace 3";
         }
@@ -62,6 +66,11 @@ lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
         alt-enter = "exec-and-forget open -na Ghostty";
         alt-e = "exec-and-forget open -a Finder";
         alt-b = "exec-and-forget open -a 'Brave Browser'";
+        # Hyprland mod+Y/mod+A/mod+shift+G open chrome PWAs; on macOS ChatGPT and
+        # WhatsApp ship as native apps (Homebrew casks), YouTube Music stays a PWA.
+        alt-y = "exec-and-forget open -na 'Google Chrome' --args --app=https://music.youtube.com";
+        alt-a = "exec-and-forget open -a ChatGPT";
+        alt-shift-g = "exec-and-forget open -a WhatsApp";
         # Launcher: macOS Spotlight is already Cmd-Space natively (kept Hyprland's mod+Space intent).
         # Swap to Raycast if installed: "exec-and-forget open -a Raycast".
 
@@ -120,6 +129,13 @@ lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
         # --- Screenshot (Hyprland: mod+shift+S region, mod+ctrl+S window) ---
         alt-shift-s = "exec-and-forget screencapture -i -c"; # region → clipboard
         alt-ctrl-s = "exec-and-forget screencapture -iW -c"; # window → clipboard
+
+        # --- Lock screen (Hyprland: ctrl+alt+L) ---
+        # Sends the native macOS lock shortcut (Ctrl+Cmd+Q) via System Events;
+        # reliably shows the login window. `pmset displaysleepnow` and the old
+        # CGSession path don't lock on modern macOS. AeroSpace already holds
+        # Accessibility permission (for window management), so keystrokes work.
+        ctrl-alt-l = "exec-and-forget osascript -e 'tell application \"System Events\" to keystroke \"q\" using {control down, command down}'";
 
         # --- Reload config (Hyprland: ctrl+alt+Q exit) ---
         ctrl-alt-q = "reload-config";

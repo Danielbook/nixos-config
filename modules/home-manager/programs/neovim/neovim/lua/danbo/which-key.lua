@@ -177,7 +177,7 @@ wk.add({
 	{ "<C-s>", desc = "󰋖 Signature Help", mode = "i" },
 
 	-- Completion mappings (nvim-cmp)
-	{ "<C-Space>", desc = "󰄮 Manual Complete", mode = "i" },
+	{ "<C-y>", desc = "󰄮 Manual Complete", mode = "i" },
 	{ "<C-e>", desc = "󰅙 Abort Completion", mode = "i" },
 
 	-- ═══════════════════════════════════════════════════════════════════════════════

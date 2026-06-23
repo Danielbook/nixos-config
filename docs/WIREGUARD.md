@@ -7,7 +7,7 @@ This guide covers setting up WireGuard VPN to access your home network (OPNsense
 - **VPN Type**: WireGuard (modern, fast, secure)
 - **Management**: NetworkManager (GUI + CLI)
 - **Home Router**: OPNsense with WireGuard server
-- **Client**: coruscant (NixOS workstation), plus phone (WireGuard app)
+- **Client**: coruscant (NixOS workstation), dagobah (macOS, WireGuard app — see [macOS section](#-macos-dagobah)), plus phone (WireGuard app)
 - **Secrets**: Managed by NetworkManager's encrypted keyring (no SOPS needed)
 
 ### This Network's Actual Topology
@@ -465,6 +465,37 @@ nix develop --command sops updatekeys hosts/coruscant/secrets.yaml
 ```
 
 `updatekeys` works because your personal key (in `.sops.yaml`) can still decrypt. Worst case (machine + Bitwarden both gone): just rotate the key per above — WireGuard keys are cheap.
+
+## 🍎 macOS (dagobah)
+
+macOS has **no NetworkManager and no in-kernel WireGuard**, so the declarative NM keyfile approach from coruscant doesn't apply. dagobah uses the **official WireGuard app** (Mac App Store), installed declaratively via Homebrew `masApps` in `modules/nix-darwin/common/default.nix`. The tunnel config is imported once; the app stores the key in the macOS keychain (not sops).
+
+### One-time setup
+
+1. **Give dagobah its own peer.** Do **not** reuse coruscant's key or `10.11.11.6/32` — two devices on one peer break the handshake. Generate a fresh keypair and assign a new IP, e.g. `10.11.11.7/32`:
+   ```bash
+   umask 077; PRIV=$(wg genkey); PUB=$(printf '%s' "$PRIV" | wg pubkey)
+   echo "private: $PRIV"; echo "public:  $PUB"
+   ```
+2. **Add the peer in OPNsense** → VPN → WireGuard → Peers → add `dagobah`, Public Key = the `public` value above, Allowed IPs (tunnel address) `10.11.11.7/32` → Save → Apply.
+3. **Install the app:** `just darwin-rebuild` (installs WireGuard from the App Store via `masApps`; you must be signed into the App Store). It lives in the menu bar.
+4. **Create/import the tunnel** in the WireGuard app — *Add Empty Tunnel* and paste, or import a `.conf`:
+   ```ini
+   [Interface]
+   PrivateKey = <the private value from step 1>
+   Address = 10.11.11.7/32
+   DNS = 10.11.11.1
+
+   [Peer]
+   PublicKey = iV0MNbpADdaf7Y1zjN0AWv/7UscT/TKOVN52N7o6UW0=
+   Endpoint = vpn.bookorjeman.com:51820
+   AllowedIPs = 0.0.0.0/0, ::/0
+   PersistentKeepalive = 25
+   ```
+   Endpoint is the **DDNS hostname** (see [Dynamic DNS](#-dynamic-dns-cloudflare)). The app re-resolves it on each (re)connect.
+5. **Toggle** from the menu-bar icon (or System Settings → VPN). Leave "On Demand" off unless you want it always-on.
+
+> The app integrates with macOS networking frameworks — it shows up in System Settings → VPN and runs without the app window open. The private key is held in the keychain, so it is **not** declarative/sops-managed (unlike coruscant). Rotating the key = edit the tunnel in the app + update the peer's public key in OPNsense.
 
 ## 🔄 After NixOS Rebuild
 

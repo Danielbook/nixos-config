@@ -20,6 +20,7 @@
 
   # Desktop-specific packages
   home.packages = with pkgs; [
+    hyprshot
     prusa-slicer
     satty
     tesseract

@@ -94,7 +94,7 @@ Shared home-manager modules use `pkgs.stdenv.isDarwin` / `pkgs.stdenv.isLinux` f
 | `programs/` | Individual | 30+ program modules (imported by common or desktop/common) |
 | `services/` | Individual | Service modules (imported by common, desktop/common, or desktop/hyprland) |
 | `scripts/` | Universal | CLI scripts (fkill) |
-| `scripts/desktop/` | Desktop | Desktop scripts (hyprshot, ocr, screen-recorder, waybar-restart) |
+| `scripts/desktop/` | Desktop | Desktop scripts (ocr, screen-recorder) |
 | `misc/` | Desktop | gtk, qt, wallpaper, xdg (imported by desktop/hyprland) |
 
 ## Adding a New Host
