@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   # Fuzzel application launcher - Wayland-native and stable replacement for Albert
   programs.fuzzel = {
     enable = true;
@@ -52,7 +53,6 @@
       categories = [ "System" ];
       noDisplay = false;
     };
-
 
     reboot-system = {
       name = "Reboot";

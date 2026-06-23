@@ -2,7 +2,8 @@
   userConfig,
   pkgs,
   ...
-}: {
+}:
+{
   # Install git via home-manager module
   programs.git = {
     enable = true;
@@ -30,15 +31,15 @@
     settings = {
       user = {
         name = userConfig.fullName;
-        email = userConfig.email;
+        inherit (userConfig) email;
       };
       gpg.format = "ssh";
       signing = {
         key = "~/.ssh/id_ed25519";
         signByDefault = true;
       };
-      pull.rebase = "true";                    # Always rebase when pulling
-      push.autoSetupRemote = "true";           # Auto-setup remote tracking for new branches
+      pull.rebase = "true"; # Always rebase when pulling
+      push.autoSetupRemote = "true"; # Auto-setup remote tracking for new branches
       # Push/pull GitHub over SSH (Bitwarden SSH agent) even when the remote is
       # an HTTPS URL — avoids the interactive "Username for https://github.com" prompt.
       url."git@github.com:".insteadOf = "https://github.com/";

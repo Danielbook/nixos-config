@@ -2,7 +2,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   programs.ghostty = {
     enable = true;
     # nixpkgs has no darwin build for ghostty — install via homebrew cask there,

@@ -1,4 +1,4 @@
-{...}: {
+_: {
   # Build lualine.nvim from source (work around nixpkgs hash mismatch bug)
   vim-plugins-from-source = final: prev: {
     vimPlugins = prev.vimPlugins // {

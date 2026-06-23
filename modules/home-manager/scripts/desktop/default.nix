@@ -1,4 +1,4 @@
-{...}: {
+_: {
   # Desktop-specific scripts (Hyprland/Wayland)
   home.file = {
     ".local/bin/ocr" = {

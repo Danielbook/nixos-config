@@ -2,13 +2,12 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   options = {
-    programs.kitty.enableConfig =
-      lib.mkEnableOption "Kitty configuration"
-      // {
-        default = true;
-      };
+    programs.kitty.enableConfig = lib.mkEnableOption "Kitty configuration" // {
+      default = true;
+    };
   };
 
   config = lib.mkIf config.programs.kitty.enableConfig {

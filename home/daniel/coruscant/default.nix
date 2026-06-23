@@ -5,9 +5,11 @@
   nhModules,
   pkgs,
   ...
-}: let
+}:
+let
   noctaliaConfigDir = ./noctalia;
-in {
+in
+{
   imports = [
     "${nhModules}/common"
     "${nhModules}/desktop/common"
@@ -30,7 +32,7 @@ in {
     darktable # Open-source photo editor (Lightroom alternative)
     feishin # Navidrome/Subsonic music player
     # google-chrome # Installed via programs.chromium below with custom flags
-nixos-anywhere # Remote NixOS deployment tool
+    nixos-anywhere # Remote NixOS deployment tool
     pgadmin4-desktopmode # PostgreSQL administration tool
     # spotify - installed by spicetify-nix module
     figma-linux # Unofficial Figma desktop client for Linux
@@ -43,7 +45,7 @@ nixos-anywhere # Remote NixOS deployment tool
 
   # Fetch Age private key from Bitwarden before sops decrypts
   # Requires: `bw login && export BW_SESSION=$(bw unlock --raw)` before running HM switch
-  home.activation.fetchAgeKey = lib.hm.dag.entryBefore ["sops-nix"] ''
+  home.activation.fetchAgeKey = lib.hm.dag.entryBefore [ "sops-nix" ] ''
     mkdir -p ${config.home.homeDirectory}/.config/sops/age
     if command -v bw >/dev/null 2>&1; then
       if ! bw unlock --check >/dev/null 2>&1; then
@@ -62,7 +64,7 @@ nixos-anywhere # Remote NixOS deployment tool
   sops = {
     age.keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
     defaultSopsFile = ./secrets.yaml;
-    secrets.testiny_api_key = {};
+    secrets.testiny_api_key = { };
   };
 
   # Stop the CLI's auto-updater; Nix will handle upgrades.
@@ -86,41 +88,48 @@ nixos-anywhere # Remote NixOS deployment tool
 
   # HyprDynamicMonitors configuration files (managed manually)
   xdg.configFile."hyprdynamicmonitors/config.toml".source = ./hyprdynamicmonitors/config.toml;
-  xdg.configFile."hyprdynamicmonitors/hyprconfigs/home.go.tmpl".source = ./hyprdynamicmonitors/hyprconfigs/home.go.tmpl;
-  xdg.configFile."hyprdynamicmonitors/hyprconfigs/work.go.tmpl".source = ./hyprdynamicmonitors/hyprconfigs/work.go.tmpl;
-  xdg.configFile."hyprdynamicmonitors/hyprconfigs/laptop.go.tmpl".source = ./hyprdynamicmonitors/hyprconfigs/laptop.go.tmpl;
+  xdg.configFile."hyprdynamicmonitors/hyprconfigs/home.go.tmpl".source =
+    ./hyprdynamicmonitors/hyprconfigs/home.go.tmpl;
+  xdg.configFile."hyprdynamicmonitors/hyprconfigs/work.go.tmpl".source =
+    ./hyprdynamicmonitors/hyprconfigs/work.go.tmpl;
+  xdg.configFile."hyprdynamicmonitors/hyprconfigs/laptop.go.tmpl".source =
+    ./hyprdynamicmonitors/hyprconfigs/laptop.go.tmpl;
 
   # Manual systemd service for hyprdynamicmonitors
   systemd.user.services.hyprdynamicmonitors = {
     Unit = {
       Description = "HyprDynamicMonitors - automatic monitor configuration";
-      PartOf = ["graphical-session.target"];
-      After = ["graphical-session.target"];
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
     };
     Service = {
-      ExecStart = "${inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/hyprdynamicmonitors --disable-power-events";
+      ExecStart = "${
+        inputs.hyprdynamicmonitors.packages.${pkgs.stdenv.hostPlatform.system}.default
+      }/bin/hyprdynamicmonitors --disable-power-events";
       Restart = "on-failure";
       RestartSec = 5;
     };
-    Install.WantedBy = ["graphical-session.target"];
+    Install.WantedBy = [ "graphical-session.target" ];
   };
 
   # Spicetify - Spotify theming (integrated with Noctalia)
-  programs.spicetify = let
-    spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
-  in {
-    enable = true;
-    enabledExtensions = with spicePkgs.extensions; [
-      adblockify
-      hidePodcasts
-      shuffle
-    ];
-    theme = spicePkgs.themes.comfy;
-  };
+  programs.spicetify =
+    let
+      spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+    in
+    {
+      enable = true;
+      enabledExtensions = with spicePkgs.extensions; [
+        adblockify
+        hidePodcasts
+        shuffle
+      ];
+      theme = spicePkgs.themes.comfy;
+    };
 
   # Noctalia config - copied (not symlinked) so UI can still edit
   # Run `just noctalia-sync` to save changes back to the repo
-  home.activation.noctaliaConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.noctaliaConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p ${config.home.homeDirectory}/.config/noctalia
     cp -f ${noctaliaConfigDir}/settings.json ${config.home.homeDirectory}/.config/noctalia/
     cp -f ${noctaliaConfigDir}/user-templates.toml ${config.home.homeDirectory}/.config/noctalia/
@@ -156,7 +165,7 @@ nixos-anywhere # Remote NixOS deployment tool
     icon = "figma-linux";
     terminal = false;
     type = "Application";
-    mimeType = ["x-scheme-handler/figma"];
+    mimeType = [ "x-scheme-handler/figma" ];
   };
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion

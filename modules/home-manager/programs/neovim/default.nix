@@ -1,11 +1,18 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   # Lua rocks needed at runtime: jsregexp (luasnip transforms), tiktoken_core
   # (CopilotChat token counting). home-manager sources our config from the repo
   # and sets wrapRc=false, which disables the wrapper's normal extraLuaPackages
   # cpath setup — so inject the env explicitly via extraWrapperArgs below.
   neovimLua = pkgs.neovim-unwrapped.lua;
-  luaEnv = neovimLua.withPackages (ps: with ps; [jsregexp tiktoken_core]);
-in {
+  luaEnv = neovimLua.withPackages (
+    ps: with ps; [
+      jsregexp
+      tiktoken_core
+    ]
+  );
+in
+{
   # Neovim text editor configuration
   programs.neovim = {
     enable = true;
@@ -19,68 +26,71 @@ in {
 
     # Use the Nix package search engine to find
     # even more plugins : https://search.nixos.org/packages
-    plugins = let
-      nvim-treesitter-with-plugins = pkgs.vimPlugins.nvim-treesitter.withPlugins (treesitter-plugins:
-        with treesitter-plugins; [
-          bash
-          diff
-          go
-          javascript
-          jsdoc
-          lua
-          nix
-          python
-          regex
-          rust
-          toml
-          typescript
-          svelte
-        ]);
-    in
-      with pkgs.vimPlugins; [
-        alpha-nvim                        # Startup screen with custom dashboard
-        base16-nvim                       # Base16 colorscheme (used with Noctalia)
-        cmp-nvim-lsp                      # LSP completion source for nvim-cmp
-        cmp-path                          # Path completion source for nvim-cmp
-        cmp-buffer                        # Buffer completion source for nvim-cmp
-        cmp_luasnip                       # LuaSnip completion source for nvim-cmp
-        copilot-lua                       # GitHub Copilot integration
-        copilot-cmp                       # Copilot integration with nvim-cmp
-        CopilotChat-nvim                  # Copilot chat for conversations with AI
-        friendly-snippets                 # Collection of useful snippets
-        gitsigns-nvim                     # Git signs in the gutter
-        lualine-nvim                      # Fast and customizable statusline
-        luasnip                           # Snippet engine for Neovim
-        neo-tree-nvim                     # File explorer tree
-        none-ls-nvim                      # Null-ls alternative for formatters/linters
-        nui-nvim                          # UI component library
-        nvim-cmp                          # Completion engine
-        nvim-lspconfig                    # LSP configuration helper
-        nvim-treesitter-with-plugins      # Syntax highlighting and parsing
-        nvim-treesitter-textobjects       # Textobjects for treesitter (af, if, etc.)
-        nvim-ts-autotag                   # Auto close/rename HTML tags
-        nvim-web-devicons                 # File type icons
-        markdown-preview-nvim             # Browser-based markdown preview (mermaid + plantuml/dot)
-        markview-nvim                     # Markdown rendering and live preview in buffer
-        plenary-nvim                      # Lua utility library
-        telescope-fzf-native-nvim         # FZF integration for Telescope
-        telescope-nvim                    # Fuzzy finder
-        telescope-ui-select-nvim          # Use Telescope for vim.ui.select
-        undotree                          # Undo history visualizer
-        vim-fugitive                      # Git integration
-        vim-be-good                       # Vim practice game
-        vim-tmux-navigator                # Seamless navigation between tmux panes and vim splits
-        which-key-nvim                    # Show available keybindings
+    plugins =
+      let
+        nvim-treesitter-with-plugins = pkgs.vimPlugins.nvim-treesitter.withPlugins (
+          treesitter-plugins: with treesitter-plugins; [
+            bash
+            diff
+            go
+            javascript
+            jsdoc
+            lua
+            nix
+            python
+            regex
+            rust
+            toml
+            typescript
+            svelte
+          ]
+        );
+      in
+      with pkgs.vimPlugins;
+      [
+        alpha-nvim # Startup screen with custom dashboard
+        base16-nvim # Base16 colorscheme (used with Noctalia)
+        cmp-nvim-lsp # LSP completion source for nvim-cmp
+        cmp-path # Path completion source for nvim-cmp
+        cmp-buffer # Buffer completion source for nvim-cmp
+        cmp_luasnip # LuaSnip completion source for nvim-cmp
+        copilot-lua # GitHub Copilot integration
+        copilot-cmp # Copilot integration with nvim-cmp
+        CopilotChat-nvim # Copilot chat for conversations with AI
+        friendly-snippets # Collection of useful snippets
+        gitsigns-nvim # Git signs in the gutter
+        lualine-nvim # Fast and customizable statusline
+        luasnip # Snippet engine for Neovim
+        neo-tree-nvim # File explorer tree
+        none-ls-nvim # Null-ls alternative for formatters/linters
+        nui-nvim # UI component library
+        nvim-cmp # Completion engine
+        nvim-lspconfig # LSP configuration helper
+        nvim-treesitter-with-plugins # Syntax highlighting and parsing
+        nvim-treesitter-textobjects # Textobjects for treesitter (af, if, etc.)
+        nvim-ts-autotag # Auto close/rename HTML tags
+        nvim-web-devicons # File type icons
+        markdown-preview-nvim # Browser-based markdown preview (mermaid + plantuml/dot)
+        markview-nvim # Markdown rendering and live preview in buffer
+        plenary-nvim # Lua utility library
+        telescope-fzf-native-nvim # FZF integration for Telescope
+        telescope-nvim # Fuzzy finder
+        telescope-ui-select-nvim # Use Telescope for vim.ui.select
+        undotree # Undo history visualizer
+        vim-fugitive # Git integration
+        vim-be-good # Vim practice game
+        vim-tmux-navigator # Seamless navigation between tmux panes and vim splits
+        which-key-nvim # Show available keybindings
 
         # Animation plugins for smooth UI experience
-        mini-nvim                         # Collection of small plugins including animate
-        noice-nvim                        # Better UI for messages, cmdline and popupmenu
-        nvim-notify                       # Beautiful notification system
-        indent-blankline-nvim             # Indent guides with animations
+        mini-nvim # Collection of small plugins including animate
+        noice-nvim # Better UI for messages, cmdline and popupmenu
+        nvim-notify # Beautiful notification system
+        indent-blankline-nvim # Indent guides with animations
 
         # Navigation learning plugins
-        hardtime-nvim                     # Break bad habits, suggest better motions
-        precognition-nvim                 # Show available motion hints
+        hardtime-nvim # Break bad habits, suggest better motions
+        precognition-nvim # Show available motion hints
       ];
 
     # Put the Lua rocks on package.path/cpath via env (see luaEnv note above).
@@ -97,31 +107,31 @@ in {
     ];
 
     extraPackages = with pkgs; [
-      alejandra                         # Nix code formatter
-      biome                             # Biome linter/formatter
-      go                                # Go toolchain (gopls runs `go env`/`go list`)
-      gopls                             # Go language server
-      graphviz                          # `dot` CLI (for rendering graphviz/DOT)
-      isort                             # Python import sorter
-      lynx                              # CopilotChat URL content fetching
-      pyright                           # Python language server
-      rust-analyzer                     # Rust language server
-      lua-language-server               # Lua language server
-      markdownlint-cli                  # Markdown linter
-      nil                               # Nix language server
-      nixd                              # Alternative Nix language server
-      bash-language-server              # Bash language server
-      prettier                          # Code formatter for web languages
-      svelte-language-server            # Svelte language server
-      shellcheck                        # Shell script static analysis
-      shfmt                             # Shell script formatter
-      stylua                            # Lua code formatter
-      tailwindcss-language-server       # Tailwind CSS language server
-      terraform-ls                      # Terraform language server
-      tree-sitter                       # CLI for ad-hoc :TSInstall (grammars Nix-managed)
-      vscode-langservers-extracted      # HTML/CSS/JSON language servers
-      vtsls                             # TypeScript/JavaScript LSP with enhanced CodeLens
-      yaml-language-server              # YAML language server
+      alejandra # Nix code formatter
+      biome # Biome linter/formatter
+      go # Go toolchain (gopls runs `go env`/`go list`)
+      gopls # Go language server
+      graphviz # `dot` CLI (for rendering graphviz/DOT)
+      isort # Python import sorter
+      lynx # CopilotChat URL content fetching
+      pyright # Python language server
+      rust-analyzer # Rust language server
+      lua-language-server # Lua language server
+      markdownlint-cli # Markdown linter
+      nil # Nix language server
+      nixd # Alternative Nix language server
+      bash-language-server # Bash language server
+      prettier # Code formatter for web languages
+      svelte-language-server # Svelte language server
+      shellcheck # Shell script static analysis
+      shfmt # Shell script formatter
+      stylua # Lua code formatter
+      tailwindcss-language-server # Tailwind CSS language server
+      terraform-ls # Terraform language server
+      tree-sitter # CLI for ad-hoc :TSInstall (grammars Nix-managed)
+      vscode-langservers-extracted # HTML/CSS/JSON language servers
+      vtsls # TypeScript/JavaScript LSP with enhanced CodeLens
+      yaml-language-server # YAML language server
     ];
   };
 

@@ -3,7 +3,8 @@
   pkgs,
   config,
   ...
-}: {
+}:
+{
   # Wine + yabridge for running Windows VST plugins (Neural DSP, etc.)
   # Carla as standalone plugin host for jamming
 
@@ -30,7 +31,7 @@
   '';
 
   # Sync yabridge on activation (only if plugin dirs exist)
-  home.activation.yabridgeSync = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.yabridgeSync = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ -d "${config.home.homeDirectory}/.wine/drive_c/Program Files/Common Files/VST3" ] || \
        [ -d "${config.home.homeDirectory}/.wine/drive_c/Program Files/Common Files/VST2" ]; then
       ${pkgs.yabridgectl}/bin/yabridgectl sync 2>/dev/null || true

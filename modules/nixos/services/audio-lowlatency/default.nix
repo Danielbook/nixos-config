@@ -1,4 +1,4 @@
-{...}: {
+_: {
   # Pro-audio low-latency tuning for USB audio interfaces
   # Provides ~5.3ms latency at 256 samples / 48kHz
 
@@ -9,7 +9,11 @@
       "default.clock.min-quantum" = 64;
       "default.clock.max-quantum" = 1024;
       "default.clock.rate" = 48000;
-      "default.clock.allowed-rates" = [44100 48000 96000];
+      "default.clock.allowed-rates" = [
+        44100
+        48000
+        96000
+      ];
     };
   };
 

@@ -2,7 +2,8 @@
   config,
   pkgs,
   ...
-}: {
+}:
+{
   # Intel iGPU + NVIDIA RTX 3060 Mobile (GA106) — PRIME Sync.
   # dGPU drives HDMI and all rendering; iGPU stays present for KMS handoff.
   # VA-API drivers for both GPUs so libva can auto-pick per app.
@@ -26,9 +27,14 @@
     "nvidia-drm.fbdev=1"
   ];
 
-  boot.initrd.kernelModules = ["nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
+  boot.initrd.kernelModules = [
+    "nvidia"
+    "nvidia_modeset"
+    "nvidia_uvm"
+    "nvidia_drm"
+  ];
 
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.stable;

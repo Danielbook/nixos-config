@@ -2,7 +2,8 @@
   hostname,
   darwinModules,
   ...
-}: {
+}:
+{
   imports = [
     "${darwinModules}/common"
   ];

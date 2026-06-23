@@ -6,11 +6,13 @@
   userConfig,
   pkgs,
   ...
-}: {
+}:
+{
   # Nixpkgs configuration
   nixpkgs = {
     overlays = builtins.attrValues outputs.overlays;
-    config.allowUnfreePredicate = pkg:
+    config.allowUnfreePredicate =
+      pkg:
       builtins.elem (lib.getName pkg) [
         "nvidia-x11"
         "nvidia-settings"
@@ -20,18 +22,16 @@
   };
 
   # Register flake inputs for nix commands
-  nix.registry = lib.mapAttrs (_: flake: {inherit flake;}) (
+  nix.registry = lib.mapAttrs (_: flake: { inherit flake; }) (
     lib.filterAttrs (_: lib.isType "flake") inputs
   );
 
   # Add inputs to legacy channels
-  nix.nixPath = ["/etc/nix/path"];
-  environment.etc =
-    lib.mapAttrs' (name: value: {
-      name = "nix/path/${name}";
-      value.source = value.flake;
-    })
-    config.nix.registry;
+  nix.nixPath = [ "/etc/nix/path" ];
+  environment.etc = lib.mapAttrs' (name: value: {
+    name = "nix/path/${name}";
+    value.source = value.flake;
+  }) config.nix.registry;
 
   # Nix settings
   nix.settings = {
@@ -163,7 +163,7 @@
 
   # Zsh
   programs.zsh.enable = true;
-  environment.pathsToLink = ["/share/zsh"];
+  environment.pathsToLink = [ "/share/zsh" ];
 
   # nix-ld: run dynamically linked executables built for generic Linux
   # (e.g. the native `claude` binary from the @anthropic-ai/claude-code npm package)

@@ -1,4 +1,10 @@
-{config, lib, pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   # Zsh shell configuration
   programs.zsh = {
     dotDir = "${config.xdg.configHome}/zsh";
@@ -9,7 +15,10 @@
     autosuggestion = {
       enable = true;
       highlight = "fg=#585b70";
-      strategy = ["history" "completion"];
+      strategy = [
+        "history"
+        "completion"
+      ];
     };
 
     plugins = [
@@ -93,8 +102,8 @@
           'git log --oneline --graph --color=always --date=short $word 2>/dev/null'
 
         ${lib.optionalString pkgs.stdenv.isLinux ''
-        # Previews: systemctl
-        zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null'
+          # Previews: systemctl
+          zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null'
         ''}
         # Previews: environment variables
         zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview \

@@ -1,4 +1,4 @@
-{...}: {
+_: {
   # direnv + nix-direnv - automatic Nix dev shell activation
   programs.direnv = {
     enable = true;

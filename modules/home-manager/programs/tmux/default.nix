@@ -2,7 +2,8 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   options.programs.tmux.noctaliaTheme = lib.mkEnableOption "Noctalia dynamic theming for tmux";
 
   config = {
@@ -106,10 +107,10 @@
         set -g status-interval 1
 
         ${lib.optionalString config.programs.tmux.noctaliaTheme ''
-        # Source Noctalia-generated colors (if available)
-        if-shell "[ -f ~/.config/tmux/noctalia-colors.conf ]" {
-          source-file ~/.config/tmux/noctalia-colors.conf
-        }
+          # Source Noctalia-generated colors (if available)
+          if-shell "[ -f ~/.config/tmux/noctalia-colors.conf ]" {
+            source-file ~/.config/tmux/noctalia-colors.conf
+          }
         ''}
       '';
     };

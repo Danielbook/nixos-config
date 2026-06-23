@@ -1,4 +1,4 @@
-{...}: {
+_: {
   # Install yazi via home-manager module
   programs.yazi = {
     enable = true;

@@ -1,9 +1,13 @@
-{userConfig, ...}: {
+{ userConfig, ... }:
+{
   # USB Serial device configuration for ESP32, Arduino, and other development boards
   # Supports common USB-to-serial chips: CH340, CP210x, FTDI, PL2303
 
   # Add user to dialout group for serial port access
-  users.users.${userConfig.name}.extraGroups = ["dialout" "uucp"];
+  users.users.${userConfig.name}.extraGroups = [
+    "dialout"
+    "uucp"
+  ];
 
   # udev rules for USB serial devices
   services.udev.extraRules = ''
@@ -34,5 +38,5 @@
   '';
 
   # Ensure CH340/CH341 kernel module is loaded
-  boot.kernelModules = ["ch341"];
+  boot.kernelModules = [ "ch341" ];
 }

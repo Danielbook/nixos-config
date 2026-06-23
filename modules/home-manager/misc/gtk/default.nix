@@ -2,9 +2,10 @@
   userConfig,
   pkgs,
   ...
-}: {
+}:
+{
   # GTK configuration tool
-  home.packages = [pkgs.nwg-look];
+  home.packages = [ pkgs.nwg-look ];
 
   # GTK theme configuration - using adw-gtk3 for Noctalia color integration
   gtk = {

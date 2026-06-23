@@ -3,13 +3,15 @@
   lib,
   pkgs,
   ...
-}: let
-  qtCtAppearanceConfig = lib.generators.toINI {} {
+}:
+let
+  qtCtAppearanceConfig = lib.generators.toINI { } {
     Appearance = {
       icon_theme = config.gtk.iconTheme.name;
     };
   };
-in {
+in
+{
   home.packages = [
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.libsForQt5.qt5ct

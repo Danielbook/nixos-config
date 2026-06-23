@@ -111,7 +111,9 @@ nix-gc:
 
 # Format all Nix files
 format:
-    @nix fmt
+    # ponytail: pass `.` explicitly — bare `nix fmt` reads empty stdin and errors.
+    # Upgrade path: switch flake `formatter` to pkgs.nixfmt-tree to drop the deprecation warning.
+    @nix fmt -- .
 
 # Check formatting without modifying
 format-check:

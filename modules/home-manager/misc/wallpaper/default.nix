@@ -2,7 +2,8 @@
   lib,
   inputs,
   ...
-}: {
+}:
+{
   options.wallpaper = {
     default = lib.mkOption {
       type = lib.types.path;

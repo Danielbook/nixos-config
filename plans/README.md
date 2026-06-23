@@ -14,8 +14,16 @@ Only two low-effort, high-confidence findings were turned into plans.
 
 | Plan | Title                                          | Priority | Effort | Depends on | Status |
 |------|------------------------------------------------|----------|--------|------------|--------|
-| 001  | Make `just check-all` pass (green lint gate)   | P1       | S      | —          | TODO   |
+| 001  | Make `just check-all` pass (green lint gate)   | P1       | S      | —          | DONE (applied to working tree, uncommitted) |
 | 002  | Remove stale `awww` refs; fix dagobah label    | P2       | S      | —          | TODO   |
+
+> **001 note**: scope was wider than planned. `just check-all` also failed on
+> ~30 pre-existing nixfmt-dirty files and a broken `just format` recipe
+> (`@nix fmt` with no path → empty-stdin error). Landed alongside the lint fix:
+> `statix.toml` (disables `repeated_keys`), statix/deadnix auto-fixes, the
+> `just format` recipe fix (`nix fmt -- .` + nixfmt-tree upgrade note), and a
+> whole-tree `nix fmt`. All four gates now exit 0. Changes are in the working
+> tree **uncommitted**, blended with the user's pre-existing edits.
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 

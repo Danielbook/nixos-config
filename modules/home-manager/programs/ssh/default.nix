@@ -1,10 +1,11 @@
 {
   config,
-  userConfig,
   ...
-}: let
+}:
+let
   bwSocket = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
-in {
+in
+{
   # SSH configuration with Bitwarden SSH agent
   programs.ssh = {
     enable = true;

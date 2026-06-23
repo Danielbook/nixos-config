@@ -1,6 +1,8 @@
-{...}: let
+_:
+let
   copyCmd = "wl-copy";
-in {
+in
+{
   # Install fzf via home-manager module
   programs.fzf = {
     enable = true;

@@ -70,111 +70,124 @@
     };
   };
 
-  outputs = {
-    self,
-    catppuccin,
-    home-manager,
-    hyprdynamicmonitors,
-    nix-darwin,
-    nixpkgs,
-    noctalia,
-    ...
-  } @ inputs: let
-    inherit (self) outputs;
+  outputs =
+    {
+      self,
+      catppuccin,
+      home-manager,
+      hyprdynamicmonitors,
+      nix-darwin,
+      nixpkgs,
+      noctalia,
+      ...
+    }@inputs:
+    let
+      inherit (self) outputs;
 
-    systems = ["x86_64-linux" "aarch64-darwin"];
-    forAllSystems = nixpkgs.lib.genAttrs systems;
+      systems = [
+        "x86_64-linux"
+        "aarch64-darwin"
+      ];
+      forAllSystems = nixpkgs.lib.genAttrs systems;
 
-    # Define user configurations
-    users = {
-      daniel = {
-        avatar = ./files/avatar/face;
-        email = "daniel@bookorjeman.se";
-        fullName = "Daniel Böök";
-        name = "daniel";
-      };
-    };
-
-    # Function for NixOS system configuration
-    mkNixosConfiguration = hostname: username:
-      nixpkgs.lib.nixosSystem {
-        specialArgs = {
-          inherit inputs outputs hostname;
-          userConfig = users.${username};
-          nixosModules = "${self}/modules/nixos";
+      # Define user configurations
+      users = {
+        daniel = {
+          avatar = ./files/avatar/face;
+          email = "daniel@bookorjeman.se";
+          fullName = "Daniel Böök";
+          name = "daniel";
         };
-        modules = [./hosts/${hostname}];
       };
 
-    # Function for nix-darwin system configuration
-    mkDarwinConfiguration = hostname: username:
-      nix-darwin.lib.darwinSystem {
-        specialArgs = {
-          inherit inputs outputs hostname;
-          userConfig = users.${username};
-          darwinModules = "${self}/modules/nix-darwin";
+      # Function for NixOS system configuration
+      mkNixosConfiguration =
+        hostname: username:
+        nixpkgs.lib.nixosSystem {
+          specialArgs = {
+            inherit inputs outputs hostname;
+            userConfig = users.${username};
+            nixosModules = "${self}/modules/nixos";
+          };
+          modules = [ ./hosts/${hostname} ];
         };
-        modules = [./hosts/${hostname}];
-      };
 
-    # Function for Home Manager configuration
-    mkHomeConfiguration = system: username: hostname: {extraModules ? []}:
-      home-manager.lib.homeManagerConfiguration {
-        pkgs = import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-          overlays = builtins.attrValues outputs.overlays;
+      # Function for nix-darwin system configuration
+      mkDarwinConfiguration =
+        hostname: username:
+        nix-darwin.lib.darwinSystem {
+          specialArgs = {
+            inherit inputs outputs hostname;
+            userConfig = users.${username};
+            darwinModules = "${self}/modules/nix-darwin";
+          };
+          modules = [ ./hosts/${hostname} ];
         };
-        extraSpecialArgs = {
-          inherit inputs outputs;
-          userConfig = users.${username};
-          nhModules = "${self}/modules/home-manager";
+
+      # Function for Home Manager configuration
+      mkHomeConfiguration =
+        system: username: hostname:
+        {
+          extraModules ? [ ],
+        }:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            overlays = builtins.attrValues outputs.overlays;
+          };
+          extraSpecialArgs = {
+            inherit inputs outputs;
+            userConfig = users.${username};
+            nhModules = "${self}/modules/home-manager";
+          };
+          modules = [
+            ./home/${username}/${hostname}
+          ]
+          ++ extraModules;
         };
-        modules = [
-          ./home/${username}/${hostname}
-        ] ++ extraModules;
+
+    in
+    {
+      nixosConfigurations = {
+        coruscant = mkNixosConfiguration "coruscant" "daniel";
       };
 
-  in {
-    nixosConfigurations = {
-      coruscant = mkNixosConfiguration "coruscant" "daniel";
+      darwinConfigurations = {
+        dagobah = mkDarwinConfiguration "dagobah" "daniel";
+      };
+
+      homeConfigurations = {
+        "daniel@coruscant" = mkHomeConfiguration "x86_64-linux" "daniel" "coruscant" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+            hyprdynamicmonitors.homeManagerModules.default
+            noctalia.homeModules.default
+            inputs.spicetify-nix.homeManagerModules.default
+          ];
+        };
+
+        "daniel@dagobah" = mkHomeConfiguration "aarch64-darwin" "daniel" "dagobah" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+      };
+
+      overlays = import ./overlays { };
+
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
+
+      devShells = forAllSystems (system: {
+        default = nixpkgs.legacyPackages.${system}.mkShell {
+          packages = with nixpkgs.legacyPackages.${system}; [
+            nixfmt
+            deadnix
+            statix
+            just
+            sops
+          ];
+        };
+      });
     };
-
-    darwinConfigurations = {
-      dagobah = mkDarwinConfiguration "dagobah" "daniel";
-    };
-
-    homeConfigurations = {
-      "daniel@coruscant" = mkHomeConfiguration "x86_64-linux" "daniel" "coruscant" {
-        extraModules = [
-          catppuccin.homeModules.catppuccin
-          hyprdynamicmonitors.homeManagerModules.default
-          noctalia.homeModules.default
-          inputs.spicetify-nix.homeManagerModules.default
-        ];
-      };
-
-      "daniel@dagobah" = mkHomeConfiguration "aarch64-darwin" "daniel" "dagobah" {
-        extraModules = [
-          catppuccin.homeModules.catppuccin
-        ];
-      };
-    };
-
-    overlays = import ./overlays {};
-
-    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
-
-    devShells = forAllSystems (system: {
-      default = nixpkgs.legacyPackages.${system}.mkShell {
-        packages = with nixpkgs.legacyPackages.${system}; [
-          nixfmt
-          deadnix
-          statix
-          just
-          sops
-        ];
-      };
-    });
-  };
 }

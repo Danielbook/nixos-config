@@ -2,7 +2,8 @@
   nhModules,
   pkgs,
   ...
-}: {
+}:
+{
   imports = [
     "${nhModules}/programs/alacritty"
     "${nhModules}/programs/brave"
