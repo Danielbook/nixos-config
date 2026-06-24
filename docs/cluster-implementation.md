@@ -9,7 +9,7 @@
 | Thing | Value |
 |-------|-------|
 | Nodes | `naboo`=M80q (CP, **bootstrap — in hand, idle on desk**), `jupiter` (CP), `endor`=M70q (CP), `tatooine` (GPU worker) |
-| Availability | **Free now:** `naboo` (M80q). **Not yet bought:** `endor` (M70q). **Production until cutover:** `jupiter`, `tatooine` (GPU), `servarr` VM. |
+| Availability | **Free now:** `naboo` (M80q). **Incoming ~this week:** `endor` (M70q, bought @1,800 kr; needs a 16G stick). **Production until cutover:** `jupiter`, `tatooine` (GPU), `servarr` VM. |
 | TrueNAS | `scarif` (Jonsbo N4) — storage backend, not a cluster node |
 | OctoPi | `octopi` (Pi 3B+) — printer + Brio, off-cluster |
 | Network | LAN `10.10.x` is **VLAN-segmented**: `.30` = servers/hypervisors (Proxmox, being decommissioned), `.40` = services. **Put the whole cluster — 4 nodes + scarif + MetalLB pool + VIP — in the `.40` services VLAN** (keeps service IPs where DNS/Traefik already point; storage stays intra-VLAN). k3s CIDRs unchanged (pods `10.42/16`, svc `10.43/16` — no clash with `10.10`). |
@@ -33,11 +33,36 @@ and node-to-node. Device/IoT VLANs get **allow-listed to only the specific LB
 IP+port** they need (e.g. `mosquitto-LB:1883`, `traefik-LB:443`), denied the node
 IPs/API. Nodes ↔ scarif storage stays intra-`.40` (off the router).
 
+**Power protection (UPS + NUT)** — *deploy when the UPS arrives; no UPS today.*
+- Hardware: line-interactive **pure-sine** UPS (APC Smart-UPS 1500). Measured load
+  ~250–330W (switch ~60W, cluster ~150–220W, OPNsense ~20W; +~20–30W when the 4
+  Reolink cameras are plugged in — currently they're not) ≈ 30% of 1500VA →
+  ~15–20 min runtime. Plug in: all cluster nodes, `scarif`, the UniFi US-48
+  switch, OPNsense.
+- **NUT topology:** `scarif` (TrueNAS, USB-connected to the UPS) = NUT **master**
+  (`upsd`+`upsmon`); the NixOS nodes run **`power.ups`** as NUT **clients**
+  (`upsmon` slave → scarif's `upsd`). New small module
+  `modules/nixos/services/nut-client` imported by each node.
+- **Prioritized shutdown:** the compute nodes shut down **early** (e.g. at
+  `runtime < 300s` / battery < ~50%) to protect etcd + databases; the switch /
+  cameras / OPNsense are **not** NUT-managed and ride the remaining battery
+  (stateless — they just need power). Short blip → all stays up; long outage →
+  cluster down cleanly, cameras keep recording until the battery is spent.
+
 ---
 
 ## Stage A — Repo scaffolding (UNBLOCKED — do now, no hardware)
 
 Goal: configs that `just flake-check` green, ready to deploy when `endor` lands.
+
+> **Status: ✅ built & verified (2026-06-24).** `naboo` NixOS config evaluates to
+> a valid system derivation; deadnix/statix/nixfmt clean. Home config matches the
+> working `dagobah` pattern (verified by equivalence — its only eval dep is a
+> linux IFD that can't build on darwin, exactly like the existing `coruscant`
+> home). **Run `just flake-check` on coruscant (linux) to confirm green.**
+> A6's cluster age key + `k8s/**` rule are **deferred to Stage E** (no `k8s/` dir
+> yet). Before deploy: set `apiVip`/`vipInterface` (reserve `.40` IPs), static IP,
+> and re-key `secrets.yaml` to add naboo's host key after first install.
 
 - [ ] **A1.** `modules/nixos/services/k3s/default.nix` — wrap `services.k3s` with a
       small role option:
