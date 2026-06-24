@@ -83,6 +83,7 @@
       "home-assistant"
       "microsoft-excel"
       "microsoft-outlook"
+      "obsidian"
       "microsoft-powerpoint"
       "microsoft-teams"
       "whatsapp"

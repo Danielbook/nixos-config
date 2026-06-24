@@ -33,6 +33,7 @@ in
     feishin # Navidrome/Subsonic music player
     # google-chrome # Installed via programs.chromium below with custom flags
     nixos-anywhere # Remote NixOS deployment tool
+    obsidian # Markdown knowledge base (bundles official CLI; enable in Settings → General)
     pgadmin4-desktopmode # PostgreSQL administration tool
     # spotify - installed by spicetify-nix module
     figma-linux # Unofficial Figma desktop client for Linux
