@@ -26,7 +26,6 @@
 ## Tools & Utilities
 - **Cliphist**: Clipboard history manager
 - **Hyprpicker**: Color picker tool
-- **awww**: Wayland wallpaper daemon with smooth transitions
 - **Wlsunset**: Automatic screen temperature adjustment
 
 ## Terminal & Shell

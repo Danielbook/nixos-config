@@ -17,7 +17,7 @@
 nixos-config
 ├── hosts/              # Machine-specific system configurations
 │   ├── coruscant/      # Primary workstation (NixOS + Hyprland)
-│   └── dagobah/        # Intel Mac (nix-darwin)
+│   └── dagobah/        # Apple Silicon Mac (nix-darwin)
 ├── home/               # User-specific Home Manager configs
 │   └── daniel/
 │       ├── coruscant/  # Host-specific HM overrides + Noctalia settings
@@ -61,7 +61,6 @@ common (all hosts: nix settings, SSH, Docker, CLI tools)
 | **sops-nix** | Encrypted secrets with Age encryption |
 | **catppuccin** | System-wide Catppuccin Macchiato theming |
 | **noctalia** | Desktop shell (bar, notifications, lock screen) |
-| **awww** | Wayland wallpaper daemon |
 | **hyprdynamicmonitors** | Dynamic monitor configuration for Hyprland |
 | **spicetify-nix** | Declarative Spotify theming |
 | **zen-browser** | Firefox-based privacy browser |
@@ -75,7 +74,6 @@ common (all hosts: nix settings, SSH, Docker, CLI tools)
 ### Desktop
 - **Hyprland** Wayland compositor with smooth animations and NVIDIA Prime support
 - **Noctalia Shell** desktop shell (bar, notifications, lock screen, wallpaper engine)
-- **awww** wallpaper daemon with curated wallpaper collection
 - **Ghostty** + **Kitty** + **Alacritty** terminal emulators
 - **Hyprshot** + **Satty** screenshot and annotation pipeline
 - **EasyEffects** audio processing with custom presets

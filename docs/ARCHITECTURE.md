@@ -43,7 +43,7 @@ imports = [
 
 Relative imports (`../programs/git`) are used only inside `common/default.nix` aggregator modules.
 
-## Module Layers (Dendritic Architecture)
+## Module Layers
 
 The module tree branches from a universal trunk into host-type-specific layers:
 
@@ -90,7 +90,7 @@ Shared home-manager modules use `pkgs.stdenv.isDarwin` / `pkgs.stdenv.isLinux` f
 |--------|-------|---------|
 | `common/` | Universal | CLI programs (20+), CLI packages, Claude Code settings, catppuccin |
 | `desktop/common/` | Desktop | GUI programs (alacritty, firefox, vscode, etc.), desktop packages, desktop scripts |
-| `desktop/hyprland/` | Compositor | Hyprland config, cursor, gtk/qt/xdg, desktop services (noctalia, awww, cliphist, hypridle) |
+| `desktop/hyprland/` | Compositor | Hyprland config, cursor, gtk/qt/xdg, desktop services (noctalia, cliphist, hypridle) |
 | `programs/` | Individual | 30+ program modules (imported by common or desktop/common) |
 | `services/` | Individual | Service modules (imported by common, desktop/common, or desktop/hyprland) |
 | `scripts/` | Universal | CLI scripts (fkill) |

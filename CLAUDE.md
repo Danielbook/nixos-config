@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Declarative, flake-based Nix configuration with a dendritic (multi-host-ready) architecture. 2 hosts, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
+Declarative, flake-based Nix configuration with a layered, multi-host modular architecture. 2 hosts, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
 
 | Host | Platform | Purpose |
 |------|----------|---------|
