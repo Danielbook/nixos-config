@@ -86,6 +86,7 @@
       "obsidian"
       "microsoft-powerpoint"
       "microsoft-teams"
+      "spotify"
       "whatsapp"
     ];
 
