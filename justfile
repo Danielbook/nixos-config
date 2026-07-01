@@ -84,6 +84,28 @@ home-manager-switch:
     @echo "✅ Home Manager switch complete."
 
 # =============================================================================
+# Remote Cluster Deploy (headless k3s nodes — no local nixos-rebuild)
+# =============================================================================
+
+# Deploy a NixOS config to a remote host (build + activate on the target).
+# `path:.#` so untracked/uncommitted files are seen. Usage: just deploy naboo 10.10.40.13
+deploy host ip:
+    @echo "🚀 Deploying {{host}} → daniel@{{ip}}..."
+    @nix run nixpkgs#nixos-rebuild -- switch --flake 'path:.#{{host}}' \
+        --target-host daniel@{{ip}} --build-host daniel@{{ip}} --sudo
+    @echo "✅ {{host}} deployed."
+
+# Deploy naboo (k3s control-plane 1)
+deploy-naboo: (deploy "naboo" "10.10.40.13")
+
+# Deploy endor (k3s control-plane 2)
+deploy-endor: (deploy "endor" "10.10.40.14")
+
+# Deploy BOTH control-planes (required when a Nix-delivered k3s manifest changes,
+# or they drift/race)
+deploy-cluster: deploy-naboo deploy-endor
+
+# =============================================================================
 # Development & Maintenance
 # =============================================================================
 

@@ -142,6 +142,13 @@ platform layer (Stage B) complete. Next is Stage E (author workloads in `k8s/`).
    `modules/nixos/common`) gives SSH. Verify: `ssh daniel@<ip> 'systemctl
    is-active k3s && sudo k3s kubectl get node'`.
 
+**Ongoing redeploys (already-installed nodes):** use the `just` recipes
+(`build:.#` → activate on the target over SSH, no local `nixos-rebuild`):
+`just deploy-naboo` / `just deploy-endor`, or **`just deploy-cluster`** for both.
+Redeploy **BOTH** control-planes whenever a Nix-delivered k3s auto-deploy
+manifest changes (`modules/nixos/services/{k3s,argocd,…}`) — they ship the same
+manifests and drift/race otherwise.
+
 > **Lockout gotcha:** headless nodes set `PermitRootLogin=no` +
 > `PasswordAuthentication=off`, so a declared
 > `users.daniel.openssh.authorizedKeys` (now in `common`) is the *only* way in —
