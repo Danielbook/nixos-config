@@ -117,10 +117,15 @@ Goal: configs that `just flake-check` green, ready to deploy when `endor` lands.
 
 ## Stage B — Bootstrap node `naboo` (M80q) → 1-node cluster + platform validation
 
-Gate: none. **Status: ✅ B1–B2 done (2026-06-30).** `naboo` installed via
-`nixos-anywhere` on `10.10.40.13`; k3s `server-init` up — `naboo Ready
-control-plane,etcd` (v1.35.4). No VIP yet (single node answers on its own IP);
-set `apiVip = 10.10.40.5` + `vipInterface` before `endor` joins (Stage D).
+Gate: none. **Status: ✅ B1–B2 + VIP + endor join done (2026-07-01).** `naboo`
+installed via `nixos-anywhere` on `10.10.40.13`; k3s `server-init` up. API VIP
+`10.10.40.5` live via kube-vip. `endor` (M70q, `10.10.40.14`) joined as the 2nd
+`server` control-plane — `naboo`+`endor` both `Ready control-plane,etcd`
+(v1.35.4), **2-member etcd (no fault tolerance until jupiter, F2)**. kube-vip
+`vipInterface` is left empty → auto-detects each node's default-route NIC
+(naboo `eno2` / endor `eno1`); a hardcoded interface crashloops the odd node out.
+endor sets `apiVip` only for `--tls-san=.5` so the VIP fails over to it cleanly.
+B3–B5 (MetalLB, cert-manager, Argo) are the next platform work.
 
 **Reproducible node install (the proven flow — see [ADR 0002](./adr/0002-node-provisioning-host-keys.md)):**
 1. Pre-generate the host key into an `--extra-files` dir
