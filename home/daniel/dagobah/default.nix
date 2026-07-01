@@ -20,6 +20,7 @@
 
   home.packages = [
     inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default
+    pkgs.bitwarden-cli
   ];
 
   # Catpuccin flavor and accent
