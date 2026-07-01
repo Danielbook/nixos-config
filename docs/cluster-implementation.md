@@ -125,7 +125,8 @@ installed via `nixos-anywhere` on `10.10.40.13`; k3s `server-init` up. API VIP
 `vipInterface` is left empty → auto-detects each node's default-route NIC
 (naboo `eno2` / endor `eno1`); a hardcoded interface crashloops the odd node out.
 endor sets `apiVip` only for `--tls-san=.5` so the VIP fails over to it cleanly.
-MetalLB (B3) is live; B4–B5 (cert-manager, Argo) are the next platform work.
+MetalLB (B3) is live; **B4 dropped, B5 (Argo CD + ksops) done (2026-07-01)** —
+platform layer (Stage B) complete. Next is Stage E (author workloads in `k8s/`).
 
 **Reproducible node install (the proven flow — see [ADR 0002](./adr/0002-node-provisioning-host-keys.md)):**
 1. Pre-generate the host key into an `--extra-files` dir
@@ -154,23 +155,35 @@ MetalLB (B3) is live; B4–B5 (cert-manager, Argo) are the next platform work.
       (`modules/nixos/services/metallb`) on both servers; pool `10.10.40.50–.60`.
       Verified: controller + speaker Running, a `type=LoadBalancer` svc got `.50`
       and returned HTTP 200 from a `.40` client. `L2Advertisement` interface left
-      unset (per-node auto-detect, like kube-vip). Argo adopts it at B5.
-- [ ] **B4.** cert-manager + ClusterIssuer (Cloudflare DNS-01, token via sops);
-      issue the wildcard `*.local.bookorjeman.com`. Confirm a valid cert.
-      **⚠️ Likely dropped:** jupiter's Traefik already does Cloudflare DNS-01 for
-      the wildcard (single-instance, proven). If cluster-Traefik keeps that
-      resolver (Stage E3), cert-manager is redundant. Keep it only for Traefik HA
-      (>1 replica → Traefik's local `acme.json` races) or certs reusable by
-      non-Traefik consumers. **Decision pending; leaning drop → skip to B5.**
-- [ ] **B5.** Argo CD — bootstrap, point at `k8s/` app-of-apps; wire **ksops**.
-      **One-time manual bootstrap (chicken-and-egg):** `kubectl`-load the
-      **dedicated cluster age private key** into the argocd namespace *before*
-      Argo can sync any sops-encrypted manifest. (The key itself is held in
-      Bitwarden like your other age keys.) See ADR 0001.
-- [ ] **B6.** **GPU smoke test is deferred to Stage D** (GPU lives on tatooine),
-      but validate the device-plugin manifests render now.
-- [ ] **Verify:** VIP serves the API; a dummy ingress gets a trusted cert and
-      resolves via internal DNS; Argo syncs a hello-world app from git.
+      unset (per-node auto-detect, like kube-vip). Argo adopts it into `k8s/infra`
+      at Stage E (move out of the Nix module).
+- [x] **B4. DROPPED (2026-07-01).** cert-manager is redundant: jupiter's Traefik
+      already does Cloudflare DNS-01 for the wildcard `*.local.bookorjeman.com`
+      (single-instance, proven), and cluster-Traefik reuses that resolver at Stage
+      E3. Re-add only for Traefik HA (>1 replica races on local `acme.json`) or
+      non-Traefik TLS consumers.
+- [x] **B5.** Argo CD **v3.4.4** + **ksops v4.5.1** — auto-deployed via
+      `services.k3s.manifests` (`modules/nixos/services/argocd`): pinned upstream
+      `install.yaml` + a **build-time kustomize overlay** (renders one manifest:
+      argocd Namespace, KSOPS strategic-merge patch on `argocd-repo-server`,
+      `argocd-cm` `kustomize.buildOptions`). Nix owns the install; the Nix-delivered
+      **root app-of-apps** tracks `k8s/infra` (public repo, anonymous HTTPS — sops
+      keeps it safe). ksops decrypts `k8s/**/*.enc.yaml` in-cluster with the
+      **dedicated cluster age key** (`.sops.yaml` `k8s/**` rule → cluster + daniel,
+      ADR 0001). **One-time bootstrap:** cluster age private key `kubectl`-loaded
+      out-of-band as secret `sops-age` in `argocd` (piped over ssh stdin, never on
+      disk/git). Verified: root `Synced`+`Healthy`; a sops-encrypted test Secret
+      decrypted into the cluster (smoke app, since torn down).
+      **Also fixed a latent cluster-wide DNS bug** (`modules/nixos/services/k3s`):
+      pods inherited `search local.bookorjeman.com` + k8s default `ndots:5`, so
+      external short names got suffixed into the `*.local.bookorjeman.com` wildcard
+      (→ Traefik) and were hijacked. Kubelet now gets a `--resolv-conf` without the
+      LAN search domain. Would have broken every external-calling app at Stage E.
+- [x] **B6.** **GPU smoke test deferred to Stage D** (GPU lives on tatooine).
+      Device-plugin manifests render as part of the Stage E `k8s/infra` authoring.
+- [x] **Verify:** VIP serves the API; MetalLB hands out `.50` (B3); Argo root app
+      `Synced`+`Healthy` syncing from git; ksops decrypt proven. Ingress/cert path
+      is validated at Stage E3 (Traefik reuses jupiter's resolver, B4 dropped).
 
 ---
 

@@ -36,6 +36,16 @@ just check-all              # Format + lint + flake check
 
 See `docs/ARCHITECTURE.md` for detailed module patterns, specialArgs, and import conventions.
 
+### Cluster GitOps (`k8s/`)
+
+k3s workloads are GitOps-managed by **Argo CD** (bootstrapped in Nix via
+`modules/nixos/services/argocd`, auto-deployed on the control-planes). The
+Nix-delivered root app-of-apps tracks `k8s/infra`; add child `Application`
+manifests there. Secrets are **sops-encrypted as `k8s/**/*.enc.yaml`** (`.sops.yaml`
+rule → cluster + daniel keys) and decrypted in-cluster by **ksops** using a
+dedicated cluster age key (never the personal key — see `docs/adr/0001`).
+Full stage history in `docs/cluster-implementation.md`.
+
 ## Version Constraints
 
 - **nixpkgs**: nixos-unstable — check `flake.lock` for exact rev
