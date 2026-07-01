@@ -10,7 +10,7 @@
 | `mkDarwinConfiguration` | `inputs`, `outputs`, `hostname`, `userConfig`, `darwinModules` | `darwinModules = "${self}/modules/nix-darwin"` |
 | `mkHomeConfiguration` | `inputs`, `outputs`, `userConfig`, `nhModules` | `nhModules = "${self}/modules/home-manager"` |
 
-`mkHomeConfiguration` accepts an `extraModules` parameter for host-specific flake modules (e.g., catppuccin, spicetify, noctalia). Servers pass `{}` to skip desktop flake modules.
+`mkHomeConfiguration` accepts an `extraModules` parameter for host-specific flake modules (e.g., catppuccin, spicetify, noctalia). Servers skip the *desktop* flake modules (spicetify, noctalia, hyprdynamicmonitors) but still pass `catppuccin.homeModules.catppuccin` — the shared home `common` layer themes tmux/starship/etc. through it, so every home config needs it.
 
 `userConfig` is an attrset: `{ name, fullName, email, avatar }` — modules use it for git config, user creation, etc.
 
@@ -83,6 +83,7 @@ Shared home-manager modules use `pkgs.stdenv.isDarwin` / `pkgs.stdenv.isLinux` f
 | `services/tlp/` | Per-host | Laptop power management |
 | `services/audio-lowlatency/` | Per-host | PipeWire pro-audio tuning |
 | `services/usb-serial/` | Per-host | USB serial device support |
+| `services/k3s/` | Cluster | Role-parameterized k3s node (`homelab.k3s`: server-init/server/agent) + kube-vip |
 
 ### Home-Manager Modules (`modules/home-manager/`)
 
@@ -160,7 +161,9 @@ homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "aarch64-darwin" "d
 3. Add to `flake.nix`:
 ```nix
 nixosConfigurations.<hostname> = mkNixosConfiguration "<hostname>" "daniel";
-homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "x86_64-linux" "daniel" "<hostname>" {};
+homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "x86_64-linux" "daniel" "<hostname>" {
+  extraModules = [ catppuccin.homeModules.catppuccin ];  # required by the shared home common layer
+};
 ```
 
 ### Desktop (workstation/HTPC)

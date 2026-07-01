@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Declarative, flake-based Nix configuration with a layered, multi-host modular architecture. 2 hosts, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
+Declarative, flake-based Nix configuration with a layered, multi-host modular architecture. 3 hosts, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
 
 | Host | Platform | Purpose |
 |------|----------|---------|
 | `coruscant` | NixOS + Hyprland | Primary workstation |
 | `dagobah` | macOS (nix-darwin) | Apple Silicon MacBook Pro |
+| `naboo` | NixOS (headless) | k3s cluster bootstrap control-plane node (see `docs/cluster-implementation.md`) |
 
 Modules are layered: `common` (universal for all hosts) and `desktop/common` (shared by desktop hosts). Adding a new host requires a host config, home config, and flake entry — servers skip desktop imports, desktops compose from the desktop layer.
 

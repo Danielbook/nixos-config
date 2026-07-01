@@ -140,6 +140,14 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # Joining nodes must know the API endpoint (the VIP) to register against.
+    assertions = [
+      {
+        assertion = cfg.role == "server-init" || cfg.serverAddr != "";
+        message = "homelab.k3s.serverAddr is required for role \"${cfg.role}\" (only server-init may omit it).";
+      }
+    ];
+
     # Shared cluster token — provided by the host's sops secrets.yaml.
     sops.secrets.k3s_token = { };
 

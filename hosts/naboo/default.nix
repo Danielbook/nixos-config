@@ -16,10 +16,10 @@
 
   networking.hostName = hostname;
 
-  # System secrets (sops-nix). Decrypted at boot via the host SSH key. The
-  # secrets file is currently encrypted to daniel only (recovery) — after the
-  # first install, capture naboo's host age key (`ssh-to-age` on its host pubkey),
-  # add it to .sops.yaml as &naboo, then: sops updatekeys hosts/naboo/secrets.yaml
+  # System secrets (sops-nix). Decrypted at boot via the host SSH key. Per
+  # ADR-0002, naboo's host key is pre-generated on the admin machine and injected
+  # at install (nixos-anywhere --extra-files), so &naboo is already a recipient in
+  # .sops.yaml and secrets.yaml decrypts on first boot — no post-install re-key.
   sops = {
     defaultSopsFile = ./secrets.yaml;
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
