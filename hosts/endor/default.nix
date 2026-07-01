@@ -13,6 +13,7 @@
     "${nixosModules}/common"
     "${nixosModules}/services/k3s"
     "${nixosModules}/services/metallb"
+    "${nixosModules}/services/argocd"
   ];
 
   networking.hostName = hostname;
@@ -40,6 +41,10 @@
 
   # MetalLB L2 LoadBalancer — pool 10.10.40.50–.60 (see services/metallb).
   homelab.metallb.enable = true;
+
+  # Argo CD + ksops GitOps controller (see services/argocd). Root app tracks
+  # k8s/infra. One-time: seed the `sops-age` secret out-of-band (ADR 0001).
+  homelab.argocd.enable = true;
 
   system.stateVersion = "25.05";
 }

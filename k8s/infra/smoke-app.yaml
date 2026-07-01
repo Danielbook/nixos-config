@@ -1,0 +1,22 @@
+# B5 smoke test — proves the app-of-apps + ksops pipeline end to end.
+# Child of the `root` app (Nix-delivered). Points at k8s/smoke (a kustomize app
+# whose ksops generator decrypts secret.enc.yaml in-cluster).
+# TEAR DOWN once B5 is verified: delete this file + k8s/smoke, then commit.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: smoke
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Danielbook/nixos-config.git
+    targetRevision: feat/cluster
+    path: k8s/smoke
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

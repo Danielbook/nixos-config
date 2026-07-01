@@ -158,7 +158,12 @@ in
       clusterInit = cfg.role == "server-init";
       serverAddr = lib.mkIf (cfg.role != "server-init") cfg.serverAddr;
       extraFlags =
-        lib.optionals isServer [
+        # Feed kubelet a resolv.conf with the upstream nameserver but NO search
+        # line. Pods otherwise inherit the node's `search local.bookorjeman.com`
+        # which, with k8s default ndots:5, suffixes external short names into the
+        # *.local.bookorjeman.com wildcard (→ Traefik), hijacking e.g. github.com.
+        [ "--resolv-conf=/etc/rancher/k3s/resolv.conf" ]
+        ++ lib.optionals isServer [
           "--disable=traefik"
           "--disable=servicelb"
         ]
@@ -169,6 +174,13 @@ in
         kube-vip.source = kubeVipManifest;
       };
     };
+
+    # Upstream resolver for kubelet's --resolv-conf (see extraFlags). Same
+    # nameserver as the host, minus the LAN search domain. 10.10.40.1 = OPNsense.
+    environment.etc."rancher/k3s/resolv.conf".text = ''
+      nameserver 10.10.40.1
+      options edns0
+    '';
 
     networking.firewall = lib.mkIf cfg.openFirewall {
       allowedTCPPorts = [

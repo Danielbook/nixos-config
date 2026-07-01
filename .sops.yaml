@@ -11,6 +11,10 @@ keys:
   # Endor host key (2nd k3s control-plane). Pre-generated + injected at install
   # like naboo; the encrypted private key lives at hosts/endor/ssh_host_ed25519_key.sops.
   - &endor age10hll8ljnr870rqp3vhzkxwjuqv6qk057qg2v67y42nmah704cuqq9pqnqu
+  # Dedicated CLUSTER key (Argo/ksops). Its private half is the ONLY key loaded
+  # into the cluster; the personal daniel key never enters it. Backed by Bitwarden.
+  # See docs/adr/0001-cluster-secrets-age-key.md.
+  - &cluster age1nl0nmje9vetdgudflgcnnydcg44kv9a5px4e8lhyaz3qfqewjfhqhdg5ra
 
 creation_rules:
   # Coruscant SYSTEM secrets (NixOS-level: WireGuard private key, etc.).
@@ -63,6 +67,14 @@ creation_rules:
   - path_regex: home/daniel/dagobah/secrets\.yaml$
     key_groups:
       - age:
+          - *daniel
+
+  # Cluster GitOps secrets (Argo/ksops). Any *.enc.yaml under k8s/ is encrypted to
+  # the cluster key (Argo decrypts in-cluster) + daniel (recovery). See ADR 0001.
+  - path_regex: k8s/.*\.enc\.yaml$
+    key_groups:
+      - age:
+          - *cluster
           - *daniel
 
   # Global rule for any other secrets.yaml files
