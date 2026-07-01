@@ -157,6 +157,11 @@ MetalLB (B3) is live; B4–B5 (cert-manager, Argo) are the next platform work.
       unset (per-node auto-detect, like kube-vip). Argo adopts it at B5.
 - [ ] **B4.** cert-manager + ClusterIssuer (Cloudflare DNS-01, token via sops);
       issue the wildcard `*.local.bookorjeman.com`. Confirm a valid cert.
+      **⚠️ Likely dropped:** jupiter's Traefik already does Cloudflare DNS-01 for
+      the wildcard (single-instance, proven). If cluster-Traefik keeps that
+      resolver (Stage E3), cert-manager is redundant. Keep it only for Traefik HA
+      (>1 replica → Traefik's local `acme.json` races) or certs reusable by
+      non-Traefik consumers. **Decision pending; leaning drop → skip to B5.**
 - [ ] **B5.** Argo CD — bootstrap, point at `k8s/` app-of-apps; wire **ksops**.
       **One-time manual bootstrap (chicken-and-egg):** `kubectl`-load the
       **dedicated cluster age private key** into the argocd namespace *before*
@@ -214,8 +219,9 @@ Decision: validate the scariest step (GPU-in-k3s) on real hardware *before* the 
 
 ## Stage E — Author all workloads in `k8s/` (the bulk of the work)
 
-Argo app-of-apps. Structure: `k8s/infra/` (metallb, cert-manager, traefik,
-democratic-csi, nvidia-plugin, kube-vip) + `k8s/apps/` (one dir per service).
+Argo app-of-apps. Structure: `k8s/infra/` (metallb, traefik [does its own
+Cloudflare DNS-01, cert-manager dropped — see B4], democratic-csi, nvidia-plugin,
+kube-vip) + `k8s/apps/` (one dir per service).
 Do this **before** cutover so the weekend is just apply + restore.
 
 - [ ] **E1.** Convert each current container → manifest/Helm release. PV from
@@ -240,20 +246,36 @@ Do this **before** cutover so the weekend is just apply + restore.
       migrates **last, with jupiter** (no physical move now). Zigbee/Matter are
       Ethernet → no pin. Everything else floats. *Deferred (optional later):*
       relocate the Arduino or stand up a ser2net bridge to let HA float freely.
-- [ ] **E3.** Ingress per service on `*.local.bookorjeman.com` + authentik
-      forward-auth middleware. **One-time, single** OPNsense Unbound record —
-      `*.local.bookorjeman.com → Traefik LB IP` (Host Override host `*`, or
-      `local-zone: "local.bookorjeman.com." redirect` + one `local-data` A).
-      Traefik routes by Host header → **adding a service needs no DNS change**,
-      just its IngressRoute in git. Pod-to-pod uses CoreDNS automatically; no
-      external-dns needed. (Only non-HTTP LB services like mosquitto are
-      IP-targeted and need no DNS at all.)
-- [ ] **E4.** **External-services bucket** — port the existing `/srv/traefik/
-      dynamic/*.yml` routers that point at **non-cluster IPs** (OPNsense `router`,
-      `truenas`/scarif, `n4`, `unifi`, `slzb`, `andromeda`, octoprint, …) into
-      k8s-Traefik as IngressRoutes to external targets (Service-without-selector
-      + Endpoints, or external URL), keeping authentik forward-auth. k8s-Traefik
-      becomes the whole-homelab front door, replacing jupiter's Traefik.
+- [ ] **E3.** Ingress on `*.local.bookorjeman.com` — **templated, not one hand-
+      written dynamic file per service** (that's the docker file-provider habit;
+      drop it). Reuse jupiter's proven Traefik config (`/srv/traefik`, v3.3,
+      already serves the wildcard via its **own Cloudflare DNS-01 resolver** — so
+      **cert-manager is redundant**, see B4 note). Structure:
+      - **Shared once:** the wildcard TLS on the `websecure` entrypoint (per-route
+        `tls:` block disappears), plus the `default-headers` / `https-redirect` /
+        `authentik-forwardauth` middlewares (port jupiter's `dynamic/*.yml`
+        middlewares verbatim, referenced by name).
+      - **Cluster-native apps:** no route file. A ~30-line library/helper template
+        (`mkRoute name port [auth]`) renders each app's IngressRoute from the
+        `name`+`port` its own chart already defines — `Host(<name>.local.…)` →
+        Service, wildcard cert inherited. Adding a service adds **nothing**.
+      - **DNS:** **one-time, single** OPNsense Unbound record —
+        `*.local.bookorjeman.com → Traefik LB IP` (Host Override host `*`, or
+        `local-zone: "local.bookorjeman.com." redirect` + one `local-data` A).
+        Traefik routes by Host header → **adding a service needs no DNS change**.
+        Pod-to-pod uses CoreDNS; no external-dns. (Non-HTTP LB services like
+        mosquitto are IP-targeted and need no DNS at all.)
+- [ ] **E4.** **External-services bucket** — the `/srv/traefik/dynamic/*.yml`
+      routers pointing at **non-cluster IPs** (OPNsense `router`, `truenas`/scarif,
+      `n4`, `unifi`, `slzb`, `andromeda`, octoprint, …) collapse into **one values
+      list + one `range` template**, not a file each:
+      `- { host: truenas, url: http://10.10.40.10 }` /
+      `- { host: router, url: https://192.168.1.1, insecure: true, auth: true }`.
+      The template emits the IngressRoute (+ Service-without-selector/external URL)
+      and attaches authentik forward-auth when `auth: true`. New external target =
+      **one line**. k8s-Traefik becomes the whole-homelab front door, replacing
+      jupiter's. (Cruft to leave behind on jupiter: 2.4G unrotated `logs/`,
+      `_removed/`, `*.backup*`.)
 - [ ] **E5.** **Device-facing services** (mosquitto MQTT 1883, unifi controller
       inform 8080 / STUN 3478, HA if needed) → dedicated **MetalLB LoadBalancer
       IPs**, not ingress. **Reuse the IPs devices already target** to avoid
