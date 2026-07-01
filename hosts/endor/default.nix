@@ -17,22 +17,24 @@
   networking.hostName = hostname;
 
   # System secrets (sops-nix). Decrypted at boot via the host SSH key. Per
-  # ADR-0002, naboo's host key is pre-generated on the admin machine and injected
-  # at install (nixos-anywhere --extra-files), so &naboo is already a recipient in
+  # ADR-0002, endor's host key is pre-generated on the admin machine and injected
+  # at install (nixos-anywhere --extra-files), so &endor is already a recipient in
   # .sops.yaml and secrets.yaml decrypts on first boot — no post-install re-key.
   sops = {
     defaultSopsFile = ./secrets.yaml;
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   };
 
-  # k3s: bootstrap control-plane (first server, initialises embedded etcd).
-  # kube-vip advertises the API VIP (.5). vipInterface is left unset so kube-vip
-  # auto-detects the default-route NIC per node — required because the cluster-wide
-  # DaemonSet spans nodes with different NIC names (naboo eno2 / endor eno1).
+  # k3s: 2nd control-plane. Joins the embedded-etcd cluster via serverAddr (the
+  # API VIP). apiVip is set so endor's apiserver cert gets --tls-san=.5 — needed
+  # for the VIP to fail over onto endor without TLS errors. vipInterface is left
+  # unset: kube-vip auto-detects endor's default-route NIC (eno1), so the shared
+  # DaemonSet works despite naboo being eno2.
   homelab.k3s = {
     enable = true;
-    role = "server-init";
-    apiVip = "10.10.40.5"; # control-plane VIP (kube.local.bookorjeman.com)
+    role = "server";
+    serverAddr = "https://10.10.40.5:6443";
+    apiVip = "10.10.40.5";
   };
 
   system.stateVersion = "25.05";

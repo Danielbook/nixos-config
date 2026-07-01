@@ -122,7 +122,7 @@ in
       type = lib.types.str;
       default = "";
       example = "eno1";
-      description = "LAN NIC kube-vip ARP-announces the VIP on (confirm on first boot).";
+      description = "LAN NIC kube-vip ARP-announces the VIP on. Empty (default) = auto-detect the default-route NIC per node — required when cluster nodes have different NIC names (naboo eno2 / endor eno1). Set explicitly only to override a wrong auto-detect.";
     };
 
     serverAddr = lib.mkOption {

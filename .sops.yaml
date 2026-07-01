@@ -8,6 +8,9 @@ keys:
   # Naboo host key (k3s bootstrap node). Pre-generated and injected at install via
   # nixos-anywhere --extra-files; backed up in Bitwarden so reinstalls reuse it.
   - &naboo age1j3mpqpcmnhz8vmutuz9uw94zym4t0h8u8txzvj5e8wh6trzakymqdker0p
+  # Endor host key (2nd k3s control-plane). Pre-generated + injected at install
+  # like naboo; the encrypted private key lives at hosts/endor/ssh_host_ed25519_key.sops.
+  - &endor age10hll8ljnr870rqp3vhzkxwjuqv6qk057qg2v67y42nmah704cuqq9pqnqu
 
 creation_rules:
   # Coruscant SYSTEM secrets (NixOS-level: WireGuard private key, etc.).
@@ -31,6 +34,21 @@ creation_rules:
   # reinstalls reuse the same identity (sops keeps decrypting). daniel only — it
   # can't be encrypted to the host key it *is*.
   - path_regex: hosts/naboo/ssh_host_ed25519_key\.sops$
+    key_groups:
+      - age:
+          - *daniel
+
+  # Endor (2nd k3s control-plane) SYSTEM secrets — the shared k3s cluster token.
+  # Encrypted to daniel (recovery) + endor's host key (unattended boot decrypt).
+  - path_regex: hosts/endor/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *endor
+
+  # Endor's pre-generated SSH host key (raw key, sops binary). daniel only — same
+  # rationale as naboo's above.
+  - path_regex: hosts/endor/ssh_host_ed25519_key\.sops$
     key_groups:
       - age:
           - *daniel

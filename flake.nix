@@ -161,6 +161,9 @@
         # k3s cluster — see docs/cluster-implementation.md.
         # naboo (M80q): bootstrap control-plane. endor/jupiter/tatooine follow.
         naboo = mkNixosConfiguration "naboo" "daniel";
+
+        # endor (M70q): 2nd control-plane, joins naboo's etcd via the API VIP.
+        endor = mkNixosConfiguration "endor" "daniel";
       };
 
       darwinConfigurations = {
@@ -186,6 +189,12 @@
         # Headless k3s node — CLI tooling only. catppuccin is required by the
         # shared home `common` layer (tmux/starship/etc. theming).
         "daniel@naboo" = mkHomeConfiguration "x86_64-linux" "daniel" "naboo" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+
+        "daniel@endor" = mkHomeConfiguration "x86_64-linux" "daniel" "endor" {
           extraModules = [
             catppuccin.homeModules.catppuccin
           ];
