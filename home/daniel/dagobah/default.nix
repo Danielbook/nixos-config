@@ -21,6 +21,7 @@
   home.packages = [
     inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default
     pkgs.bitwarden-cli
+    pkgs.k9s # Terminal UI for the k3s cluster (kubeconfig at ~/.kube/config)
   ];
 
   # Catpuccin flavor and accent
