@@ -1,0 +1,37 @@
+# Headlamp — web Kubernetes dashboard, deployed via the official SIGs Helm chart
+# (no upstream single-file install → Helm is canonical). Backend is plain HTTP, so
+# the route lives in the `ingress` app (headlamp.local.bookorjeman.com). Login is
+# token-based: the chart creates a `headlamp` ServiceAccount bound cluster-admin
+# (homelab — acceptable); mint a login token with
+#   kubectl -n headlamp create token headlamp
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: headlamp
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://kubernetes-sigs.github.io/headlamp/
+    chart: headlamp
+    targetRevision: 0.43.0 # Headlamp v0.43.0 — bump deliberately
+    helm:
+      valuesObject:
+        serviceAccount:
+          create: true
+        clusterRoleBinding:
+          create: true
+          clusterRoleName: cluster-admin # full read/write in-cluster (homelab)
+        config:
+          oidc:
+            secret:
+              create: false # not using OIDC — skip the empty secret
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: headlamp
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

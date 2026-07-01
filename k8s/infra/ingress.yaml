@@ -19,6 +19,9 @@ spec:
           - name: whoami
             namespace: default
             port: 80
+          - name: headlamp
+            namespace: headlamp
+            port: 80
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik
