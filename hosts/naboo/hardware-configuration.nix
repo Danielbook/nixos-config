@@ -14,17 +14,7 @@
   ];
   boot.kernelModules = [ "kvm-intel" ];
 
-  # Placeholder layout — replaced by the real generated config / disko on install.
-  fileSystems."/" = {
-    device = "/dev/disk/by-label/nixos";
-    fsType = "ext4";
-  };
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-label/BOOT";
-    fsType = "vfat";
-  };
-  swapDevices = [ ];
-
+  # Filesystems + swap are owned by ./disko.nix (declarative partitioning).
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault true;
 }

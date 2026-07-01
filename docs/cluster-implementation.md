@@ -13,7 +13,7 @@
 | TrueNAS | `scarif` (Jonsbo N4) — storage backend, not a cluster node |
 | OctoPi | `octopi` (Pi 3B+) — printer + Brio, off-cluster |
 | Network | LAN `10.10.x` is **VLAN-segmented**: `.30` = servers/hypervisors (Proxmox, being decommissioned), `.40` = services. **Put the whole cluster — 4 nodes + scarif + MetalLB pool + VIP — in the `.40` services VLAN** (keeps service IPs where DNS/Traefik already point; storage stays intra-VLAN). k3s CIDRs unchanged (pods `10.42/16`, svc `10.43/16` — no clash with `10.10`). |
-| API VIP | `kube.local.bookorjeman.com` (kube-vip, an unused `10.10.40.x` IP) |
+| API VIP | `kube.local.bookorjeman.com` → `10.10.40.5` (kube-vip) |
 | MetalLB pool | small reserved `10.10.40.x` range (~8 IPs) for LoadBalancer svcs |
 | Service domain | `*.local.bookorjeman.com` (existing convention, 33 services) → **OPNsense Unbound wildcard host override** (`*` / `local.bookorjeman.com` → Traefik LB IP) → LAN-only |
 | Router/DNS/VPN | **OPNsense** (Unbound DNS + WireGuard server) — off-cluster; remote access survives cluster outages |
@@ -23,8 +23,24 @@
 | CSI | democratic-csi → scarif: **iSCSI** (mirror SSD pool, default SC) + **NFS** (HDD, RWX media) |
 | GPU | GTX 1070 on tatooine; nvidia-container-toolkit + device plugin **time-slicing** so jellyfin (NVENC) + immich-ml (CUDA) share it |
 
-**Reserve before starting (all in VLAN `.40`):** 4 node static IPs, 1 API VIP,
-~8 MetalLB IPs, 1 scarif IP — all outside the DHCP pool. Note them here once chosen.
+**Reserved `.40` IPs** (Kea DHCP statics on OPNsense, all below the `.100+`
+dynamic pool):
+
+| Purpose | IP |
+|---------|-----|
+| API VIP (kube-vip) | `10.10.40.5` |
+| naboo | `.13` |
+| endor | `.14` |
+| tatooine (GPU node) | `.12` *(existing reservation)* |
+| jupiter (as node, after wipe) | `.30` *(existing box IP)* |
+| MetalLB pool | `.50`–`.60` |
+| scarif / TrueNAS mgmt | `.10` *(existing)* |
+
+Existing `.40` occupants to route around: `.10` truenas-mgmt, `.11` servarr
+(decommissioning), `.12` tatooine, `.20` mustafar, `.30` jupiter. **Correction:**
+earlier text said device-services answer on "jupiter's `.10`" — wrong; `.10` is the
+TrueNAS, jupiter is `.30`. Confirm the actual device-target IP (MQTT/UniFi) before
+assigning the MetalLB service that reuses it.
 
 **Reachability / firewall posture (OPNsense L3 rules):** clients reach
 **service IPs (LoadBalancer / VIP), never node IPs.** Node IPs + API VIP + etcd
@@ -101,13 +117,34 @@ Goal: configs that `just flake-check` green, ready to deploy when `endor` lands.
 
 ## Stage B — Bootstrap node `naboo` (M80q) → 1-node cluster + platform validation
 
-Gate: none — M80q is in hand. **This stage can start as soon as Stage A is
-green.** `endor` joins later (Stage D) as a `join-server`.
+Gate: none. **Status: ✅ B1–B2 done (2026-06-30).** `naboo` installed via
+`nixos-anywhere` on `10.10.40.13`; k3s `server-init` up — `naboo Ready
+control-plane,etcd` (v1.35.4). No VIP yet (single node answers on its own IP);
+set `apiVip = 10.10.40.5` + `vipInterface` before `endor` joins (Stage D).
 
-- [ ] **B1.** Install via `nixos-anywhere` (disko wipes the 128G NVMe).
-      Generate `hardware-configuration.nix`, commit.
-- [ ] **B2.** `just nixos-rebuild` on naboo → k3s `first-server` comes up;
-      `kubectl get node` Ready; API reachable on the **VIP**.
+**Reproducible node install (the proven flow — see [ADR 0002](./adr/0002-node-provisioning-host-keys.md)):**
+1. Pre-generate the host key into an `--extra-files` dir
+   (`ssh-keygen -t ed25519 -f <dir>/etc/ssh/ssh_host_ed25519_key -N ""`).
+2. `ssh-to-age` its pubkey → add `&<node>` to `.sops.yaml`; `sops -e -i
+   --input-type binary` the key into `hosts/<node>/ssh_host_ed25519_key.sops`;
+   `sops updatekeys hosts/<node>/secrets.yaml`.
+3. Boot the node on the installer USB → `sudo systemctl start sshd && sudo passwd root`.
+4. `nix run github:nix-community/nixos-anywhere -- --flake .#<node>
+   --target-host root@<ip> --extra-files <dir>`.
+5. Host key matches the sops recipient → secrets decrypt on **first** boot → k3s
+   starts; `daniel`'s `authorizedKeys` (the portable Bitwarden key in
+   `modules/nixos/common`) gives SSH. Verify: `ssh daniel@<ip> 'systemctl
+   is-active k3s && sudo k3s kubectl get node'`.
+
+> **Lockout gotcha:** headless nodes set `PermitRootLogin=no` +
+> `PasswordAuthentication=off`, so a declared
+> `users.daniel.openssh.authorizedKeys` (now in `common`) is the *only* way in —
+> omit it and the node is unreachable after install.
+
+- [x] **B1.** Installed via `nixos-anywhere` (disko wiped the 128G NVMe; host key
+      pre-injected via `--extra-files`). `hardware-configuration.nix` is the
+      generic M80q placeholder; disko owns the filesystems.
+- [x] **B2.** k3s `server-init` up; `naboo Ready control-plane,etcd` v1.35.4.
 - [ ] **B3.** MetalLB (L2) — install, configure the 10.10.40.x address pool.
 - [ ] **B4.** cert-manager + ClusterIssuer (Cloudflare DNS-01, token via sops);
       issue the wildcard `*.local.bookorjeman.com`. Confirm a valid cert.

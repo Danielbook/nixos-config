@@ -7,6 +7,8 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./disko.nix
+    inputs.disko.nixosModules.disko
     inputs.sops-nix.nixosModules.sops
     "${nixosModules}/common"
     "${nixosModules}/services/k3s"

@@ -123,6 +123,13 @@
     ];
     isNormalUser = true;
     shell = pkgs.zsh;
+    # Portable admin identity (private key lives in Bitwarden, served by its SSH
+    # agent) — so any machine with Bitwarden unlocked can SSH in. Headless nodes
+    # have no other login path (root disabled, password auth off), so this is the
+    # only way in; keep at least one working key here.
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILnp41RlfnpB82pkrQF6aI1VE5ULTY1+A2u3nNPBTO+b k3s-cluster-admin"
+    ];
   };
 
   # Passwordless sudo

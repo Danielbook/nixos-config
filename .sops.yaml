@@ -5,6 +5,9 @@ keys:
   # Coruscant host key (derived from /etc/ssh/ssh_host_ed25519_key via ssh-to-age).
   # Convenience recipient for unattended boot decrypt; regenerable on reinstall.
   - &coruscant age1a3h3kn2fzrdx6ysq57lmselk77yj6lk4x0vs6mrr05ge28rtxfqspf8h3n
+  # Naboo host key (k3s bootstrap node). Pre-generated and injected at install via
+  # nixos-anywhere --extra-files; backed up in Bitwarden so reinstalls reuse it.
+  - &naboo age1j3mpqpcmnhz8vmutuz9uw94zym4t0h8u8txzvj5e8wh6trzakymqdker0p
 
 creation_rules:
   # Coruscant SYSTEM secrets (NixOS-level: WireGuard private key, etc.).
@@ -16,10 +19,18 @@ creation_rules:
           - *coruscant
 
   # Naboo (k3s bootstrap) SYSTEM secrets — the shared k3s cluster token.
-  # Encrypted to daniel (recovery) only for now. After the first install, capture
-  # naboo's host age key (ssh-to-age on its /etc/ssh/ssh_host_ed25519_key.pub),
-  # add it here as &naboo, then re-key: sops updatekeys hosts/naboo/secrets.yaml
+  # Encrypted to daniel (recovery) + naboo's host key (unattended boot decrypt).
   - path_regex: hosts/naboo/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *naboo
+
+  # Naboo's pre-generated SSH host key (raw key, sops binary). Decrypted on the
+  # admin machine at install time, injected via nixos-anywhere --extra-files so
+  # reinstalls reuse the same identity (sops keeps decrypting). daniel only — it
+  # can't be encrypted to the host key it *is*.
+  - path_regex: hosts/naboo/ssh_host_ed25519_key\.sops$
     key_groups:
       - age:
           - *daniel
