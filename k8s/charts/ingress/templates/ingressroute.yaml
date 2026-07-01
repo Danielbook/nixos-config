@@ -1,0 +1,26 @@
+{{- /* mkRoute: one IngressRoute per .Values.routes entry. tls: {} inherits the
+       wildcard cert configured once on the websecure entrypoint. */ -}}
+{{- range .Values.routes }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`{{ .name }}.{{ $.Values.domain }}`)
+      middlewares:
+        - name: default-headers
+        {{- if .auth }}
+        - name: authentik-forwardauth
+        {{- end }}
+      services:
+        - name: {{ .name }}
+          namespace: {{ .namespace | default "default" }}
+          port: {{ .port }}
+  tls: {}
+{{- end }}

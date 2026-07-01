@@ -1,0 +1,93 @@
+# Traefik ingress — reuses jupiter's proven Cloudflare DNS-01 wildcard setup, now
+# as an Argo Helm app (no upstream single-file install exists → Helm is canonical;
+# --enable-helm is NOT needed, this is Argo's native Helm source, not kustomize
+# inflation). Shared-once config lives here: the wildcard cert on the websecure
+# entrypoint (per-route `tls: {}` inherits it) + http→https redirect. Per-app
+# routes/middlewares live in the `ingress` app (k8s/charts/ingress).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 41.0.1 # Traefik v3.7.5 — bump deliberately
+    helm:
+      valuesObject:
+        deployment:
+          replicas: 1 # >1 races on the local-path acme.json (see B4 note)
+          # PVC at /data is root-owned; Traefik runs as 65532 and can't create
+          # acme.json without this chown. Cert persistence breaks otherwise.
+          initContainers:
+            - name: volume-permissions
+              image: busybox:1.36
+              command:
+                - sh
+                - -c
+                - "touch /data/acme.json && chmod 600 /data/acme.json && chown 65532:65532 /data/acme.json"
+              securityContext:
+                runAsNonRoot: false
+                runAsUser: 0
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+        persistence:
+          enabled: true
+          storageClass: local-path # node-local; migrate to iscsi at Stage C5
+          size: 128Mi
+          path: /data
+        env:
+          - name: CF_DNS_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: cloudflare-api-token
+                key: token
+        certificatesResolvers:
+          cloudflare:
+            acme:
+              email: daniel@bookorjeman.se
+              storage: /data/acme.json
+              caServer: https://acme-v02.api.letsencrypt.org/directory
+              dnsChallenge:
+                provider: cloudflare
+                resolvers:
+                  - "1.1.1.1:53"
+                  - "1.0.0.1:53"
+        ports:
+          web:
+            http:
+              redirections:
+                entryPoint:
+                  to: websecure # http→https natively (replaces jupiter's redirect middleware)
+                  scheme: https
+                  permanent: true
+          websecure:
+            http:
+              tls:
+                enabled: true
+                certResolver: cloudflare
+                domains:
+                  - main: local.bookorjeman.com
+                    sans:
+                      - "*.local.bookorjeman.com"
+        service:
+          annotations:
+            metallb.io/loadBalancerIPs: 10.10.40.51 # stable IP for the DNS record
+        providers:
+          kubernetesCRD:
+            enabled: true
+          kubernetesIngress:
+            enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # Traefik CRDs are large; SSA avoids last-applied bloat

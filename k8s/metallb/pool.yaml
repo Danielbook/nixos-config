@@ -1,0 +1,21 @@
+# Verbatim from modules/nixos/services/metallb: .50–.60 pool (outside the Kea
+# dynamic pool .100–.250) + L2Advertisement. interfaces left UNSET on purpose —
+# MetalLB auto-announces on the NIC owning the route to each service IP (naboo
+# eno2 / endor eno1); pinning one crashes the odd node out (kube-vip lesson).
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: lan-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.10.40.50-10.10.40.60
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: lan-l2
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - lan-pool

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: ingress
+description: Shared Traefik middlewares + templated IngressRoutes (the mkRoute helper)
+type: application
+version: 0.1.0

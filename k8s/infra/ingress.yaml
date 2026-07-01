@@ -1,0 +1,28 @@
+# Templated ingress — the mkRoute helper chart (k8s/charts/ingress). Middlewares
+# render once; each app is ONE line under `routes` below (no dynamic config file
+# per service — that docker file-provider habit is gone). Runs in the `traefik` ns
+# so IngressRoutes/Middlewares sit alongside Traefik.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Danielbook/nixos-config.git
+    targetRevision: feat/cluster
+    path: k8s/charts/ingress
+    helm:
+      valuesObject:
+        routes:
+          - name: whoami
+            namespace: default
+            port: 80
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

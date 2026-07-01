@@ -1,0 +1,7 @@
+# Traefik's Cloudflare DNS-01 API token, decrypted in-cluster by ksops. Same
+# pipeline as the B5 smoke test: repo-server runs the ksops generator (kustomize
+# exec plugin) against cf-token.enc.yaml using the mounted cluster age key.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+generators:
+  - ./secret-generator.yaml

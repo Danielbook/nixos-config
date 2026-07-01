@@ -37,8 +37,9 @@
     apiVip = "10.10.40.5"; # control-plane VIP (kube.local.bookorjeman.com)
   };
 
-  # MetalLB L2 LoadBalancer — pool 10.10.40.50–.60 (see services/metallb).
-  homelab.metallb.enable = true;
+  # MetalLB L2 LoadBalancer — ADOPTED INTO GITOPS (Stage E3): now managed by the
+  # Argo `metallb` app (k8s/infra/metallb.yaml). The Nix module stays in-tree but
+  # disabled; do not re-enable (both managing it would race).
 
   # Argo CD + ksops GitOps controller (see services/argocd). Root app tracks
   # k8s/infra. One-time: seed the `sops-age` secret out-of-band (ADR 0001).

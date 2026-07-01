@@ -198,6 +198,10 @@ The TrueNAS VM keeps serving; bare-metal conversion is Stage G.
 - [ ] **C3.** democratic-csi via Argo: StorageClasses **`iscsi` (default)** +
       **`nfs`**. TrueNAS creds as a sops secret (ksops).
 - [ ] **C4.** Snapshot tasks + intra-TrueNAS replication on both pools.
+- [ ] **C5.** **Migrate Traefik's `acme.json` off `local-path` onto the `iscsi`
+      SC** (E3 parked it on node-local `local-path` — survives pod restart but a
+      reschedule to the other node re-issues the wildcard cert). Swap the
+      `k8s/infra/traefik.yaml` `persistence.storageClass` to `iscsi`.
 - [ ] **Verify:** PVC on each SC binds; pod writes, deletes, reschedules to
       another node (after Stage D), data persists; zvol/export visible in scarif.
 
