@@ -79,6 +79,9 @@ spec:
         providers:
           kubernetesCRD:
             enabled: true
+            # mkRoute renders IngressRoutes in the traefik ns pointing at Services
+            # in each app's own ns (whoami→default, …) — blocked without this.
+            allowCrossNamespace: true
           kubernetesIngress:
             enabled: false
   destination:
