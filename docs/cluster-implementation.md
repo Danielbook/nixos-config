@@ -125,7 +125,7 @@ installed via `nixos-anywhere` on `10.10.40.13`; k3s `server-init` up. API VIP
 `vipInterface` is left empty → auto-detects each node's default-route NIC
 (naboo `eno2` / endor `eno1`); a hardcoded interface crashloops the odd node out.
 endor sets `apiVip` only for `--tls-san=.5` so the VIP fails over to it cleanly.
-B3–B5 (MetalLB, cert-manager, Argo) are the next platform work.
+MetalLB (B3) is live; B4–B5 (cert-manager, Argo) are the next platform work.
 
 **Reproducible node install (the proven flow — see [ADR 0002](./adr/0002-node-provisioning-host-keys.md)):**
 1. Pre-generate the host key into an `--extra-files` dir
@@ -150,7 +150,11 @@ B3–B5 (MetalLB, cert-manager, Argo) are the next platform work.
       pre-injected via `--extra-files`). `hardware-configuration.nix` is the
       generic M80q placeholder; disko owns the filesystems.
 - [x] **B2.** k3s `server-init` up; `naboo Ready control-plane,etcd` v1.35.4.
-- [ ] **B3.** MetalLB (L2) — install, configure the 10.10.40.x address pool.
+- [x] **B3.** MetalLB (L2) v0.16.1 — auto-deployed via `services.k3s.manifests`
+      (`modules/nixos/services/metallb`) on both servers; pool `10.10.40.50–.60`.
+      Verified: controller + speaker Running, a `type=LoadBalancer` svc got `.50`
+      and returned HTTP 200 from a `.40` client. `L2Advertisement` interface left
+      unset (per-node auto-detect, like kube-vip). Argo adopts it at B5.
 - [ ] **B4.** cert-manager + ClusterIssuer (Cloudflare DNS-01, token via sops);
       issue the wildcard `*.local.bookorjeman.com`. Confirm a valid cert.
 - [ ] **B5.** Argo CD — bootstrap, point at `k8s/` app-of-apps; wire **ksops**.

@@ -12,6 +12,7 @@
     inputs.sops-nix.nixosModules.sops
     "${nixosModules}/common"
     "${nixosModules}/services/k3s"
+    "${nixosModules}/services/metallb"
   ];
 
   networking.hostName = hostname;
@@ -34,6 +35,9 @@
     role = "server-init";
     apiVip = "10.10.40.5"; # control-plane VIP (kube.local.bookorjeman.com)
   };
+
+  # MetalLB L2 LoadBalancer — pool 10.10.40.50–.60 (see services/metallb).
+  homelab.metallb.enable = true;
 
   system.stateVersion = "25.05";
 }
