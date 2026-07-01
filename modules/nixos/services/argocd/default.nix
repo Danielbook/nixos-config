@@ -153,6 +153,10 @@ let
         automated:
           prune: true
           selfHeal: true
+          # App-of-apps root can legitimately manage zero children between stages;
+          # without this, Argo refuses to prune the last child ("would wipe out
+          # all resources").
+          allowEmpty: true
   '';
 in
 {
