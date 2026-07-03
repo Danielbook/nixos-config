@@ -228,6 +228,15 @@ local-path.
       CSI snapshotter disabled (no snapshot-controller in k3s; C4 covers it).
       Node prereqs (iscsid + NFS mounts) added to the Nix k3s module → needs
       `just deploy-cluster` (the one non-GitOps bit of Stage C).
+      **TLS deferral (2026-07-03):** `truenas.local.bookorjeman.com` turned out to
+      resolve to **jupiter's legacy Traefik** (.30) — that's where the valid cert
+      lives; TrueNAS itself (.10) serves self-signed. CSI must not depend on
+      jupiter (wiped at F2), so the driver configs use `host: 10.10.40.10` +
+      `allowInsecure: true` **temporarily**. Fix when jupiter's Traefik migrates
+      (E4/F): TrueNAS native ACME cert (Credentials → Certificates → ACME
+      DNS-Authenticator w/ Cloudflare → CSR for truenas.local.bookorjeman.com →
+      ACME cert → set as GUI cert), OPNsense override → .10, then flip driver
+      configs to the hostname + `allowInsecure: false`.
 - [ ] **C4.** Snapshot tasks + intra-TrueNAS replication on both pools.
 - [ ] **C5.** **Migrate Traefik's `acme.json` off `local-path` onto the `iscsi`
       SC** (E3 parked it on node-local `local-path` — survives pod restart but a
