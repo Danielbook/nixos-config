@@ -39,6 +39,8 @@ spec:
       labels:
         app: seerr
     spec:
+      securityContext:
+        fsGroup: 1000 # image runs as uid/gid 1000(node); iscsi PVC mounts root-owned otherwise
       containers:
         - name: seerr
           image: ghcr.io/seerr-team/seerr:latest # matches the live tatooine container exactly (docker inspect) — not jellyseerr
