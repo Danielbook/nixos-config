@@ -35,6 +35,7 @@
   environment.systemPackages = with pkgs; [
     sops
     just
+    kubectl
     feishin # Navidrome/Subsonic music client (matches the NixOS setup)
   ];
 

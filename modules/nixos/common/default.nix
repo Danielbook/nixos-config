@@ -152,6 +152,7 @@
     wireguard-tools
     openssl
     unixtools.xxd
+    kubectl
   ];
 
   # PATH configuration
