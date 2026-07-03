@@ -43,7 +43,9 @@ in
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    # legacy_580, not stable: 595+ dropped Pascal — 580 is the last branch
+    # supporting the GTX 1070 (boot dmesg NVRM message says so explicitly).
+    package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
     open = false;
     modesetting.enable = true;
     nvidiaSettings = false;

@@ -39,5 +39,14 @@
     serverAddr = "https://10.10.40.5:6443";
   };
 
+  # GPU node scheduling (Stage D1): taint keeps non-GPU pods off the box
+  # (jellyfin/immich carry the matching toleration); the label is what the
+  # NVIDIA device plugin DaemonSet selects on (k8s/infra/nvidia-plugin.yaml).
+  # Applied by kubelet at agent registration — no imperative kubectl taint.
+  services.k3s.extraFlags = [
+    "--node-taint=nvidia.com/gpu=present:NoSchedule"
+    "--node-label=nvidia.com/gpu.present=true"
+  ];
+
   system.stateVersion = "25.05";
 }

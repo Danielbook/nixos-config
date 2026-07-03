@@ -1,0 +1,43 @@
+# NVIDIA device plugin (Stage D2) — advertises nvidia.com/gpu on tatooine with
+# time-slicing (3 replicas) so jellyfin's NVENC shares the GTX 1070 with future
+# GPU workloads. Multi-source: the Helm chart + k8s/nvidia (the RuntimeClass the
+# plugin pod needs to reach /dev/nvidia* through k3s' nvidia containerd runtime).
+# nodeSelector pins the DaemonSet to GPU-labelled nodes (label set declaratively
+# in hosts/tatooine/default.nix); the chart's default tolerations already cover
+# the nvidia.com/gpu=present:NoSchedule taint.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nvidia-plugin
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/Danielbook/nixos-config.git
+      targetRevision: feat/cluster
+      path: k8s/nvidia
+    - repoURL: https://nvidia.github.io/k8s-device-plugin
+      chart: nvidia-device-plugin
+      targetRevision: 0.17.3 # bump deliberately
+      helm:
+        valuesObject:
+          runtimeClassName: nvidia
+          nodeSelector:
+            nvidia.com/gpu.present: "true"
+          config:
+            default: default
+            map:
+              default: |-
+                version: v1
+                sharing:
+                  timeSlicing:
+                    replicas: 3
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nvidia-device-plugin
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
