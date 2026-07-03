@@ -376,9 +376,14 @@ jellyfin-only for now. `*arr` + gluetun are servarr's (Stage E1), not D4.
       reachable at `jellyfin.local.bookorjeman.com`, real NVENC transcode
       confirmed (`nvidia-smi` showed `jellyfin-ffmpeg/ffmpeg` at 35% GPU util,
       P2 power state, during a forced-quality playback). immich: gallery
-      loads, asset count matches the D0 migration. seerr: UI reachable at
-      `/setup` (needs its Jellyfin/*arr connections re-pointed by hand, not a
-      cluster issue). **DNS cutover:** OPNsense Unbound per-app host overrides
+      loads, asset count matches the D0 migration. seerr: UI reachable, but
+      landed on the first-run setup wizard — its config PVC was empty.
+      **Gap found post-hoc: seerr's `/app/config` was never migrated in D0**
+      (unlike jellyfin/immich, no migrate pod was ever authored/run for it
+      before the D1 wipe); since tatooine's wipe is a one-way door (ADR-0003),
+      its old settings/request history/users are unrecoverable — redoing
+      Seerr's setup from scratch (no media data involved, app-config only).
+      **DNS cutover:** OPNsense Unbound per-app host overrides
       for `jellyfin`/`immich-server`/`seerr` repointed from jupiter's old
       `10.10.40.30` to the cluster Traefik LB `10.10.40.51`. A literal `*`
       wildcard host override was tried instead and **crashed Unbound
