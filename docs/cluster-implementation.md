@@ -255,10 +255,16 @@ local-path.
       (both recursive, daily 03:00, 2-week lifetime). Replication `ssd/k8s` →
       `pool1` **deferred** — 2nd SSD arriving soon, will extend `ssd` to a mirror
       instead of replicating; revisit if that slips.
-- [ ] **C5.** **Migrate Traefik's `acme.json` off `local-path` onto the `iscsi`
-      SC** (E3 parked it on node-local `local-path` — survives pod restart but a
-      reschedule to the other node re-issues the wildcard cert). Swap the
-      `k8s/infra/traefik.yaml` `persistence.storageClass` to `iscsi`.
+- [x] **C5. DONE (2026-07-03).** Traefik's `acme.json` moved off `local-path`
+      onto the `iscsi` SC. PVC `storageClassName` is immutable — needed a real
+      cutover: scale deploy to 0, delete PVC, hard-refresh the **root** app (not
+      just `traefik`) so the new `storageClass` value actually lands in the
+      `traefik` Application CR, then re-sync + scale back up. Wildcard cert
+      re-issued once via LE DNS-01, verified with a live HTTPS request
+      (`SSL certificate verify ok`, HTTP/2 200). Traefik logs a `Register...`
+      line and then go quiet on ACME success — no "obtained certificate" INFO
+      line — don't mistake that silence for a hang; check the served cert
+      instead of tailing logs.
 - [ ] **Verify:** PVC on each SC binds; pod writes, deletes, reschedules to
       another node (after Stage D), data persists; zvol/export visible in scarif.
 
