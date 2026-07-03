@@ -1,0 +1,43 @@
+# democratic-csi, NFS flavour — RWX datasets on the TrueNAS `pool1` pool via
+# the freenas-api-nfs driver (pure API, no SSH). StorageClass `nfs` (media /
+# shared volumes); the default-SC iSCSI sibling lives in
+# democratic-csi-iscsi.yaml. Driver config (incl. apiKey) from the ksops
+# Secret `truenas-nfs-config` (k8s/truenas/).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: democratic-csi-nfs
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://democratic-csi.github.io/charts
+    chart: democratic-csi
+    targetRevision: 0.15.1 # bump deliberately
+    helm:
+      valuesObject:
+        csiDriver:
+          name: org.democratic-csi.nfs
+        storageClasses:
+          - name: nfs
+            defaultClass: false
+            reclaimPolicy: Delete
+            volumeBindingMode: Immediate
+            allowVolumeExpansion: true
+            parameters: {}
+        driver:
+          existingConfigSecret: truenas-nfs-config
+          config:
+            driver: freenas-api-nfs
+        controller:
+          externalSnapshotter:
+            enabled: false # see democratic-csi-iscsi.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: democratic-csi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

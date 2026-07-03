@@ -208,15 +208,26 @@ TrueNAS-only. `democratic-csi` uses **`iscsi` (RWO, DBs) + `nfs` (RWX, media)** 
 best practice for a NAS-backed cluster; NFS-only would force DBs onto node-pinned
 local-path.
 
-- [ ] **C1.** New SSD → **raw-disk passthrough into the TrueNAS VM** (`qm set
-      <vmid> -scsiN /dev/disk/by-id/<id>,discard=on,ssd=1`); create a **single-disk
-      `ssd` pool** now (iSCSI zvols) — `zpool attach` the 2nd SSD into a **mirror**
-      when it arrives. The **HDD pool** (`pool1`, 2×16TB mirror) already exists and
-      serves media over NFS. Keep the SSD whole-disk (not a vdisk image) so the pool
+- [x] **C1. DONE (2026-07-03).** New SSD (Samsung 850 PRO 512GB) → **raw-disk
+      passthrough into the TrueNAS VM** (`qm set 100 -scsi3
+      /dev/disk/by-id/ata-Samsung_SSD_850_PRO_512GB_...,discard=on,ssd=1`); pool
+      **`ssd`** created, single-disk stripe ~476 GiB. 2nd SSD later → *Extend the
+      VDEV* (converts to mirror in place; NOT "Add VDEV"). Whole-disk, so the pool
       survives the Stage G export/import.
-- [ ] **C2.** Dedicated democratic-csi API user + key; enable iSCSI + NFS.
-- [ ] **C3.** democratic-csi via Argo: StorageClasses **`iscsi` (default)** +
-      **`nfs`**. TrueNAS creds as a sops secret (ksops).
+- [ ] **C2.** API key + services. Dedicated `k8s-csi` user abandoned — **the API
+      key is tied to `truenas_admin`** (delete the orphaned `k8s-csi` user). NFS
+      already running (servarr); iSCSI still to enable: service + portal
+      (10.10.40.10:3260) + allow-all initiator group, plus datasets `ssd/k8s/{v,s}`
+      and `pool1/k8s/{v,s}` (`v` = volumes, `s` = detached snapshots — siblings, a
+      driver constraint; one recursive `k8s` parent per pool keeps C4 to one task).
+- [ ] **C3.** democratic-csi via Argo (authored, pending key+push): two Helm apps
+      (`k8s/infra/democratic-csi-{iscsi,nfs}.yaml`, chart 0.15.1) → StorageClasses
+      **`iscsi` (default**, zvols on `ssd/k8s/v`**)** + **`nfs`** (`pool1/k8s/v`).
+      Full driver configs (incl. apiKey) as ksops Secrets in `k8s/truenas/` — the
+      chart's `existingConfigSecret` is the only way to keep the key out of git.
+      CSI snapshotter disabled (no snapshot-controller in k3s; C4 covers it).
+      Node prereqs (iscsid + NFS mounts) added to the Nix k3s module → needs
+      `just deploy-cluster` (the one non-GitOps bit of Stage C).
 - [ ] **C4.** Snapshot tasks + intra-TrueNAS replication on both pools.
 - [ ] **C5.** **Migrate Traefik's `acme.json` off `local-path` onto the `iscsi`
       SC** (E3 parked it on node-local `local-path` — survives pod restart but a

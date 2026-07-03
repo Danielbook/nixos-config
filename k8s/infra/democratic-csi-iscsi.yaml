@@ -1,0 +1,51 @@
+# democratic-csi, iSCSI flavour — zvols on the TrueNAS `ssd` pool via the
+# freenas-api-iscsi driver (pure API, no SSH). StorageClass `iscsi` is the
+# cluster DEFAULT (RWO — DBs/app data). One chart release per driver; the NFS
+# sibling lives in democratic-csi-nfs.yaml. The driver config (incl. the
+# TrueNAS apiKey) comes from the ksops Secret `truenas-iscsi-config`
+# (k8s/truenas/) — the chart's existingConfigSecret hook; layout is commented
+# in the enc.yaml. Node prereqs (iscsid, nfs) are in the Nix k3s module.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: democratic-csi-iscsi
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://democratic-csi.github.io/charts
+    chart: democratic-csi
+    targetRevision: 0.15.1 # bump deliberately
+    helm:
+      valuesObject:
+        csiDriver:
+          name: org.democratic-csi.iscsi
+        storageClasses:
+          - name: iscsi
+            defaultClass: true # RWO default; nfs SC covers RWX
+            reclaimPolicy: Delete
+            volumeBindingMode: Immediate
+            allowVolumeExpansion: true
+            parameters:
+              fsType: ext4
+        driver:
+          existingConfigSecret: truenas-iscsi-config
+          config:
+            # Chart templates key off the driver name; real config (with the
+            # apiKey) is mounted from the Secret above.
+            driver: freenas-api-iscsi
+        controller:
+          externalSnapshotter:
+            # k3s ships no snapshot-controller/CRDs; snapshots are TrueNAS-side
+            # (Stage C4). Enable + add the snapshot-controller chart if CSI
+            # snapshots are ever needed (e.g. Velero).
+            enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: democratic-csi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -175,6 +175,14 @@ in
       };
     };
 
+    # democratic-csi node prerequisites (Stage C): every node that can run pods
+    # needs the iSCSI initiator daemon (block PVs) and NFS mount support (RWX PVs).
+    services.openiscsi = {
+      enable = true;
+      name = "iqn.2026-07.com.bookorjeman:${config.networking.hostName}";
+    };
+    boot.supportedFilesystems = [ "nfs" ];
+
     # Upstream resolver for kubelet's --resolv-conf (see extraFlags). Same
     # nameserver as the host, minus the LAN search domain. 10.10.40.1 = OPNsense.
     environment.etc."rancher/k3s/resolv.conf".text = ''
