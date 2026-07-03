@@ -355,13 +355,37 @@ jellyfin-only for now. `*arr` + gluetun are servarr's (Stage E1), not D4.
       `migrate-*.yaml` out of the Argo-synced app dirs or the migrate pod
       resurrects. `nvidia-plugin` was `kubectl apply`'d directly (root sync
       off); root adopts it on its next sync.
-- [ ] **D3 (the real planned outage — in progress, old stack is already gone).**
-      Apply the jellyfin/immich/seerr manifests from D0, pointing at the
-      already-migrated iscsi data + static PVs for media. seerr was
-      CrashLoopBackOff on first Argo sync — undiagnosed, pick up here.
-- [ ] **Verify:** a CUDA pod sees the GPU; jellyfin does a HW (NVENC)
-      transcode; immich gallery loads; seerr works. **This proves the GPU path
-      with a safety margin before the rest of the cluster cuts over.**
+- [x] **D3. DONE (2026-07-04).** `migrate-*.yaml` moved to `k8s/migration/`
+      (plain files, no Application) before re-enabling `root`/`immich`
+      auto-sync — both restored to `automated: {prune, selfHeal}`. **Three
+      bugs found and fixed getting the three services live:** (1) the
+      democratic-csi iscsi/nfs node DaemonSets had no toleration for
+      tatooine's `nvidia.com/gpu=present:NoSchedule` taint, so the CSI node
+      plugin never ran there — any PVC mount on tatooine failed with
+      "driver name org.democratic-csi.iscsi not found"; fixed by adding
+      `node.tolerations` to both `k8s/infra/democratic-csi-{iscsi,nfs}.yaml`.
+      (2) `jellyfin.yaml`'s pod spec was missing `runtimeClassName: nvidia` —
+      it scheduled and got `nvidia.com/gpu: 1` allocated, but without the
+      RuntimeClass the container ran under plain `runc` and never got
+      `/dev/nvidia*` devices. (3) seerr's CrashLoopBackOff was
+      `EACCES: permission denied, mkdir '/app/config/logs/'` —
+      `ghcr.io/seerr-team/seerr` runs as uid/gid `1000(node)` but the fresh
+      iscsi PVC mounts root-owned; added `securityContext.fsGroup: 1000` to
+      `k8s/apps/seerr/seerr.yaml`.
+- [x] **Verify. DONE (2026-07-04).** jellyfin: pod Running on tatooine, UI
+      reachable at `jellyfin.local.bookorjeman.com`, real NVENC transcode
+      confirmed (`nvidia-smi` showed `jellyfin-ffmpeg/ffmpeg` at 35% GPU util,
+      P2 power state, during a forced-quality playback). immich: gallery
+      loads, asset count matches the D0 migration. seerr: UI reachable at
+      `/setup` (needs its Jellyfin/*arr connections re-pointed by hand, not a
+      cluster issue). **DNS cutover:** OPNsense Unbound per-app host overrides
+      for `jellyfin`/`immich-server`/`seerr` repointed from jupiter's old
+      `10.10.40.30` to the cluster Traefik LB `10.10.40.51`. A literal `*`
+      wildcard host override was tried instead and **crashed Unbound
+      network-wide** (GUI-generated per-host overrides don't support a real
+      wildcard; deleting the row let the service start cleanly again) — stuck
+      with explicit per-app overrides for now, see the wildcard TODO in agent
+      memory for a safer subdomain-scoped approach later.
 
 > **etcd quorum timeline:** buy `endor` early and join it as a 2nd control-plane
 > so this and later stages run on `naboo`+`endor` (2-member etcd) + tatooine
