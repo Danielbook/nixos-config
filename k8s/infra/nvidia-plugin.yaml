@@ -22,6 +22,10 @@ spec:
       helm:
         valuesObject:
           runtimeClassName: nvidia
+          # index, not the default uuid: the NixOS-generated CDI spec
+          # (/var/run/cdi) names devices "0"/"all" — a UUID device request is
+          # unresolvable ("unresolvable CDI devices nvidia.com/gpu=GPU-…").
+          deviceIDStrategy: index
           nodeSelector:
             nvidia.com/gpu.present: "true"
           config:
@@ -31,7 +35,9 @@ spec:
                 version: v1
                 sharing:
                   timeSlicing:
-                    replicas: 3
+                    resources:
+                      - name: nvidia.com/gpu
+                        replicas: 3
   destination:
     server: https://kubernetes.default.svc
     namespace: nvidia-device-plugin

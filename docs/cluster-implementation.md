@@ -316,17 +316,49 @@ jellyfin-only for now. `*arr` + gluetun are servarr's (Stage E1), not D4.
       agent token) and the `immich-postgres-env`/`immich-server-env` ksops
       secrets still need generating before an agent join or a real Argo sync
       of the immich app.
-- [ ] **D1.** Bare-metal wipe (per ADR-0003 — no rollback once done) +
-      `nixos-anywhere` install directly on `10.10.30.12`. Join k3s as `agent`.
-      Taint (`nvidia.com/gpu=present:NoSchedule`) + matching toleration on
-      jellyfin/immich, not just resource-based scheduling.
-- [ ] **D2.** NVIDIA device plugin + **time-slicing** (e.g. 3 replicas, GPU
-      resource request `nvidia.com/gpu: 1`) so jellyfin (NVENC) can share the
-      1070 with future GPU workloads. Validate with a throwaway CUDA test pod
-      before real workloads.
-- [ ] **D3 (the real planned outage).** Apply the jellyfin/immich/seerr
-      manifests from D0, pointing at the already-migrated iscsi data + static
-      PVs for media.
+- [x] **D1. DONE (2026-07-03).** Bare-metal wipe + `nixos-anywhere` install (kexec
+      from the live Proxmox host worked — EFI, Secure Boot off, VM 100 stopped
+      first to free RAM; final postgres/jellyfin-config delta re-sync done
+      **before** the wipe, the source dies with the hypervisor). Built on
+      **naboo** (the mac can't build x86_64-linux; repo rsync'd to
+      `/tmp/nixos-config`, nixos-anywhere run from there with agent-forwarded
+      SSH). Node then **moved to the cluster VLAN as `10.10.40.15`** — OPNsense
+      blocks `10.10.30.x→10.10.40.x:6443`, an agent on the old VLAN can never
+      join (NFS exports are 40.0/24-scoped too). Taint +
+      `nvidia.com/gpu.present=true` label applied **declaratively** via
+      `services.k3s.extraFlags` at registration. **Gotcha:**
+      `nvidiaPackages.stable` (595) drops Pascal — module pins `legacy_580`,
+      the last GTX 1070 branch.
+- [x] **D2. DONE (2026-07-04).** Device plugin via multi-source Argo app
+      (`k8s/infra/nvidia-plugin.yaml`: Helm chart 0.17.3 + `k8s/nvidia`'s
+      RuntimeClass). Verified: throwaway CUDA pod (`runtimeClassName: nvidia`,
+      `nvidia.com/gpu: 1`) ran `nvidia-smi` — GTX 1070 / driver 580.142, node
+      allocatable `nvidia.com/gpu: 3` (time-slicing). **Three gotchas, all
+      encoded in config:** (1) `nvidia-container-runtime` shells out to `runc`
+      from PATH and the containerd shim env has none — the module's BinaryName
+      points at a wrapper script baking `pkgs.runc` onto PATH; (2) the plain
+      binary defaults to *legacy* mode (no `/etc/nvidia-container-runtime`
+      config on NixOS) whose `nvidia-container-cli` isn't packaged — the
+      wrapper execs the **`.cdi`** variant against the generated `/var/run/cdi`
+      spec; (3) that spec names devices `0`/`all`, so the plugin needs
+      `deviceIDStrategy: index` (default uuid → "unresolvable CDI devices").
+      Restarting `k3s.service` does NOT restart its bundled containerd — bounce
+      both (`systemctl stop k3s && pkill containerd`) or containerd keeps the
+      old runtime config/env.
+      **⚠ Incident + open items for D3:** Argo had auto-synced
+      `k8s/apps/immich` *including* the throwaway `migrate-postgres.yaml` → two
+      postgres on one RWO PVC → corrupted pgdata. Recovered (pgdata wiped,
+      fresh restore from the then-still-live old container; 38,729 assets / 2
+      users + max `updatedAt` verified identical). **`automated` sync is
+      currently disabled on the `root` and `immich` Applications** and
+      `immich-server` is scaled to 0; before re-enabling, move
+      `migrate-*.yaml` out of the Argo-synced app dirs or the migrate pod
+      resurrects. `nvidia-plugin` was `kubectl apply`'d directly (root sync
+      off); root adopts it on its next sync.
+- [ ] **D3 (the real planned outage — in progress, old stack is already gone).**
+      Apply the jellyfin/immich/seerr manifests from D0, pointing at the
+      already-migrated iscsi data + static PVs for media. seerr was
+      CrashLoopBackOff on first Argo sync — undiagnosed, pick up here.
 - [ ] **Verify:** a CUDA pod sees the GPU; jellyfin does a HW (NVENC)
       transcode; immich gallery loads; seerr works. **This proves the GPU path
       with a safety margin before the rest of the cluster cuts over.**

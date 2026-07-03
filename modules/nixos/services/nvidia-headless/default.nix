@@ -19,8 +19,17 @@
   ...
 }:
 let
-  nvidiaContainerRuntime =
-    "${lib.getOutput "tools" config.hardware.nvidia-container-toolkit.package}/bin/nvidia-container-runtime";
+  # Wrapper, not the raw binary: nvidia-container-runtime shells out to a
+  # low-level runtime it looks up on PATH ("no runtime binary found from
+  # candidate list: [runc crun]"), and the containerd shim invokes it with a
+  # minimal env — bake runc onto PATH here.
+  nvidiaContainerRuntime = pkgs.writeShellScript "nvidia-container-runtime-wrapped" ''
+    export PATH=${pkgs.runc}/bin:$PATH
+    # .cdi variant: forces CDI mode against the generated /var/run/cdi spec.
+    # The plain binary defaults to legacy mode (no /etc/nvidia-container-runtime
+    # config on NixOS), whose nvidia-container-cli helper isn't packaged.
+    exec ${lib.getOutput "tools" config.hardware.nvidia-container-toolkit.package}/bin/nvidia-container-runtime.cdi "$@"
+  '';
 
   containerdConfigTemplate = pkgs.writeText "k3s-containerd-config.toml.tmpl" ''
     {{ template "base" . }}
