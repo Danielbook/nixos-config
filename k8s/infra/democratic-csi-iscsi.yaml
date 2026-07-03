@@ -40,6 +40,14 @@ spec:
             # (Stage C4). Enable + add the snapshot-controller chart if CSI
             # snapshots are ever needed (e.g. Velero).
             enabled: false
+        node:
+          tolerations:
+            # tatooine's GPU taint would otherwise exclude it from the node
+            # daemonset, leaving it unable to attach iscsi/nfs PVCs (Stage D3).
+            - key: nvidia.com/gpu
+              operator: Equal
+              value: present
+              effect: NoSchedule
   destination:
     server: https://kubernetes.default.svc
     namespace: democratic-csi

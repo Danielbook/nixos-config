@@ -32,6 +32,13 @@ spec:
         controller:
           externalSnapshotter:
             enabled: false # see democratic-csi-iscsi.yaml
+        node:
+          tolerations:
+            # see democratic-csi-iscsi.yaml
+            - key: nvidia.com/gpu
+              operator: Equal
+              value: present
+              effect: NoSchedule
   destination:
     server: https://kubernetes.default.svc
     namespace: democratic-csi
