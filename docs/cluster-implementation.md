@@ -196,11 +196,24 @@ manifests and drift/race otherwise.
 
 ## Stage C — `scarif` storage backend + CSI (still virtualized TrueNAS)
 
-The TrueNAS VM keeps serving; bare-metal conversion is Stage G.
+The TrueNAS VM keeps serving; bare-metal conversion is Stage G. **Bare-metal is
+deliberately deferred** (evaluated 2026-07-01): scarif's Proxmox also hosts the
+`servarr` VM (`10.10.40.11` — the arr-stack + authentik-outpost + navidrome),
+which isn't on k3s yet, so wiping Proxmox now would kill it. And the 2×16TB media
+mirror (`pool1`) is already full, so its export/import to bare metal costs the
+same now or at G — there's no "migrate while empty" saving to capture. So: run
+Stage C against the **VM's** TrueNAS API (democratic-csi doesn't care VM vs metal),
+migrate servarr in Stage E1, then convert to bare metal at G once the box is
+TrueNAS-only. `democratic-csi` uses **`iscsi` (RWO, DBs) + `nfs` (RWX, media)** —
+best practice for a NAS-backed cluster; NFS-only would force DBs onto node-pinned
+local-path.
 
-- [ ] **C1.** On scarif: **mirror SSD pool** (iSCSI zvols) + **HDD pool**
-      (datasets + NFS share). Ensure **disk passthrough** (survives Stage G
-      export/import).
+- [ ] **C1.** New SSD → **raw-disk passthrough into the TrueNAS VM** (`qm set
+      <vmid> -scsiN /dev/disk/by-id/<id>,discard=on,ssd=1`); create a **single-disk
+      `ssd` pool** now (iSCSI zvols) — `zpool attach` the 2nd SSD into a **mirror**
+      when it arrives. The **HDD pool** (`pool1`, 2×16TB mirror) already exists and
+      serves media over NFS. Keep the SSD whole-disk (not a vdisk image) so the pool
+      survives the Stage G export/import.
 - [ ] **C2.** Dedicated democratic-csi API user + key; enable iSCSI + NFS.
 - [ ] **C3.** democratic-csi via Argo: StorageClasses **`iscsi` (default)** +
       **`nfs`**. TrueNAS creds as a sops secret (ksops).
@@ -270,7 +283,26 @@ Do this **before** cutover so the weekend is just apply + restore.
       migrates **last, with jupiter** (no physical move now). Zigbee/Matter are
       Ethernet → no pin. Everything else floats. *Deferred (optional later):*
       relocate the Arduino or stand up a ser2net bridge to let HA float freely.
-- [ ] **E3.** Ingress on `*.local.bookorjeman.com` — **templated, not one hand-
+- [x] **E3. DONE (2026-07-01).** Traefik (Helm chart 41.0.1 / Traefik v3.7.5) via
+      an Argo Helm app (`k8s/infra/traefik.yaml`). Wildcard `*.local.bookorjeman.com`
+      generated once via the Cloudflare DNS-01 resolver and served as the default
+      cert through a **`TLSStore` `default` `defaultGeneratedCert`** (the entrypoint
+      `certResolver`/`domains` approach did NOT trigger issuance — TLSStore is what
+      works in k8s Traefik; per-entrypoint certResolver omitted on purpose to avoid
+      per-HOST issuance). CF token via ksops (`k8s/traefik/cf-token.enc.yaml`). The
+      `mkRoute` helper is a local Helm chart (`k8s/charts/ingress`): `default-headers`
+      + `authentik-forwardauth` middlewares ported verbatim + rendered once, each app
+      one `{name,port,auth?}` line in `k8s/infra/ingress.yaml` (http→https handled
+      natively at the web entrypoint, not a middleware). `providers.kubernetesCRD.allowCrossNamespace=true`
+      so IngressRoutes in the `traefik` ns reach Services in app namespaces. acme.json
+      on `local-path` (→ iscsi at C5). MetalLB adopted out of the Nix module into
+      `k8s/infra/metallb.yaml` (LB IP `10.10.40.51`). Verified: valid LE wildcard
+      (issuer Let's Encrypt), whoami HTTP/2 200 routed by Host header; also deployed
+      Headlamp dashboard + a local `~/.kube/config` (VIP) for k9s. **DNS:** single
+      OPNsense override per cluster app → `.51` for now; full wildcard cutover at E4.
+  <details><summary>Original E3 design (for reference)</summary>
+
+  Ingress on `*.local.bookorjeman.com` — **templated, not one hand-
       written dynamic file per service** (that's the docker file-provider habit;
       drop it). Reuse jupiter's proven Traefik config (`/srv/traefik`, v3.3,
       already serves the wildcard via its **own Cloudflare DNS-01 resolver** — so
@@ -289,6 +321,8 @@ Do this **before** cutover so the weekend is just apply + restore.
         Traefik routes by Host header → **adding a service needs no DNS change**.
         Pod-to-pod uses CoreDNS; no external-dns. (Non-HTTP LB services like
         mosquitto are IP-targeted and need no DNS at all.)
+
+  </details>
 - [ ] **E4.** **External-services bucket** — the `/srv/traefik/dynamic/*.yml`
       routers pointing at **non-cluster IPs** (OPNsense `router`, `truenas`/scarif,
       `n4`, `unifi`, `slzb`, `andromeda`, octoprint, …) collapse into **one values
