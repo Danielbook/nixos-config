@@ -36,7 +36,7 @@ spec:
                   mountPath: /data
         persistence:
           enabled: true
-          storageClass: local-path # node-local; migrate to iscsi at Stage C5
+          storageClass: iscsi
           size: 128Mi
           path: /data
         env:

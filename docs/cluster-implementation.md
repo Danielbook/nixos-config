@@ -251,7 +251,10 @@ local-path.
       DNS-Authenticator w/ Cloudflare → CSR for truenas.local.bookorjeman.com →
       ACME cert → set as GUI cert), OPNsense override → .10, then flip driver
       configs to the hostname + `allowInsecure: false`.
-- [ ] **C4.** Snapshot tasks + intra-TrueNAS replication on both pools.
+- [x] **C4. DONE (2026-07-03).** Periodic Snapshot Tasks: `ssd/k8s` + `pool1/k8s`
+      (both recursive, daily 03:00, 2-week lifetime). Replication `ssd/k8s` →
+      `pool1` **deferred** — 2nd SSD arriving soon, will extend `ssd` to a mirror
+      instead of replicating; revisit if that slips.
 - [ ] **C5.** **Migrate Traefik's `acme.json` off `local-path` onto the `iscsi`
       SC** (E3 parked it on node-local `local-path` — survives pod restart but a
       reschedule to the other node re-issues the wildcard cert). Swap the
