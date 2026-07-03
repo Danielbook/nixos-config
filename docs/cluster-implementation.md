@@ -214,13 +214,27 @@ local-path.
       **`ssd`** created, single-disk stripe ~476 GiB. 2nd SSD later → *Extend the
       VDEV* (converts to mirror in place; NOT "Add VDEV"). Whole-disk, so the pool
       survives the Stage G export/import.
-- [ ] **C2.** API key + services. Dedicated `k8s-csi` user abandoned — **the API
-      key is tied to `truenas_admin`** (delete the orphaned `k8s-csi` user). NFS
-      already running (servarr); iSCSI still to enable: service + portal
-      (10.10.40.10:3260) + allow-all initiator group, plus datasets `ssd/k8s/{v,s}`
-      and `pool1/k8s/{v,s}` (`v` = volumes, `s` = detached snapshots — siblings, a
+- [x] **C2. DONE (2026-07-03).** iSCSI service enabled, portal `10.10.40.10:3260`
+      (**portal group ID 2**, not 1 — TrueNAS assigned it, don't assume 1),
+      Allow-All initiator group (ID 1). Datasets `ssd/k8s/{v,s}` and
+      `pool1/k8s/{v,s}` (`v` = volumes, `s` = detached snapshots — siblings, a
       driver constraint; one recursive `k8s` parent per pool keeps C4 to one task).
-- [ ] **C3.** democratic-csi via Argo (authored, pending key+push): two Helm apps
+      **API key gotcha:** the `democratic-csi` API key was originally tied to
+      `truenas_admin` — that account could read (Probe succeeded) but silently
+      failed all dataset **writes** with a misleading `"Invalid API key"` error
+      (no exposed Role field on the key to diagnose from; TrueNAS's API-key edit
+      dialog only shows Name/Username/Reset). Switching the key's Username to
+      **`root`** fixed it immediately. Also hit repeated key-corruption bugs
+      re-pasting into the sops-encrypted driver configs — an nvim YAML
+      formatter (conform.nvim/yamlfmt-class, format-on-save) collapses the
+      `driver-config-file.yaml: |` block scalar into a single quoted flow
+      string, breaking both the key and the nested YAML structure. Fix: edit
+      these `k8s/truenas/*.enc.yaml` files with `EDITOR=nano sops <file>` (or
+      delete + rewrite plaintext + `sops -e -i`), never plain `nvim`/`sops
+      edit` with the formatter active. Always verify a re-pasted key against a
+      `shasum -a 256` of the **clipboard**, not just cross-file match (two
+      files can be identically wrong).
+- [x] **C3. DONE (2026-07-03).** democratic-csi via Argo: two Helm apps
       (`k8s/infra/democratic-csi-{iscsi,nfs}.yaml`, chart 0.15.1) → StorageClasses
       **`iscsi` (default**, zvols on `ssd/k8s/v`**)** + **`nfs`** (`pool1/k8s/v`).
       Full driver configs (incl. apiKey) as ksops Secrets in `k8s/truenas/` — the
