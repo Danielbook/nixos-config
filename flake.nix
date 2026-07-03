@@ -164,6 +164,9 @@
 
         # endor (M70q): 2nd control-plane, joins naboo's etcd via the API VIP.
         endor = mkNixosConfiguration "endor" "daniel";
+
+        # tatooine: bare-metal GPU agent (GTX 1070), Stage D. See ADR-0003.
+        tatooine = mkNixosConfiguration "tatooine" "daniel";
       };
 
       darwinConfigurations = {
@@ -195,6 +198,12 @@
         };
 
         "daniel@endor" = mkHomeConfiguration "x86_64-linux" "daniel" "endor" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+
+        "daniel@tatooine" = mkHomeConfiguration "x86_64-linux" "daniel" "tatooine" {
           extraModules = [
             catppuccin.homeModules.catppuccin
           ];

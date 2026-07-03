@@ -18,6 +18,10 @@
         "nvidia-settings"
         "nvidia-persistenced"
         "nvidia-vaapi-driver"
+        # closed kernel modules (open = false, tatooine/Pascal — open kernel
+        # modules only support Turing+, and are dual MIT/GPL so don't need
+        # this predicate at all).
+        "nvidia-kernel-modules"
       ];
   };
 

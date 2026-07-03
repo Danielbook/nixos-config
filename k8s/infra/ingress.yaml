@@ -22,6 +22,15 @@ spec:
           - name: headlamp
             namespace: headlamp
             port: 80
+          - name: jellyfin
+            namespace: jellyfin
+            port: 80
+          - name: immich-server # Host(immich-server.local.bookorjeman.com) — mkRoute's .name drives both hostname and Service name
+            namespace: immich
+            port: 80
+          - name: seerr
+            namespace: seerr
+            port: 80
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik

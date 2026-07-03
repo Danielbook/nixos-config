@@ -272,22 +272,64 @@ local-path.
 
 ## Stage D — tatooine GPU node + media mini-cutover (~1 week before the rest migrates)
 
-Decision: validate the scariest step (GPU-in-k3s) on real hardware *before* the rest of the migration. Wiping tatooine takes its media stack down, so jellyfin/immich/seerr
-**migrate now** as their own mini-cutover — a planned short outage. Gate: Stage C
-(CSI) done + media pre-synced to scarif + media manifests authored (Stage E).
+Decision: validate the scariest step (GPU-in-k3s) on real hardware *before* the
+rest of the migration. Wiping tatooine takes its media stack down, so
+jellyfin/immich/seerr **migrate now** as their own mini-cutover — a planned
+short outage. Gate: Stage C (CSI) done + media pre-synced to scarif + media
+manifests authored (Stage E). Scoped + grilled 2026-07-03; see
+`docs/adr/0003-tatooine-bare-metal-conversion.md` (Proxmox VM → bare metal,
+one-way door) and `docs/adr/0004-static-pv-for-preexisting-nas-data.md`
+(pre-existing NAS media via static PV, not the `nfs` StorageClass).
+**immich-machine-learning is out of scope** — it's not currently running on
+tatooine (pointed at a stale external host); D3's time-slicing is
+jellyfin-only for now. `*arr` + gluetun are servarr's (Stage E1), not D4.
 
-- [ ] **D1.** Build `hosts/tatooine/` (Stage A pattern) + GPU module:
-      `hardware.nvidia` + `nvidia-container-toolkit` wired into k3s' containerd.
-      flake + sops entries; `flake-check`.
-- [ ] **D2.** Planned jellyfin/immich outage. Wipe tatooine → NixOS, join as
-      `agent` (GPU worker). Label/taint for GPU workloads.
-- [ ] **D3.** NVIDIA device plugin + **time-slicing** (e.g. 3 replicas) so
-      jellyfin (NVENC) + immich-ml (CUDA) share the 1070.
-- [ ] **D4.** Migrate media stack: jellyfin, immich (pg on iSCSI, library on
-      NFS), seerr, *arr + gluetun. Restore data.
-- [ ] **Verify:** a CUDA pod sees the GPU; jellyfin does a HW transcode; immich
-      ML runs; `*arr→download→jellyfin` path works. **This proves the GPU path
-      with a 1-week safety margin before the rest cuts over.**
+- [x] **D0 (no outage). DONE (2026-07-03).** `hosts/tatooine/` (naboo/endor
+      pattern, `role = "agent"`) + `modules/nixos/services/nvidia-headless`
+      (`open = false` — Pascal predates NVIDIA's open kernel modules;
+      nvidia-container-toolkit wired into k3s' *own* containerd via a
+      `config.toml.tmpl` systemd-tmpfiles symlink, not the system containerd).
+      flake + sops entries; `tatooine` config evaluates cleanly (needed
+      `nvidia-kernel-modules` added to the unfree predicate — the closed
+      driver isn't dual-licensed like coruscant's open one). E1 manifests
+      authored under `k8s/apps/{jellyfin,immich,seerr,media-nfs-pv}` +
+      `k8s/infra/*.yaml` (not yet pushed/synced by Argo). **Data migration
+      done and verified**: immich postgres `pg_dump`'d straight from the live
+      `immich_postgres` container into a throwaway pod on the `immich-postgres`
+      iscsi PVC (38,729 assets / 2 users, row counts match source exactly);
+      jellyfin's `/config` (2.0G) `tar`'d the same way into the `jellyfin-config`
+      iscsi PVC. Old tatooine containers untouched, still serving. **Gotchas
+      found live** (fixed in the manifests): postgres needs `PGDATA` set to a
+      subdirectory — the iscsi PVC's ext4 root has a `lost+found` dir that
+      breaks `initdb`. The three image tags/versions I'd guessed were wrong —
+      corrected via `docker inspect` on tatooine: immich postgres is
+      `14-vectorchord0.4.3-pgvectors0.2.0` (not the version I assumed), immich's
+      redis is actually `valkey/valkey:8-bookworm`, and "seerr" is
+      `ghcr.io/seerr-team/seerr` — **not** jellyseerr. The NAS share names are
+      also misleading: `media/image-backups` (RW) is immich's real upload
+      storage, `media/photos` (RO) is a read-only external library — backwards
+      from what the names suggest. jellyfin's media mount isn't one flat
+      `/media` — the old container bind-mounted 4 distinct subpaths
+      (`kids/movies`, `kids/tv`→`series`, `movies`, `tv`→`series`), replicated
+      via 4 `subPath` mounts of the single static NFS PVC so jellyfin's
+      migrated library-path DB entries still resolve. `secrets.yaml` (k3s
+      agent token) and the `immich-postgres-env`/`immich-server-env` ksops
+      secrets still need generating before an agent join or a real Argo sync
+      of the immich app.
+- [ ] **D1.** Bare-metal wipe (per ADR-0003 — no rollback once done) +
+      `nixos-anywhere` install directly on `10.10.30.12`. Join k3s as `agent`.
+      Taint (`nvidia.com/gpu=present:NoSchedule`) + matching toleration on
+      jellyfin/immich, not just resource-based scheduling.
+- [ ] **D2.** NVIDIA device plugin + **time-slicing** (e.g. 3 replicas, GPU
+      resource request `nvidia.com/gpu: 1`) so jellyfin (NVENC) can share the
+      1070 with future GPU workloads. Validate with a throwaway CUDA test pod
+      before real workloads.
+- [ ] **D3 (the real planned outage).** Apply the jellyfin/immich/seerr
+      manifests from D0, pointing at the already-migrated iscsi data + static
+      PVs for media.
+- [ ] **Verify:** a CUDA pod sees the GPU; jellyfin does a HW (NVENC)
+      transcode; immich gallery loads; seerr works. **This proves the GPU path
+      with a safety margin before the rest of the cluster cuts over.**
 
 > **etcd quorum timeline:** buy `endor` early and join it as a 2nd control-plane
 > so this and later stages run on `naboo`+`endor` (2-member etcd) + tatooine

@@ -15,6 +15,10 @@ keys:
   # into the cluster; the personal daniel key never enters it. Backed by Bitwarden.
   # See docs/adr/0001-cluster-secrets-age-key.md.
   - &cluster age1nl0nmje9vetdgudflgcnnydcg44kv9a5px4e8lhyaz3qfqewjfhqhdg5ra
+  # Tatooine host key (k3s GPU agent node, Stage D). Pre-generated + injected at
+  # install like naboo/endor; encrypted private key at
+  # hosts/tatooine/ssh_host_ed25519_key.sops.
+  - &tatooine age1m3xn2tnl430gk6eqavnnmf9a54p6r3f67jxyxx8pyex25cny8pwq2c0rv2
 
 creation_rules:
   # Coruscant SYSTEM secrets (NixOS-level: WireGuard private key, etc.).
@@ -53,6 +57,21 @@ creation_rules:
   # Endor's pre-generated SSH host key (raw key, sops binary). daniel only — same
   # rationale as naboo's above.
   - path_regex: hosts/endor/ssh_host_ed25519_key\.sops$
+    key_groups:
+      - age:
+          - *daniel
+
+  # Tatooine (k3s GPU agent) SYSTEM secrets — the shared k3s cluster token.
+  # Encrypted to daniel (recovery) + tatooine's host key (unattended boot decrypt).
+  - path_regex: hosts/tatooine/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *tatooine
+
+  # Tatooine's pre-generated SSH host key (raw key, sops binary). daniel only —
+  # same rationale as naboo's above.
+  - path_regex: hosts/tatooine/ssh_host_ed25519_key\.sops$
     key_groups:
       - age:
           - *daniel

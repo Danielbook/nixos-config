@@ -1,0 +1,65 @@
+# seerr (ghcr.io/seerr-team/seerr — not jellyseerr) — no GPU, no NFS media
+# mount (talks to jellyfin/*arr over HTTP).
+# Config (SQLite db, settings) is the iscsi PVC below, migrated from the old
+# tatooine container's config volume during Stage D0.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: seerr
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seerr-config
+  namespace: seerr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seerr
+  namespace: seerr
+  labels:
+    app: seerr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: seerr
+  template:
+    metadata:
+      labels:
+        app: seerr
+    spec:
+      containers:
+        - name: seerr
+          image: ghcr.io/seerr-team/seerr:latest # matches the live tatooine container exactly (docker inspect) — not jellyseerr
+          ports:
+            - containerPort: 5055
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: seerr-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seerr
+  namespace: seerr
+spec:
+  selector:
+    app: seerr
+  ports:
+    - port: 80
+      targetPort: 5055
