@@ -34,6 +34,16 @@ spec:
           - name: navidrome
             namespace: navidrome
             port: 80
+          - name: linkding
+            namespace: linkding
+            port: 80
+            auth: true
+          - name: homepage
+            namespace: homepage
+            port: 80
+          - name: mealie
+            namespace: mealie
+            port: 80
           - name: sonarr
             namespace: arr
             port: 80
