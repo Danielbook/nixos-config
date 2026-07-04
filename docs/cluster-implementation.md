@@ -409,17 +409,44 @@ Do this **before** cutover so the weekend is just apply + restore.
 
 - [ ] **E1.** Convert each current container → manifest/Helm release. PV from
       `iscsi` SC for app/DB data, `nfs` SC for media (RWX). Secrets via ksops.
-  - Stateless: homepage, linkding, mealie, navidrome, seerr.
+  - Stateless: homepage, linkding, mealie, seerr done (Stage D). **navidrome
+    next.**
   - Media: jellyfin (NVENC, on tatooine), immich (pg on iSCSI, library on NFS,
     `nvidia.com/gpu` for ML, on tatooine).
-  - **Downloaders (VPN pod):** one pod = gluetun + deluge + nzbget + prowlarr
-    sharing the netns; pod-mates egress through the tunnel, gluetun kill-switch
-    protects all. Preserve gluetun VPN **port-forwarding** for deluge.
-  - ***arr (float):** sonarr/radarr/lidarr/bazarr as normal pods (no VPN), reach
-    the downloaders + prowlarr via a Service.
+  - [x] **Downloaders (VPN pod) + *arr floats. DONE (2026-07-04).** One pod =
+        gluetun (Mullvad WireGuard) + deluge + nzbget + prowlarr sharing the
+        netns (k8s Pod containers already share a network namespace — no
+        Compose-style `network_mode: service:gluetun` needed).
+        sonarr/radarr/lidarr/bazarr floats + recyclarr as a CronJob, all in a
+        single shared `arr` namespace (ADR-0005) so every app mounts the same
+        NFS downloads PVC. Migrated live from the servarr Docker Compose VM
+        (`10.10.40.11`) — configs tar-streamed in via an ad-hoc migrate pod,
+        applied directly before wiring Argo (no migrate-vs-workload race
+        window this time). **Mullvad doesn't support gluetun's VPN
+        port-forwarding** (confirmed via the live `.env`) — deluge's torrent
+        port is just static through the tunnel, nothing to preserve.
+        **Gotchas found + fixed:** gluetun's kill-switch blocks ALL egress by
+        default, including pod-to-pod traffic — needed
+        `FIREWALL_OUTBOUND_SUBNETS=10.42.0.0/16,10.43.0.0/16` (k3s pod+service
+        CIDR) or prowlarr couldn't reach sonarr/radarr/lidarr; bazarr's first
+        boot against the migrated library took ~200s, a fixed
+        `initialDelaySeconds` liveness probe crashlooped it — replaced with a
+        `startupProbe`; the ksops secret (gluetun's WireGuard key) needed the
+        `config.kubernetes.io/function: exec: path: ksops` annotation that
+        was missing from the first draft (kustomize otherwise falls back to
+        a plugin-discovery path that doesn't exist on the repo-server). DNS
+        cut over for all 7 hostnames (per-app OPNsense Unbound overrides,
+        same `.30`→`.51` pattern as D3) with `auth: true` (authentik
+        forward-auth, still hosted on servarr — unaffected by this
+        migration). **Verified end-to-end**: search → grab (Prowlarr indexer)
+        → download (NZBGet) → import into `/data/media` all completed for a
+        real title post-migration. servarr's old `arr-stack` compose is now
+        stopped (`docker compose down`) — `authentik-outpost`, `navidrome`,
+        `watchtower`, `portainer-agent`, `autokuma` (separate compose stacks,
+        same host) intentionally left running.
   - **Shared downloads volume:** the completed-downloads dir must be one **NFS
     (RWX)** PVC mounted by *both* the VPN pod and the *arr pods, with identical
-    mount paths, so imports work.
+    mount paths, so imports work. **Done** — see above.
   - Critical: vaultwarden, authentik (pg+redis), unifi (mongo), home-assistant.
   - Monitoring: **migrate influxdb** (home-metrics history, data → PV) +
     **grafana** (dashboards; add Prometheus datasource); **loki fresh** (logs
