@@ -1,0 +1,23 @@
+# *arr stack — downloaders (gluetun+deluge+nzbget+prowlarr) + sonarr/radarr/
+# lidarr/bazarr/recyclarr floats, migrated from the servarr Docker Compose VM
+# (10.10.40.11). Single shared namespace — see ADR-0005.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arr
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Danielbook/nixos-config.git
+    targetRevision: feat/cluster
+    path: k8s/apps/arr
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arr
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

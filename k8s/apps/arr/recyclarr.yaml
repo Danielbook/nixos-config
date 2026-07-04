@@ -1,0 +1,31 @@
+# recyclarr — syncs TRaSH-guide quality profiles into sonarr/radarr. No web
+# UI, no VPN needed; config-file driven (recyclarr.yml references sonarr/
+# radarr by host+API key — update the host entries after migration same as
+# the other apps' indexer/download-client settings).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: recyclarr
+  namespace: arr
+spec:
+  schedule: "0 0 * * *" # matches the old compose's CRON_SCHEDULE=@daily
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: recyclarr
+              image: ghcr.io/recyclarr/recyclarr:latest
+              env:
+                - name: TZ
+                  value: Europe/Stockholm
+                - name: RECYCLARR_CREATE_CONFIG
+                  value: "false"
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+          volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: recyclarr-config
