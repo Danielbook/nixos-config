@@ -31,6 +31,34 @@ spec:
           - name: seerr
             namespace: seerr
             port: 80
+          - name: sonarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: radarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: lidarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: bazarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: prowlarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: deluge
+            namespace: arr
+            port: 80
+            auth: true
+          - name: nzbget
+            namespace: arr
+            port: 80
+            auth: true
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik
