@@ -409,8 +409,20 @@ Do this **before** cutover so the weekend is just apply + restore.
 
 - [ ] **E1.** Convert each current container → manifest/Helm release. PV from
       `iscsi` SC for app/DB data, `nfs` SC for media (RWX). Secrets via ksops.
-  - Stateless: homepage, linkding, mealie, seerr done (Stage D). **navidrome
-    next.**
+  - [x] **navidrome. DONE (2026-07-04).** Migrated from servarr's Docker
+        Compose VM. Config (SQLite db, artwork) tar-streamed in; the
+        regenerable album-art thumbnail cache (`cache/`, root-owned on the
+        source, ~200M) skipped — navidrome rebuilds it automatically, not
+        worth chasing root-only source files over plain SSH. Music library
+        mounted **read-only** from the pre-existing TrueNAS NFS export
+        (`/mnt/pool1/data/media/music` — same server + top-level pool as
+        jellyfin's `nfs-data`, easy to misread as immich's separate
+        `/mnt/pool1/media/*` export; double-checked against servarr's fstab
+        before writing the PV). last.fm credentials via ksops. No authentik
+        forward-auth — manages its own users, like jellyfin/immich/seerr.
+        Applied and verified manually before wiring Argo (same safe
+        sequencing as the arr-stack). seerr done (Stage D). homepage,
+        linkding, mealie still pending.
   - Media: jellyfin (NVENC, on tatooine), immich (pg on iSCSI, library on NFS,
     `nvidia.com/gpu` for ML, on tatooine).
   - [x] **Downloaders (VPN pod) + *arr floats. DONE (2026-07-04).** One pod =
