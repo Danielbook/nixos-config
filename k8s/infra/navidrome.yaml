@@ -1,0 +1,22 @@
+# navidrome — migrated from servarr's Docker Compose VM. See
+# k8s/apps/navidrome/navidrome.yaml for details.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: navidrome
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Danielbook/nixos-config.git
+    targetRevision: feat/cluster
+    path: k8s/apps/navidrome
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: navidrome
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
