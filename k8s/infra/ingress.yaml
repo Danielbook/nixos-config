@@ -31,6 +31,9 @@ spec:
           - name: seerr
             namespace: seerr
             port: 80
+          - name: navidrome
+            namespace: navidrome
+            port: 80
           - name: sonarr
             namespace: arr
             port: 80
