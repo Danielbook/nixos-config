@@ -1,0 +1,82 @@
+# linkding — migrated from jupiter's Docker Compose (10.10.40.30). Auth via
+# authentik header forwarding (LD_ENABLE_AUTH_PROXY), same X-authentik-*
+# headers the ingress authentik-forwardauth middleware already injects — no
+# separate login needed, matches jupiter's setup.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: linkding
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: linkding-data
+  namespace: linkding
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkding
+  namespace: linkding
+  labels:
+    app: linkding
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: linkding
+  template:
+    metadata:
+      labels:
+        app: linkding
+    spec:
+      containers:
+        - name: linkding
+          image: sissbruecker/linkding:latest
+          env:
+            - name: LD_ENABLE_AUTH_PROXY
+              value: "True"
+            - name: LD_AUTH_PROXY_USERNAME_HEADER
+              value: HTTP_X_AUTHENTIK_USERNAME
+            - name: LD_AUTH_PROXY_LOGOUT_URL
+              value: https://auth.local.bookorjeman.com/flows/-/default/invalidation/
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: data
+              mountPath: /etc/linkding/data
+          startupProbe:
+            tcpSocket:
+              port: 9090
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 9090
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: linkding-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: linkding
+  namespace: linkding
+spec:
+  selector:
+    app: linkding
+  ports:
+    - port: 80
+      targetPort: 9090

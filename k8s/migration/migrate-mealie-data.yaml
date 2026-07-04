@@ -1,0 +1,21 @@
+# THROWAWAY migration pod — not part of the real mealie deployment, not
+# Argo-synced. Same pattern as migrate-arr-configs.yaml.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: migrate-mealie-data
+  namespace: mealie
+  labels:
+    app: migrate-mealie-data
+spec:
+  containers:
+    - name: rsync-target
+      image: busybox:1.36
+      command: ["sleep", "infinity"]
+      volumeMounts:
+        - name: data
+          mountPath: /target
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: mealie-data

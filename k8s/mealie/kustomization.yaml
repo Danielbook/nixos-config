@@ -1,0 +1,6 @@
+# mealie OIDC client secret, decrypted in-cluster by ksops (same pipeline as
+# k8s/immich, k8s/arr, k8s/navidrome, k8s/homepage).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+generators:
+  - ./secret-generator.yaml

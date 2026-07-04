@@ -1,0 +1,109 @@
+# mealie — migrated from jupiter's Docker Compose VM (10.10.40.30). OPENAI_API_KEY
+# dropped (revoked, unused). OIDC_CLIENT_SECRET carried over as-is; user will
+# rotate it in authentik + here once convenient (compromised via an
+# accidental cat of the source compose file mid-migration).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mealie
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mealie-data
+  namespace: mealie
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mealie
+  namespace: mealie
+  labels:
+    app: mealie
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mealie
+  template:
+    metadata:
+      labels:
+        app: mealie
+    spec:
+      containers:
+        - name: mealie
+          image: ghcr.io/mealie-recipes/mealie:latest
+          env:
+            - name: ALLOW_SIGNUP
+              value: "false"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+            - name: SECURITY_MAX_LOGIN_ATTEMPTS
+              value: "5"
+            - name: MAX_WORKERS
+              value: "1"
+            - name: WEB_CONCURRENCY
+              value: "1"
+            - name: BASE_URL
+              value: https://mealie.local.bookorjeman.com
+            - name: DB_ENGINE
+              value: sqlite
+            - name: SQLITE_BACKUP_ENABLED
+              value: "true"
+            - name: SQLITE_BACKUP_FREQUENCY
+              value: daily
+            - name: OIDC_AUTH_ENABLED
+              value: "true"
+            - name: OIDC_SIGNUP_ENABLED
+              value: "false"
+            - name: OIDC_CONFIGURATION_URL
+              value: https://auth.local.bookorjeman.com/application/o/mealie/.well-known/openid-configuration
+            - name: OIDC_CLIENT_ID
+              value: i38EuNvUIUkgA1fEKhgQlnTiUjIndIrZJuN6nQGR
+          envFrom:
+            - secretRef:
+                name: mealie-env
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          startupProbe:
+            tcpSocket:
+              port: 9000
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mealie-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mealie
+  namespace: mealie
+spec:
+  selector:
+    app: mealie
+  ports:
+    - port: 80
+      targetPort: 9000
