@@ -132,6 +132,20 @@ in
       description = "API endpoint joining nodes register against (the VIP). Required for role server/agent.";
     };
 
+    nodeIp = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "10.10.40.13";
+      description = ''
+        Node's real LAN IP, passed as --node-ip. Required on control-plane
+        nodes running kube-vip: without it, flannel's public-ip
+        auto-detection can pick up the floating VIP (also on the same NIC)
+        instead of the node's own address, corrupting the VXLAN FDB on
+        other nodes after a k3s restart (see docs/adr for the incident).
+        Empty = auto-detect (k3s default).
+      '';
+    };
+
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -169,6 +183,9 @@ in
         ]
         ++ lib.optionals (isServer && cfg.apiVip != "") [
           "--tls-san=${cfg.apiVip}"
+        ]
+        ++ lib.optionals (cfg.nodeIp != "") [
+          "--node-ip=${cfg.nodeIp}"
         ];
       manifests = lib.mkIf (isServer && cfg.apiVip != "") {
         kube-vip.source = kubeVipManifest;

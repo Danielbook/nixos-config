@@ -37,6 +37,7 @@
     role = "server";
     serverAddr = "https://10.10.40.5:6443";
     apiVip = "10.10.40.5";
+    nodeIp = "10.10.40.14"; # pin the real IP — see homelab.k3s.nodeIp doc
   };
 
   # MetalLB L2 LoadBalancer — ADOPTED INTO GITOPS (Stage E3): now managed by the

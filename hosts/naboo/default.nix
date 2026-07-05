@@ -35,6 +35,7 @@
     enable = true;
     role = "server-init";
     apiVip = "10.10.40.5"; # control-plane VIP (kube.local.bookorjeman.com)
+    nodeIp = "10.10.40.13"; # pin the real IP — see homelab.k3s.nodeIp doc
   };
 
   # MetalLB L2 LoadBalancer — ADOPTED INTO GITOPS (Stage E3): now managed by the

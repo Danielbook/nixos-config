@@ -37,6 +37,7 @@
     enable = true;
     role = "agent";
     serverAddr = "https://10.10.40.5:6443";
+    nodeIp = "10.10.40.15"; # pin the real IP — see homelab.k3s.nodeIp doc
   };
 
   # GPU node scheduling (Stage D1): taint keeps non-GPU pods off the box
