@@ -421,8 +421,54 @@ Do this **before** cutover so the weekend is just apply + restore.
         before writing the PV). last.fm credentials via ksops. No authentik
         forward-auth — manages its own users, like jellyfin/immich/seerr.
         Applied and verified manually before wiring Argo (same safe
-        sequencing as the arr-stack). seerr done (Stage D). homepage,
-        linkding, mealie still pending.
+        sequencing as the arr-stack). seerr done (Stage D).
+  - [x] **linkding, homepage, mealie. DONE (2026-07-05).** Migrated from
+        jupiter's Docker Compose VM (`10.10.40.30`). linkding: auth via
+        authentik header forwarding (`LD_ENABLE_AUTH_PROXY`, no separate
+        secret). homepage: ~20 widget API keys/tokens via ksops; `services.yaml`'s
+        widget URLs (jellyfin/immich/seerr/sonarr/radarr/lidarr/prowlarr/
+        deluge/nzbget) were still pointing at pre-migration IPs — fixed by
+        hand post-migration, same class of touch-up as the *arr download-client
+        reconnection. mealie: OIDC client secret via ksops.
+        **Incident: accidentally `cat`'d mealie's live compose file, which —
+        unlike every other app — inlines real secrets instead of using an
+        `.env` file (`OIDC_CLIENT_SECRET`, `OPENAI_API_KEY`) — both leaked
+        into the session transcript. `OPENAI_API_KEY` was revoked (unused,
+        dropped entirely); `OIDC_CLIENT_SECRET` carried over pending
+        rotation. jupiter's compose file corrected to use `env_file: .env`
+        going forward. Lesson: grep for `_SECRET\|_KEY\|_TOKEN\|_PASS` before
+        ever `cat`-ing a source compose file mid-migration, never assume the
+        `.env`-file convention holds.
+        **Bigger finding while wiring homepage's `kubernetes` cluster/node
+        widget: a real cluster-wide networking bug**, not a homepage issue —
+        see the `--node-ip` entry below. homepage's `kubernetes` widget
+        itself still isn't rendering despite correct RBAC/ServiceAccount
+        (reports "No kubernetes configuration" against a config that looks
+        right) — minor unresolved follow-up, not blocking.
+  - [x] **Cluster-wide flannel/kube-vip node-ip bug found + fixed
+        (2026-07-05).** kube-vip's floating API VIP (`10.10.40.5`) shares a
+        NIC with naboo's real IP; flannel's `public-ip` node-annotation
+        auto-detection picked the VIP instead after naboo's k3s restarted,
+        corrupting the VXLAN FDB on endor/tatooine (both pointed naboo's VTEP
+        MAC at the wrong destination IP) — silently broke **all** cross-node
+        pod traffic to anything scheduled on naboo for ~23h, undetected until
+        homepage/argocd-dex-server pods happened to land there. Root-caused
+        via `deep-research` (k3s/flannel GitHub issues, official docs — no
+        source names kube-vip specifically, but the general "flannel picks
+        the wrong candidate IP when multiple addresses share an interface"
+        failure mode matches exactly). Fix: `homelab.k3s.nodeIp` → `--node-ip`
+        pinned per host (naboo `.13`, endor `.14`, tatooine `.15`) — see
+        ADR-0006. The already-stale annotation needed one manual
+        `kubectl annotate --overwrite` on naboo (the pin only prevents
+        *future* staleness; flannel doesn't rewrite an existing annotation on
+        restart) — the corrected value then propagated live to endor/tatooine
+        via flannel's own k8s watch, no restart needed on either. Rolled out
+        tatooine → naboo → endor (agent first, zero etcd risk; then one
+        control-plane node at a time, verifying `etcd`/2-member quorum before
+        each next step). Endor's annotation was already correct — the bug is
+        specific to whichever node currently holds the kube-vip VIP.
+        Verified: cross-node curl to a naboo-scheduled pod from endor now
+        succeeds instantly (`200`, ~4ms) instead of silently timing out.
   - Media: jellyfin (NVENC, on tatooine), immich (pg on iSCSI, library on NFS,
     `nvidia.com/gpu` for ML, on tatooine).
   - [x] **Downloaders (VPN pod) + *arr floats. DONE (2026-07-04).** One pod =
