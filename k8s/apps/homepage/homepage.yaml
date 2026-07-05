@@ -1,8 +1,9 @@
-# homepage — migrated from jupiter's Docker Compose VM (10.10.40.30). Widget
-# config (services.yaml etc.) still references old hostnames/IPs for
-# migrated apps (jellyfin/immich/seerr/sonarr/radarr/lidarr/prowlarr/
-# deluge/nzbget) — needs the same host-field edits as the *arr reconnection
-# work, done by hand after this comes up.
+# homepage — migrated from jupiter's Docker Compose VM (10.10.40.30).
+# services.yaml/widgets.yaml live on the PVC (app state, not git-tracked) —
+# stale hostnames for already-migrated apps were fixed by hand post-migration,
+# same as the *arr reconnection work. Kubernetes cluster/node CPU+memory
+# widget needs read access to nodes/pods + metrics.k8s.io, hence the RBAC
+# below.
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -20,6 +21,37 @@ spec:
   resources:
     requests:
       storage: 1Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: homepage
+  namespace: homepage
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homepage-k8s-widget
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "namespaces", "pods"]
+    verbs: ["get", "list"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homepage-k8s-widget
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: homepage-k8s-widget
+subjects:
+  - kind: ServiceAccount
+    name: homepage
+    namespace: homepage
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -40,6 +72,7 @@ spec:
       labels:
         app: homepage
     spec:
+      serviceAccountName: homepage
       containers:
         - name: homepage
           image: ghcr.io/gethomepage/homepage:latest
