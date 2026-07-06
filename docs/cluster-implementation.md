@@ -505,7 +505,65 @@ Do this **before** cutover so the weekend is just apply + restore.
   - **Shared downloads volume:** the completed-downloads dir must be one **NFS
     (RWX)** PVC mounted by *both* the VPN pod and the *arr pods, with identical
     mount paths, so imports work. **Done** — see above.
-  - Critical: vaultwarden, authentik (pg+redis), unifi (mongo), home-assistant.
+  - [x] **authentik (pg+redis+server+worker). DONE (2026-07-06).** Migrated
+        from jupiter's Docker Compose stack (`10.10.40.30`). postgres/redis
+        stopped on jupiter, `pg_dump --clean --if-exists` piped straight into
+        the new in-cluster postgres (`ssh jupiter docker exec ... pg_dump |
+        kubectl exec -i ... psql`); `media`/`custom-templates` tar-streamed
+        via a throwaway busybox pod onto a small RWX `nfs` PVC.
+        `AUTHENTIK_SECRET_KEY` carried over verbatim from jupiter's
+        `secret_key.txt` (regenerating it would break existing sessions and
+        anything authentik encrypts at rest). server/worker Deployments
+        shipped at `replicas: 0` in the first commit so they wouldn't
+        fresh-install against an empty DB mid-restore, bumped to 1 once data
+        was verified (611 `django_migrations` rows, 6 users, 16 flows, 14
+        OAuth2 providers all present post-restore).
+        **Retired the standalone `goauthentik/proxy` outpost** that ran on
+        servarr (`10.10.40.11:9000`, needed only because servarr was on a
+        different network than jupiter) — now that Traefik and authentik
+        share the cluster network, `authentik-server`'s own embedded outpost
+        (Service `auth.authentik.svc.cluster.local:9000`) handles
+        forward-auth directly. `k8s/charts/ingress/values.yaml`'s
+        `authentikAddress` repointed accordingly.
+        **Gotchas found + fixed:** (1) `ksops`'s
+        `config.kubernetes.io/function` annotation must be a literal
+        block-scalar string (`|` + nested keys), not a YAML mapping — used
+        the wrong form initially, same failure class as the gluetun bug
+        (kustomize silently falls back to a nonexistent plugin path).
+        (2) `ghcr.io/goauthentik/server:latest` actually resolved to
+        **2025.2.4**, older than jupiter's source **2025.8** — the tag
+        doesn't track newest-stable — and 500'd on every request because the
+        restored DB already had post-2025.8 schema (`session_id` column,
+        code still expected `session_key`). Pinned to `2025.8.4` instead
+        (matches the version the old proxy-outpost was already running).
+        (3) The pg_dump carried over each proxy provider's outpost
+        assignment (Linkding + all 7 *arr providers were still assigned to
+        the old jupiter/servarr-era "Arr ForwardAuth" outpost object, not
+        authentik's embedded one) — reassigned via direct SQL on
+        `authentik_outposts_outpost_providers`
+        (a raw DB edit bypasses authentik's signal-driven routing-cache
+        rebuild, so a `kubectl rollout restart` of server+worker was needed
+        to pick it up). The embedded outpost's own `_config.authentik_host`
+        also still pointed at jupiter's IP (used to build the OAuth
+        authorize redirect a browser follows) — unlike the old
+        split internal/browser-host setup (needed only because the
+        standalone outpost lived on a different host), the embedded outpost
+        is the same process as core, so both `authentik_host` and
+        `authentik_host_browser` were set to the same public
+        `https://auth.local.bookorjeman.com`.
+        **Incident during cutover:** DNS was flipped to the cluster before
+        the workload was deployed, causing a brief real outage (self-inflicted,
+        caught immediately). Separately, an unrelated **recurrence of the
+        flannel/kube-vip cross-node VXLAN bug** (ADR-0006) hit mid-migration —
+        `kube-vip` on naboo flapped (10 restarts), leadership moved to
+        endor, and cross-node pod traffic to naboo broke entirely (CoreDNS
+        included), independent of authentik. Re-annotating
+        `flannel.alpha.coreos.com/public-ip` to the *same* value didn't help
+        this time (flannel only reacts to an actual change) — fixed by
+        `systemctl restart k3s` on naboo (etcd traffic runs over host IPs,
+        not the flannel overlay, and naboo wasn't the active VIP holder, so
+        this was lower-risk than a typical CP restart).
+  - Critical: vaultwarden, unifi (mongo), home-assistant.
   - Monitoring: **migrate influxdb** (home-metrics history, data → PV) +
     **grafana** (dashboards; add Prometheus datasource); **loki fresh** (logs
     transient); **add kube-prometheus-stack** for cluster observability.
