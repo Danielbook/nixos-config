@@ -84,7 +84,7 @@ metadata:
   labels:
     app: unifi-network-application
 spec:
-  replicas: 0 # bump to 1 only after mongo data + /config are restored — see docs/cluster-implementation.md Stage F1
+  replicas: 1 # mongo data + /config restored (2026-07-06) — see docs/cluster-implementation.md Stage F1
   selector:
     matchLabels:
       app: unifi-network-application
