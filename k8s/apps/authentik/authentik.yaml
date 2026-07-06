@@ -141,7 +141,7 @@ metadata:
   labels:
     app: authentik-server
 spec:
-  replicas: 0 # ponytail: 0 until the jupiter pg_dump is restored, bump to 1 once verified — avoids a fresh-install race against an empty DB
+  replicas: 1
   selector:
     matchLabels:
       app: authentik-server
@@ -191,7 +191,7 @@ metadata:
   labels:
     app: authentik-worker
 spec:
-  replicas: 0 # ponytail: 0 until the jupiter pg_dump is restored, bump to 1 once verified
+  replicas: 1
   selector:
     matchLabels:
       app: authentik-worker
