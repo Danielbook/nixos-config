@@ -1,0 +1,147 @@
+# unifi controller — Stage E5/F1. Source was jupiter (10.10.40.30):
+# lscr.io/linuxserver/unifi-network-application, resolved :latest -> 10.4.57-ls135
+# (pinned per the authentik :latest lesson), backed by mongo:4.4 (unifi + unifi_stat
+# DBs). Config dir (/config) restored from jupiter's /srv/unifi/config; mongo data
+# restored via mongodump/mongorestore. app starts at replicas 0 until both are
+# restored (same reasoning as authentik's postgres-first pattern), then bumped to 1.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: unifi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: unifi-mongo-data
+  namespace: unifi
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: unifi-config
+  namespace: unifi
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unifi-mongo
+  namespace: unifi
+  labels:
+    app: unifi-mongo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unifi-mongo
+  template:
+    metadata:
+      labels:
+        app: unifi-mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:4.4
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: unifi-mongo-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unifi-mongo
+  namespace: unifi
+spec:
+  selector:
+    app: unifi-mongo
+  ports:
+    - port: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unifi-network-application
+  namespace: unifi
+  labels:
+    app: unifi-network-application
+spec:
+  replicas: 0 # bump to 1 only after mongo data + /config are restored — see docs/cluster-implementation.md Stage F1
+  selector:
+    matchLabels:
+      app: unifi-network-application
+  template:
+    metadata:
+      labels:
+        app: unifi-network-application
+    spec:
+      containers:
+        - name: unifi
+          image: lscr.io/linuxserver/unifi-network-application:10.4.57-ls135 # :latest on jupiter resolved to this — pin explicitly, see authentik's :latest lesson
+          envFrom:
+            - secretRef:
+                name: unifi-env
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 8443
+            - containerPort: 8080
+            - containerPort: 3478
+              protocol: UDP
+            - containerPort: 10001
+              protocol: UDP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: unifi-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unifi
+  namespace: unifi
+  annotations:
+    metallb.io/loadBalancerIPs: 10.10.40.52 # dedicated device-facing IP — jupiter keeps .30 until Stage F2, so this is a new IP + set-inform, not IP reuse
+spec:
+  type: LoadBalancer
+  selector:
+    app: unifi-network-application
+  ports:
+    - name: https
+      port: 8443
+      protocol: TCP
+    - name: inform
+      port: 8080
+      protocol: TCP
+    - name: stun
+      port: 3478
+      protocol: UDP
+    - name: discovery
+      port: 10001
+      protocol: UDP

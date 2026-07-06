@@ -1,0 +1,22 @@
+# unifi controller — Stage E5/F1. See k8s/apps/unifi/unifi.yaml for the
+# workload and the migration notes (device set-inform re-point, image pin).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: unifi
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Danielbook/nixos-config.git
+    targetRevision: feat/cluster
+    path: k8s/apps/unifi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: unifi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
