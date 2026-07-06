@@ -16,6 +16,9 @@ spec:
     helm:
       valuesObject:
         routes:
+          - name: auth # authentik itself — auth: false, it must not forward-auth itself
+            namespace: authentik
+            port: 9000
           - name: whoami
             namespace: default
             port: 80

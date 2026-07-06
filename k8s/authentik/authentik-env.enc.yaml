@@ -1,0 +1,47 @@
+apiVersion: ENC[AES256_GCM,data:5Kk=,iv:x7+/HDfOO0+Q4PZ7xyDSj/nKGnMgtrHLul/YxFGJ57k=,tag:/WZO0p2JrDdtCJVp5TYhvA==,type:str]
+kind: ENC[AES256_GCM,data:rPwW0eh8,iv:EkW1awzgLVyX2BXUt5DOeFSgLpC8K72ufxuNpJKBbuY=,tag:wtPpzWTmPg39O9EIZ7qw2g==,type:str]
+metadata:
+    name: ENC[AES256_GCM,data:GCbCp/cOZbdyEDJmUQ==,iv:T8U1Bk8nYD4+NIeVq9eo0jRrWaaYZz0wl5JT/bn8Qzc=,tag:pjbSLh2BIjq/h2ASFMF54g==,type:str]
+    namespace: ENC[AES256_GCM,data:wqsCAANfRWm9,iv:oyXMyaL+CgwJpWp2lBTBRRZ4Y3eNa47uoUg6qJaOnZM=,tag:toi2fEiCZlS8hOJpxzufGg==,type:str]
+type: ENC[AES256_GCM,data:h82ndNP0,iv:/BHe1ba1PNNV1ULN55zD60tJIvSV/LpF65uZC2H9GI8=,tag:1HWl4L+am65EvR8Xvlc9oA==,type:str]
+stringData:
+    POSTGRES_USER: ENC[AES256_GCM,data:oLIUNof+uh0E,iv:VSwSA/MLnTJhqpLQ0yssdCZILtE7cDzQu4dUfX0GZ7g=,tag:wfuyqCr9y/XSdu/kRFRywQ==,type:str]
+    POSTGRES_DB: ENC[AES256_GCM,data:UI6pyZwEZiWQ,iv:0n4wy/g8UUsyjcE0QKoPVLoyIftzT4UnX+UGEON3s2s=,tag:zKu8wBf0sZwAAOD3kpK6/g==,type:str]
+    POSTGRES_PASSWORD: ENC[AES256_GCM,data:pqNfq5n+p160+N62m2qxdaEnDiw9ksOtqA6q+0GHkiY=,iv:Svf/yZjOVw7nRrP4KB3vYGP1PzqmAoe0h8nNr4U8SO4=,tag:s7grPvs4ZO41kcXADkYerQ==,type:str]
+    AUTHENTIK_POSTGRESQL__HOST: ENC[AES256_GCM,data:FxmMZTkLfYxt8mRn24LRyMjN,iv:yPUZzCtvGdvQuV3N2aJ80h0tYWDlBKzXgkHkWRWf0VI=,tag:iYvkptBaNpsOMGkUpAQwiQ==,type:str]
+    AUTHENTIK_POSTGRESQL__USER: ENC[AES256_GCM,data:MBiLfiJ0M2DN,iv:stB87e4BUJige4fmwnoRDzT5gtjVBeU/FgLKKuvscc4=,tag:QC2tszWrWwipcLThC8mpzw==,type:str]
+    AUTHENTIK_POSTGRESQL__NAME: ENC[AES256_GCM,data:5dhG9a0G9yvJ,iv:h2vS/WmSb0g30OeUDt5RJy7z0tNZQZTLWWvwgLj1r00=,tag:5b/8kTNnkJsW+DjHKCDI7Q==,type:str]
+    AUTHENTIK_POSTGRESQL__PASSWORD: ENC[AES256_GCM,data:GBfpqCjWRkA+FjGu78mMJKz+QOI2MgonnoNPFdlG47w=,iv:0cNFvs8TReKd0gKRoBQOZ0/JIFW5/tymsEOKxFKnXj8=,tag:1lJ9zqrJSKxYDoOTO4rYWQ==,type:str]
+    AUTHENTIK_REDIS__HOST: ENC[AES256_GCM,data:bWgH/6eq/dDc4GmhGW/R,iv:EXzL93rdJ7jlm/hh33LzVggKPxURNO1Knq8WvzjLJuk=,tag:PIheVMr8e5HVoAd+ACkUMw==,type:str]
+    AUTHENTIK_SECRET_KEY: ENC[AES256_GCM,data:dREd31lcvDyc0xfZeOOkD+PTFS+8un22DNGC5LnHuxmt6VCcx6nsF0iyvlo1pdxxTo04TIxojL/o/F1/izWBuA==,iv:AOorxY8CyoDf5JSmzrv7rxc/7G4HID+7pWdEJB/hGyY=,tag:iBBAidU7jNi9L+Mv/Di0ZA==,type:str]
+    AUTHENTIK_ERROR_REPORTING__ENABLED: ENC[AES256_GCM,data:s5pGJ3g=,iv:xBRVLgbM3r9sehPY8YnKgRoggClXj3xQYhJV2k1BAzg=,tag:BMOKx7pFQW5yeAbOkFB1lQ==,type:str]
+    AUTHENTIK_EMAIL__HOST: ENC[AES256_GCM,data:JIfO6vISt24x7PzyL9ptuC8V,iv:g3blVHeVKxi0WLw5R/DUxkvKbhsHbfgQUyqlEfBjMhs=,tag:tPImFVdOSY9ttQwh0q0XQA==,type:str]
+    AUTHENTIK_EMAIL__PORT: ENC[AES256_GCM,data:yNlH,iv:l+o4n0H/cLX96Il9bHPlzXxtX8DYBysx/ZVII4nsp0M=,tag:CmaOKse1U87s5im2wNkyBQ==,type:str]
+    AUTHENTIK_EMAIL__USERNAME: ENC[AES256_GCM,data:6YoROSAThPJNjUdJHx/Yw3HClQ==,iv:nG0gVXQrRkdU5FtCnfwnuPveRb6JIq8/lgTflQXZX2s=,tag:XJSrWdXtZoWCPwoLEWmasQ==,type:str]
+    AUTHENTIK_EMAIL__PASSWORD: ENC[AES256_GCM,data:9HHofa30B6jddXq2ra/rND6G5A==,iv:P6a5qcyAy9nZJaeext3HqgFKag+jw3gnTRAssHNltcc=,tag:LKTFD7L5ap3Bnbt3Rqxdxw==,type:str]
+    AUTHENTIK_EMAIL__USE_TLS: ENC[AES256_GCM,data:hSAxvA==,iv:xajvI9qzm9mkkpzzPlpvu6vU8iZd5CFaWF6bLbOFn84=,tag:H51edLLsJlROAZVbguNpLQ==,type:str]
+    AUTHENTIK_EMAIL__FROM: ENC[AES256_GCM,data:nKml2M78fYl/c5XW30x1r/9fwQ==,iv:iab36KtnfVB33hxLWGt5E5rqBT25rbhi67z/GlTfs1w=,tag:lDngL+/HcHLXFkbCJdQvXQ==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwTlhZRUVYOGs3blJRVjlQ
+            eDJ4bkZTWks1dUFPS1ljQ0F3YXdSSlRxeXg4ClBrdGFVWENSaFU0SFBhb1djb0Zw
+            QmRjRzJRbVp3UWF3RlNYOTkzUTlYaUUKLS0tIHYxZnlBNTRrdkhrUDg4ckhSbFlR
+            R1NIYTgyYmEvVCt6WjJrWVF4Y0tPYWcKAzbCB/enM3WNVNKpKfFmrEoCcdNg0Mp5
+            49eMVpQwV5NWxlbLPJm0KakRJow5UticpA/6JM/ffsrVRQzAAyKIhA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1nl0nmje9vetdgudflgcnnydcg44kv9a5px4e8lhyaz3qfqewjfhqhdg5ra
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBuS2I0YkxTT0JObjc1STJF
+            eG5CYlJCbkJ4bkIwMDMzTGk1eG0rTk1ZVm5VClh2VEhPV1N3SUlZME9Cc2xIbnky
+            YnFRbDNxbFJpSjZwYXRJc3B4YnhKdEEKLS0tIG1UQnFLa1lpU1hZRHFlY0NIejhx
+            RFE5RUJBQmJjZEZwVGEvd2hPaEFQdjgK7ua+rPcQh26EPeE+0i1fT/FDyuEY2/UX
+            CrtdC6v3WEr7wSECvbU5lDcPoHtizfiBvmiCdajUJPu0QSRka+LbNA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1pxc3l7nck3ku25nd66f5ul0c0gkhtnjmnr3zk0ftmm2yt3qn0q8strdzdy
+    lastmodified: "2026-07-06T07:58:13Z"
+    mac: ENC[AES256_GCM,data:i2rqkh+BEWju6xWbFCrfsy1aSO51Uqijghm2/doJQhBQEOTWc7z4je/bw+wdmnyJKigv7bU44omHyZhYQhbcf/q9o0YgV8bX7qfxbi9zb81LLLmqfauMtpa6wcLn92ErLWhrV7yjxDwg2lUoqBrV/mcYRlImLioiU+UUC27Eqqs=,iv:NWB0lkoe1O+lbyXN1rNGmoOK2D27lY/iE8KiW9N6oLI=,tag:vEFPXW3KBy+trq51BbW4Bw==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.13.1

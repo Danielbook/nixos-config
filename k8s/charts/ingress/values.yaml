@@ -2,9 +2,10 @@
 # so every app's ingress is one line in one file — no dynamic config per service.
 domain: local.bookorjeman.com
 
-# authentik forward-auth outpost. Still on jupiter (10.10.40.11) until authentik
-# migrates in Stage E1 — repoint then.
-authentikAddress: http://10.10.40.11:9000/outpost.goauthentik.io/auth/traefik
+# authentik forward-auth — embedded outpost on authentik-server itself
+# (in-cluster since Stage E1; the standalone servarr proxy-outpost was
+# retired, no longer needed once Traefik and authentik share a network).
+authentikAddress: http://auth.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
 
 # mkRoute inputs: one entry per app. name → Host(<name>.<domain>) + Service <name>.
 #   - name: <svc>          (required)
