@@ -563,7 +563,10 @@ Do this **before** cutover so the weekend is just apply + restore.
         `systemctl restart k3s` on naboo (etcd traffic runs over host IPs,
         not the flannel overlay, and naboo wasn't the active VIP holder, so
         this was lower-risk than a typical CP restart).
-  - Critical: vaultwarden, unifi (mongo), home-assistant.
+  - Critical: unifi (mongo), home-assistant.
+  - **vaultwarden: SKIPPED (2026-07-06)** — not in use, replaced by paid
+    Bitwarden. Left running as-is on jupiter, not migrated; jupiter's wipe in
+    Stage F2 will take it with it, no offsite backup needed.
   - Monitoring: **migrate influxdb** (home-metrics history, data → PV) +
     **grafana** (dashboards; add Prometheus datasource); **loki fresh** (logs
     transient); **add kube-prometheus-stack** for cluster observability.
@@ -642,11 +645,11 @@ Migrate the remaining services off jupiter/servarr onto the running 3-node
 cluster, **service by service, with jupiter still serving as a live rollback.**
 Nothing on jupiter is destroyed until everything is verified on the cluster.
 
-- [ ] **F1.** Per service (authentik first — it gates the others' forward-auth,
-      then vaultwarden, unifi, monitoring, homepage/linkding/mealie/navidrome):
-      sync data to scarif → restore into PV → bring up via Argo → verify →
-      cut its internal DNS over to the Traefik LB IP. Old container stays up
-      until verified.
+- [x] **F1a. authentik DONE (2026-07-06).** See Stage E1 for the full writeup.
+- [ ] **F1.** Remaining: unifi, monitoring (vaultwarden skipped, see Stage E1).
+      Per service: sync data to scarif → restore into PV → bring up via
+      Argo → verify → cut its internal DNS over to the Traefik LB IP. Old
+      container stays up until verified.
 - [ ] **F2.** HA is the last service still on jupiter. **Wipe jupiter → NixOS,
       join as the 3rd `join-server`** (Arduino stays plugged in). → etcd reaches
       **3-member HA quorum**; +16G headroom.
@@ -689,8 +692,9 @@ Gate: nothing left on the Jonsbo/Proxmox box (servarr pods live in-cluster).
 - [ ] **H2.** Update `CLAUDE.md` host table, `docs/ARCHITECTURE.md` (k3s module +
       server layer), `docs/FEATURES.md`. Keep CLUSTER.md current.
 - [ ] **H3.** `just check-all` green; commit.
-- [ ] **Future:** offsite backup for **immich photos + vaultwarden** (the two you
-      flagged) — restic/ZFS-replication to a cloud bucket. RAM 16→32G/node when
+- [ ] **Future:** offsite backup for **immich photos** (vaultwarden dropped,
+      see Stage E1 — replaced by paid Bitwarden) — restic/ZFS-replication to
+      a cloud bucket. RAM 16→32G/node when
       memory requests pass ~80% (see CLUSTER.md capacity section).
 
 ---
