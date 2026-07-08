@@ -46,5 +46,11 @@
   # k8s/infra. One-time: seed the `sops-age` secret out-of-band (ADR 0001).
   homelab.argocd.enable = true;
 
+  # homeassistant-stack (Stage F1c): homeassistant + matter-server run
+  # hostNetwork, pinned here. NixOS firewall blocks inbound by default, so the
+  # Service ClusterIP -> node-IP:port path (used by Traefik/other nodes) needs
+  # these opened explicitly — was a 504 until this landed.
+  networking.firewall.allowedTCPPorts = [ 8123 ]; # homeassistant
+
   system.stateVersion = "25.05";
 }
