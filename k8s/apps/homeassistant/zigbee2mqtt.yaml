@@ -24,7 +24,7 @@ metadata:
   labels:
     app: zigbee2mqtt
 spec:
-  replicas: 0 # bump once z2m-data PVC restored and mqtt.server repointed
+  replicas: 1 # data restored + mqtt.server repointed 2026-07-08 (Stage F1c)
   selector:
     matchLabels:
       app: zigbee2mqtt
