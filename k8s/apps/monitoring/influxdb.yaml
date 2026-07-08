@@ -48,6 +48,13 @@ spec:
           persistentVolumeClaim:
             claimName: influxdb-data
 ---
+# Reached via Traefik ingress (influxdb.local.bookorjeman.com, see
+# k8s/infra/ingress.yaml), not a dedicated LoadBalancer IP — OPNsense's
+# telegraf reporting plugin and Home Assistant's InfluxDB integration (the two
+# external LAN writers, Stage F1) both accept a hostname+HTTPS target, so no
+# need to burn one of the small MetalLB pool's IPs the way unifi's device
+# protocol required (Stage E5). No forward-auth on the route: these are
+# machine writers authenticating with their own InfluxDB token, not browsers.
 apiVersion: v1
 kind: Service
 metadata:

@@ -50,6 +50,9 @@ spec:
           - name: grafana # OAuth via authentik already, no forward-auth needed
             namespace: monitoring
             port: 80
+          - name: influxdb # machine writer (OPNsense telegraf, Home Assistant), own token auth
+            namespace: monitoring
+            port: 8086
           - name: sonarr
             namespace: arr
             port: 80
