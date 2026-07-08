@@ -1,0 +1,6 @@
+# Shared namespace for the homeassistant-stack (all 6 services migrated
+# together from jupiter — Stage F1c, see docs/cluster-implementation.md).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homeassistant

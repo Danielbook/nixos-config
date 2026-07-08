@@ -1,0 +1,65 @@
+# matter-server — Stage F1c. Source: ghcr.io/home-assistant-libs/python-matter-server:stable
+# on jupiter, resolved 8.1.0. hostNetwork is a hard requirement (mDNS +
+# IPv6 link-local multicast for Matter commissioning cannot traverse the
+# flannel overlay — see docs/cluster-implementation.md Stage F1c for sources).
+# Pinned to naboo, co-located with homeassistant. `args:` not `command:`
+# (k8s command: replaces ENTRYPOINT — F1 loki lesson). --primary-interface
+# changes ens18 (jupiter's NIC) -> eno2 (naboo's). apparmor=unconfined from
+# jupiter's compose is a no-op on NixOS k3s, dropped.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: matter-data
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matter-server
+  namespace: homeassistant
+  labels:
+    app: matter-server
+spec:
+  replicas: 0 # bump once matter-data PVC restored
+  selector:
+    matchLabels:
+      app: matter-server
+  template:
+    metadata:
+      labels:
+        app: matter-server
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: naboo
+      containers:
+        - name: matter-server
+          image: ghcr.io/home-assistant-libs/python-matter-server:8.1.0
+          args:
+            - --storage-path
+            - /data
+            - --paa-root-cert-dir
+            - /data/credentials
+            - --primary-interface
+            - eno2
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: dbus
+              mountPath: /run/dbus
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: matter-data
+        - name: dbus
+          hostPath:
+            path: /run/dbus

@@ -81,6 +81,17 @@ spec:
             namespace: arr
             port: 80
             auth: true
+          - name: homeassistant # HA has its own auth; mobile app breaks behind forward-auth
+            namespace: homeassistant
+            port: 8123
+          - name: esphome
+            namespace: homeassistant
+            port: 6052
+            auth: true
+          - name: zigbee2mqtt
+            namespace: homeassistant
+            port: 8099
+            auth: true
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik

@@ -653,8 +653,10 @@ Do this **before** cutover so the weekend is just apply + restore.
       Flipping the Unbound override from `.30` to `.52` cut over all 5
       devices at once, with no per-device SSH step needed. Verified via fresh
       `last_seen` timestamps in mongo and live wlan client counts.
-      Mosquitto MQTT (1883) → **not migrated**, stays on jupiter with HA
-      until Stage F2/F3 (deliberately out of scope for this migration).
+      Mosquitto MQTT (1883) → **migrated as part of F1c** (scope revised
+      2026-07-08: F1c covers the full 6-service homeassistant-stack, see F1c —
+      this line previously said "stays on jupiter until F2/F3", which
+      contradicted F1c's "jupiter has nothing left running on it").
 - [ ] **Verify (dry):** every app Healthy in Argo against empty PVs / test data
       before real data lands.
 
@@ -775,16 +777,28 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       matters before F1c lands**: apply that one `nsswitch.conf` line on jupiter.
       Full `grafana-stack` compose stopped on jupiter (`docker compose stop`,
       not `down` — rollback path preserved same as every prior migration).
-- [ ] **F1c. home-assistant (REVISED plan, 2026-07-08 — see E2).** Move the
-      garage Arduino from jupiter to `naboo` (free USB port confirmed) →
-      migrate HA into the cluster pinned there (`nodeSelector: naboo`, mount
-      whatever `/dev/ttyACM*` path it enumerates as on naboo — may differ
-      from jupiter's). jupiter's HA container stays up as rollback until
-      verified (garage door, Zigbee/Matter, all automations) — same
-      discipline as every other service, unlike the old F2/F3 plan which had
-      no rollback for HA specifically. Once done, jupiter has nothing left
-      running on it. Pin to naboo is temporary — revisit once the Arduino is
-      decoupled from a specific node (e.g. ser2net bridge), see E2.
+- [ ] **F1c. homeassistant-stack (SCOPE REVISED 2026-07-08 — see E2).** Not
+      one container: jupiter's `/srv/homeassistant-stack` compose is **six
+      services**, and F1c migrates all of them (this is what makes "jupiter
+      has nothing left running on it" true before F2):
+      | service | hostNetwork | node pin | why |
+      |---|---|---|---|
+      | homeassistant | yes | naboo | Arduino hostPath (already physically moved to naboo, `/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_...-if00`) + mDNS for HomeKit Bridge |
+      | appdaemon | no | naboo implicitly (shares HA's RWO config PVC, `subPath: appdaemon`) | — |
+      | matter-server | yes | naboo | mDNS/IPv6 link-local hard requirement (upstream); `--primary-interface ens18` → **`eno2`** on naboo |
+      | esphome | no | none | network OTA only, drop `privileged` |
+      | mosquitto | no | none | MetalLB LB IP (raw TCP 1883, same reasoning as unifi's `.52`) |
+      | zigbee2mqtt | no (host mode dropped) | none | slzb coordinator is network-attached, dials out only |
+      Secrets: `HA_APPDAEMON_KEY` via ksops (`k8s/homeassistant/`); the
+      second hardcoded token in `appdaemon.yaml` (partially leaked to a
+      terminal 2026-07-08) gets **rotated** post-verification. jupiter's
+      stack stays `docker compose stop`ped as rollback until verified
+      (garage door, Zigbee/Matter, Matter mDNS on the renamed NIC, appdaemon
+      automations, InfluxDB writes) — same discipline as every other
+      service, unlike the old F2/F3 plan which had no rollback for HA.
+      Pin to naboo is temporary — revisit once the Arduino is decoupled from
+      a specific node (e.g. ser2net bridge), see E2. Full implementation
+      plan reviewed 2026-07-08.
 - [ ] **F2.** Jupiter now empty (last service was HA, moved in F1c). **Wipe
       jupiter → NixOS, join as the 3rd `join-server`.** → etcd reaches
       **3-member HA quorum**; +16G headroom. No longer carries any
