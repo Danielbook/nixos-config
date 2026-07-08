@@ -571,11 +571,21 @@ Do this **before** cutover so the weekend is just apply + restore.
     influxdb+grafana lift-and-shift with data restore, loki fresh,
     telegraf/promtail dropped in favor of kube-prometheus-stack + Grafana
     Alloy (cluster-wide, not jupiter-scoped).
-- [ ] **E2.** **HA pinning:** keep the garage Arduino plugged into jupiter; pin
-      `home-assistant` → `nodeSelector: jupiter` + mount `/dev/ttyACM*`. So HA
-      migrates **last, with jupiter** (no physical move now). Zigbee/Matter are
-      Ethernet → no pin. Everything else floats. *Deferred (optional later):*
-      relocate the Arduino or stand up a ser2net bridge to let HA float freely.
+- [x] **E2. REVISED (2026-07-08).** Original plan was to keep the garage
+      Arduino on jupiter and migrate HA last, pinned to jupiter-the-node,
+      bundled into the same operation as jupiter's wipe (Stage F2) — the one
+      service migration in this whole plan with no rollback path, since the
+      migration *was* the decommission. Changed instead to the deferred
+      option this stage already flagged: **relocate the Arduino to `naboo`**
+      (free USB port confirmed) and migrate HA pinned there (`nodeSelector:
+      naboo` + mount whatever `/dev/ttyACM*` path it enumerates as — not
+      necessarily the same path it had on jupiter, verify on connect) as its
+      own Stage F1 item (see **F1c** below), with jupiter's HA container
+      staying up as rollback the whole time — same discipline as every other
+      service in this migration, which the old plan uniquely didn't have.
+      Pin to naboo is **temporary**: once the Arduino is decoupled from a
+      specific node (e.g. a ser2net bridge), HA floats freely like everything
+      else. Zigbee/Matter are Ethernet → never needed a pin.
 - [x] **E3. DONE (2026-07-01).** Traefik (Helm chart 41.0.1 / Traefik v3.7.5) via
       an Argo Helm app (`k8s/infra/traefik.yaml`). Wildcard `*.local.bookorjeman.com`
       generated once via the Cloudflare DNS-01 resolver and served as the default
@@ -760,17 +770,26 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       remaining `nsswitch.conf` fix (`hosts: files resolve
       [!UNAVAIL=return] dns`) was **deliberately left undone** — not worth
       troubleshooting further on a host being decommissioned at F2; HA's
-      migration into the cluster at F3 makes this moot (in-cluster CoreDNS,
+      migration into the cluster at F1c makes this moot (in-cluster CoreDNS,
       no jupiter resolver involved). **Follow-up if HA's InfluxDB data gap
-      matters before F3**: apply that one `nsswitch.conf` line on jupiter.
+      matters before F1c lands**: apply that one `nsswitch.conf` line on jupiter.
       Full `grafana-stack` compose stopped on jupiter (`docker compose stop`,
       not `down` — rollback path preserved same as every prior migration).
-- [ ] **F2.** HA is the last service still on jupiter. **Wipe jupiter → NixOS,
-      join as the 3rd `join-server`** (Arduino stays plugged in). → etcd reaches
-      **3-member HA quorum**; +16G headroom.
-- [ ] **F3.** Migrate HA into the cluster pinned to jupiter-the-node + mount
-      `/dev/ttyACM*`; verify Zigbee/Matter (Ethernet) + garage door work.
-      (Brief garage/HA downtime during the wipe — acceptable.)
+- [ ] **F1c. home-assistant (REVISED plan, 2026-07-08 — see E2).** Move the
+      garage Arduino from jupiter to `naboo` (free USB port confirmed) →
+      migrate HA into the cluster pinned there (`nodeSelector: naboo`, mount
+      whatever `/dev/ttyACM*` path it enumerates as on naboo — may differ
+      from jupiter's). jupiter's HA container stays up as rollback until
+      verified (garage door, Zigbee/Matter, all automations) — same
+      discipline as every other service, unlike the old F2/F3 plan which had
+      no rollback for HA specifically. Once done, jupiter has nothing left
+      running on it. Pin to naboo is temporary — revisit once the Arduino is
+      decoupled from a specific node (e.g. ser2net bridge), see E2.
+- [ ] **F2.** Jupiter now empty (last service was HA, moved in F1c). **Wipe
+      jupiter → NixOS, join as the 3rd `join-server`.** → etcd reaches
+      **3-member HA quorum**; +16G headroom. No longer carries any
+      app-migration risk — F1c decoupled that, this is now just a plain node
+      join like naboo/endor/tatooine were.
 - [ ] **Verify:** `kubectl get nodes` → 4 Ready, 3 CP; etcd 3-member quorum;
       drain/reboot one CP node → VIP/API stays up. Full smoke test (auth, data,
       GPU transcode, garage door, *arr→download→jellyfin).
