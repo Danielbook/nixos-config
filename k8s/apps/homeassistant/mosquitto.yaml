@@ -36,7 +36,7 @@ metadata:
   labels:
     app: mosquitto
 spec:
-  replicas: 0 # bump once mosquitto-data PVC restored
+  replicas: 1 # data restored + verified 2026-07-08 (Stage F1c)
   selector:
     matchLabels:
       app: mosquitto
