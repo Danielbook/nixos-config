@@ -17,7 +17,7 @@ metadata:
   labels:
     app: appdaemon
 spec:
-  replicas: 0 # bump once ha-config PVC restored and appdaemon.yaml uses !env_var
+  replicas: 1 # data restored, !env_var + client_host: mosquitto applied 2026-07-08 (Stage F1c)
   selector:
     matchLabels:
       app: appdaemon

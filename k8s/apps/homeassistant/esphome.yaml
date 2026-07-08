@@ -23,7 +23,7 @@ metadata:
   labels:
     app: esphome
 spec:
-  replicas: 0 # bump once esphome-config PVC restored
+  replicas: 1 # data restored 2026-07-08 (Stage F1c)
   selector:
     matchLabels:
       app: esphome
