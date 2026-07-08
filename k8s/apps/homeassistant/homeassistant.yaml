@@ -31,7 +31,7 @@ metadata:
   labels:
     app: homeassistant
 spec:
-  replicas: 0 # bump to 1 once ha-config PVC is restored from jupiter
+  replicas: 1 # data restored + http: block added 2026-07-08 (Stage F1c)
   selector:
     matchLabels:
       app: homeassistant

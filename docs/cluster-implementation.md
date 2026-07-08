@@ -799,6 +799,23 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       Pin to naboo is temporary — revisit once the Arduino is decoupled from
       a specific node (e.g. ser2net bridge), see E2. Full implementation
       plan reviewed 2026-07-08.
+- [ ] **F1d (deferred, separate task).** matter-server logged a burst of
+      `Failed to advertise records: Network is unreachable` / `No endpoint
+      was available to send the message` mDNS errors in the first ~100ms
+      after pod start on naboo (2026-07-08), then self-recovered (`Matter
+      Server successfully initialized`, no repeats since). Likely a
+      multicast-socket-join race at container startup, not a real network
+      gap — naboo's `eno2` already has a working link-local IPv6 address
+      (`fe80::.../64`, confirmed via `ip -6 addr show`), and Matter mDNS
+      only needs link-local, not routed/global IPv6. No action taken since
+      no Matter devices are currently in use. If `avahi-browse -t
+      _matter._tcp` verification (F1c checklist) or a future device
+      commissioning attempt shows real failures, investigate OPNsense IPv6:
+      WAN IPv6 type (DHCPv6-PD track-interface is the common ISP case), LAN
+      `Track Interface` + Router Advertisements (`Assisted` mode), and a
+      firewall pass rule covering the IPv6 address family on LAN. Link-local
+      multicast (`ff02::fb`, UDP 5353) isn't routed so a global/WAN IPv6
+      prefix is probably irrelevant to this specific symptom.
 - [ ] **F2.** Jupiter now empty (last service was HA, moved in F1c). **Wipe
       jupiter → NixOS, join as the 3rd `join-server`.** → etcd reaches
       **3-member HA quorum**; +16G headroom. No longer carries any
