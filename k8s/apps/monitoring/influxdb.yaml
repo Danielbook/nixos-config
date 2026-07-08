@@ -1,9 +1,10 @@
 # influxdb — Stage F1. Source was jupiter's grafana-stack docker-compose
 # (influxdb:2.7, bind mount ./influxdb -> /var/lib/influxdb2). Straight data-dir
 # restore of an existing running instance (not a fresh-init container), so no
-# env/secret is needed here. Starts at replicas 0 — don't let it run against an
-# empty volume before the tar-stream restore lands (same reasoning as unifi's
-# mongo, 2026-07-08) — see docs/cluster-implementation.md Stage F1.
+# env/secret is needed here. Data restored 2026-07-08 (6.9G tar-streamed from
+# jupiter, size matches source) — bumped to replicas 1. jupiter's own influxdb
+# container stopped (not removed), rollback path until Stage F2. See
+# docs/cluster-implementation.md Stage F1.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -25,7 +26,7 @@ metadata:
   labels:
     app: influxdb
 spec:
-  replicas: 0 # data restore lands first — see comment above, docs/cluster-implementation.md Stage F1
+  replicas: 1 # data restore verified 2026-07-08 — see comment above
   selector:
     matchLabels:
       app: influxdb

@@ -1,10 +1,16 @@
 # grafana — Stage F1. Source was jupiter's grafana-stack docker-compose
-# (grafana/grafana-enterprise:10.2.3, ran as user "1000:1000"). Starts at
-# replicas 0 — dashboards/db restore lands first, same reasoning as influxdb
-# (2026-07-08) — see docs/cluster-implementation.md Stage F1. Admin password +
+# (grafana/grafana-enterprise:10.2.3, ran as user "1000:1000"). Admin password +
 # authentik OAuth client come from the ksops-decrypted grafana-env Secret
 # (k8s/monitoring); everything else below is plain (non-secret) config, copied
-# verbatim from jupiter's compose env.
+# verbatim from jupiter's compose env. Data + 8 dashboard JSONs restored
+# 2026-07-08 (42.6M tar-streamed from jupiter's ./grafana + ./provisioning/
+# dashboards, already owned 1000:1000, no chown needed) — bumped to replicas 1.
+# Datasources provisioning was NOT copied verbatim (jupiter's pointed at
+# docker-compose service names + a redacted InfluxDB token) — freshly authored
+# at grafana-provisioning:/datasources/datasources.yaml for Loki + Prometheus;
+# an InfluxDB datasource follows once a new API token is generated (see
+# docs/cluster-implementation.md Stage F1). jupiter's own grafana container
+# stopped (not removed), rollback path until Stage F2.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -39,7 +45,7 @@ metadata:
   labels:
     app: grafana
 spec:
-  replicas: 0 # dashboards/db restore lands first — see comment above, docs/cluster-implementation.md Stage F1
+  replicas: 1 # data + dashboard restore verified 2026-07-08 — see comment above
   selector:
     matchLabels:
       app: grafana
@@ -120,7 +126,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: grafana-data
-        - name: provisioning # starts empty — dashboards/datasources tar-streamed in by a later migration step
+        - name: provisioning # dashboards + fresh datasources.yaml restored 2026-07-08, see header comment
           persistentVolumeClaim:
             claimName: grafana-provisioning
 ---
