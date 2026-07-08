@@ -626,17 +626,54 @@ Do this **before** cutover so the weekend is just apply + restore.
         mosquitto are IP-targeted and need no DNS at all.)
 
   </details>
-- [ ] **E4.** **External-services bucket** — the `/srv/traefik/dynamic/*.yml`
-      routers pointing at **non-cluster IPs** (OPNsense `router`, `truenas`/scarif,
-      `n4`, `unifi`, `slzb`, `andromeda`, octoprint, …) collapse into **one values
-      list + one `range` template**, not a file each:
-      `- { host: truenas, url: http://10.10.40.10 }` /
-      `- { host: router, url: https://192.168.1.1, insecure: true, auth: true }`.
+- [ ] **E4 (SCOPED 2026-07-08).** **External-services bucket** — audited all 34
+      files in jupiter's `/srv/traefik/dynamic/`. Most are dead weight: routes
+      for apps already migrated to k8s (authentik, bazarr, grafana,
+      homeassistant, homepage, immich, jellyfin, sonarr, …) whose DNS already
+      points at the cluster — these just disappear for free when jupiter is
+      wiped at F2, nothing to port. The actual **external, non-cluster**
+      targets collapse into **one values list + one `range` template**, not a
+      file each:
+      | route | target | what it is |
+      |---|---|---|
+      | `router` | `https://192.168.1.1` | OPNsense |
+      | `truenas` | `http://10.10.40.10` | TrueNAS itself |
+      | `n4` | `https://10.10.30.10:8006` | Proxmox host (TrueNAS/scarif's VM host) |
+      | `slzb` | `http://10.10.20.20` | Zigbee coordinator hardware |
+      Dropped, not ported: `andromeda` (jupiter's own Proxmox host —
+      scrapped along with jupiter itself), `unifi` (dead, pointed at
+      jupiter's own IP, already superseded by the k8s LB route at `.52`),
+      `hoth` (was tatooine's old Proxmox host pre-D1 bare-metal migration,
+      moot), `uptime-kuma` (service dropped entirely, no replacement
+      planned). See F1e below for `octoprint`, which pointed at jupiter's
+      own IP and needs real migration, not just a route.
       The template emits the IngressRoute (+ Service-without-selector/external URL)
       and attaches authentik forward-auth when `auth: true`. New external target =
       **one line**. k8s-Traefik becomes the whole-homelab front door, replacing
       jupiter's. (Cruft to leave behind on jupiter: 2.4G unrotated `logs/`,
       `_removed/`, `*.backup*`.)
+- [ ] **F1e (deferred, separate task — DECIDED 2026-07-08).** `octoprint`
+      (jupiter, `10.10.40.30:5000`) is not a k8s migration candidate like the
+      rest of F1 — it has a USB-attached **Prusa MK3S** 3D printer
+      (`/dev/serial/by-id/usb-Prusa_Research__prusa3d.com__Original_Prusa_i3_MK3_CZPX2921X004XK96438-if00`
+      → `/dev/ttyUSB0`), same hostPath-CharDevice shape as the HA-stack's
+      Arduino garage door. Decision: **don't migrate into k3s** — instead,
+      move the printer to a **dedicated Raspberry Pi running NixOS**,
+      hostname **`kamino`**, added as its own flake host later (once the
+      Pi is acquired). Deliberately docs-only for now — no skeleton host
+      dir, no NixOS module — nothing to go stale before the hardware
+      exists. Facts to carry forward when it's built:
+      - Image: `octoprint/octoprint:latest` (pin the resolved tag at
+        implementation time, same lesson as every other `:latest` on
+        jupiter).
+      - Config data: `/srv/octoprint/config` on jupiter, 961M
+        (`octoprint/` + `plugins/` dirs) — tar-stream to the Pi same as
+        every other F1 migration, or fresh-start if not worth carrying
+        print history/plugin state over.
+      - NixOS has a `services.octoprint` module — likely simpler than a
+        hand-rolled container on a single-purpose Pi.
+      - jupiter's `octoprint` container stays stopped (rollback) same as
+        everything else until this actually happens.
 - [x] **E5 (unifi part) DONE (2026-07-07).** Dedicated **MetalLB LoadBalancer
       IP `10.10.40.52`** (`k8s/apps/unifi/unifi.yaml`, `k8s/infra/unifi.yaml`).
       Correction: jupiter's real IP is **`10.10.40.30`**, not `.10` as this
@@ -777,28 +814,100 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       matters before F1c lands**: apply that one `nsswitch.conf` line on jupiter.
       Full `grafana-stack` compose stopped on jupiter (`docker compose stop`,
       not `down` — rollback path preserved same as every prior migration).
-- [ ] **F1c. homeassistant-stack (SCOPE REVISED 2026-07-08 — see E2).** Not
-      one container: jupiter's `/srv/homeassistant-stack` compose is **six
-      services**, and F1c migrates all of them (this is what makes "jupiter
-      has nothing left running on it" true before F2):
+- [x] **F1c. homeassistant-stack DONE (2026-07-08, SCOPE REVISED — see E2).**
+      Not one container: jupiter's `/srv/homeassistant-stack` compose was
+      **six services**, and F1c migrated all of them (this is what makes
+      "jupiter has nothing left running on it" true before F2):
       | service | hostNetwork | node pin | why |
       |---|---|---|---|
       | homeassistant | yes | naboo | Arduino hostPath (already physically moved to naboo, `/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_...-if00`) + mDNS for HomeKit Bridge |
-      | appdaemon | no | naboo implicitly (shares HA's RWO config PVC, `subPath: appdaemon`) | — |
+      | appdaemon | no | naboo explicit (`nodeSelector`) | shares HA's RWO `ha-config` PVC, `subPath: appdaemon` — RWO iscsi can't attach cross-node, so this pin is load-bearing, not implicit (see bugs below) |
       | matter-server | yes | naboo | mDNS/IPv6 link-local hard requirement (upstream); `--primary-interface ens18` → **`eno2`** on naboo |
       | esphome | no | none | network OTA only, drop `privileged` |
-      | mosquitto | no | none | MetalLB LB IP (raw TCP 1883, same reasoning as unifi's `.52`) |
+      | mosquitto | no | none | MetalLB LB IP `10.10.40.53` (raw TCP 1883, same reasoning as unifi's `.52`) |
       | zigbee2mqtt | no (host mode dropped) | none | slzb coordinator is network-attached, dials out only |
-      Secrets: `HA_APPDAEMON_KEY` via ksops (`k8s/homeassistant/`); the
-      second hardcoded token in `appdaemon.yaml` (partially leaked to a
-      terminal 2026-07-08) gets **rotated** post-verification. jupiter's
-      stack stays `docker compose stop`ped as rollback until verified
-      (garage door, Zigbee/Matter, Matter mDNS on the renamed NIC, appdaemon
-      automations, InfluxDB writes) — same discipline as every other
-      service, unlike the old F2/F3 plan which had no rollback for HA.
-      Pin to naboo is temporary — revisit once the Arduino is decoupled from
-      a specific node (e.g. ser2net bridge), see E2. Full implementation
-      plan reviewed 2026-07-08.
+      Images pinned to jupiter's resolved tags/digests (authentik `:latest`
+      lesson): homeassistant `2026.7.1`, appdaemon `4.5.13`, esphome
+      `2026.6.4`, matter-server `8.1.0`, zigbee2mqtt `2.12.1`. Exception:
+      `eclipse-mosquitto` doesn't publish per-patch tags — `2.1.2` doesn't
+      exist as a pullable tag despite being the real running version, pinned
+      by digest instead (`ImagePullBackOff` caught this immediately).
+
+      **Bugs hit during migration (all fixed same-session):**
+      - **RWO cross-node scheduling deadlock.** `appdaemon` shares HA's
+        `ha-config` PVC but had no `nodeSelector`; k8s scheduled it on
+        `endor` while HA (and the PVC) were on naboo → `Multi-Attach error`,
+        infinite reschedule loop (old ReplicaSet kept respawning broken
+        pods on the wrong node while a stale VolumeAttachment blocked the
+        new one). Democratic-csi PVs carry no node-affinity metadata, so
+        the scheduler had nothing to constrain it — fixed with an explicit
+        `nodeSelector: naboo` on appdaemon. Lesson: any pod sharing an RWO
+        PVC with a node-pinned pod needs the **same** pin, the plan's
+        "lands on naboo anyway via RWO volume affinity" assumption doesn't
+        hold for iscsi-backed democratic-csi.
+      - **`http:` package collision.** Pre-migration `grep ^http:` on
+        `configuration.yaml` only checked the top-level file and found
+        nothing, so the plan appended a fresh `http:` block — but HA
+        actually had a full `http:` package split into
+        `integrations/http.yaml` (a packaged include, invisible to a
+        top-level grep) with jupiter's Docker-bridge-range
+        `trusted_proxies`. Duplicate key → HA rejected the whole `http`
+        package setup silently (no `trusted_proxies` applied at all).
+        Fixed: removed the duplicate block, added the k3s pod CIDR
+        (`10.42.0.0/16`) to the existing package instead. Lesson: HA
+        packages/includes are invisible to a single-file grep — check
+        `packages:`/`!include_dir_named` before assuming a config key is
+        absent.
+      - **Traefik source IP not in `trusted_proxies`.** Even after the pod
+        CIDR fix, HA still 400'd (`Received X-Forwarded-For header from an
+        untrusted proxy`) — Traefik's actual source IP was a **node** IP
+        (`10.10.40.14`, wherever its pod happened to schedule), not a pod
+        CIDR address. Fixed by trusting the whole node subnet
+        (`10.10.40.0/24`) instead of chasing individual node IPs that
+        shift with scheduling.
+      - **naboo firewall blocked 8123.** HA never ran on naboo before, so
+        NixOS's default-deny firewall had no rule for it — Service→node-IP
+        traffic (Traefik→other-node's kube-proxy→hostNetwork backend) 504'd
+        until `networking.firewall.allowedTCPPorts = [ 8123 ]` was added to
+        `hosts/naboo/default.nix` and deployed via `just deploy-naboo`.
+      - **appdaemon dashboard bind failure.** `DASH_URL`/`http.url` was set
+        to `http://appdaemon:5050` (the Service ClusterIP's DNS name) — but
+        AppDaemon's `http.url` is a **bind** address, not a display link.
+        Binding to a ClusterIP (not a local interface) fails
+        (`OSError: could not bind`). Worked on jupiter only because
+        `network_mode: host` made the configured IP a real local interface.
+        Fixed: bind `0.0.0.0` instead.
+      - **esphome's authentik forward-auth 404'd** even with a correctly
+        wired Proxy Provider + Application (external host, matching every
+        other app's pattern) — two more things were missing that aren't
+        obvious from the provider/application objects alone: (1) the
+        provider's **Authentication flow** was blank (every working proxy
+        provider has `default-authentication-flow` set — a create-via-API
+        gap, not visible without diffing against a working provider), and
+        (2) the new provider wasn't in **authentik Embedded Outpost**'s
+        assigned-providers list — outposts don't auto-adopt new proxy
+        providers, that assignment is a separate, manual step per app.
+      Secrets: `HA_APPDAEMON_KEY` → `appdaemon-env` via ksops
+      (`k8s/homeassistant/homeassistant-env.enc.yaml` — note the file name
+      doesn't match the secret name, it matches what the pre-existing
+      `secret-generator.yaml` expected). **Rotation still pending**
+      (tracked, not done): the appdaemon token (partially leaked to a
+      terminal 2026-07-08) and an HA OIDC `client_secret` (leaked to this
+      migration's tool output via an incautious `tail`) both need fresh
+      values in HA UI + re-encrypt into the enc.yaml.
+      **Verified 2026-07-08:** HA UI + mobile app login via Traefik, garage
+      door open/close, Zigbee toggle + state round-trip, MQTT (LAN
+      `mosquitto_sub` + HA integration + appdaemon + z2m all connected),
+      Matter mDNS (startup blip self-recovered, see F1d), appdaemon
+      automation fires, esphome dashboard reachable, InfluxDB fresh writes,
+      pod-delete resilience (reschedules on naboo, Arduino device present,
+      HA back in ~40s). **Not verified: esphome OTA update** — no firmware
+      update was actually pending on any device at migration time and this
+      is rare enough not to block on; revisit opportunistically next time a
+      device needs an OTA push.
+      jupiter's stack stays `docker compose stop`ped as rollback until
+      Stage F2. Pin to naboo is temporary — revisit once the Arduino is
+      decoupled from a specific node (e.g. ser2net bridge), see E2.
 - [ ] **F1d (deferred, separate task).** matter-server logged a burst of
       `Failed to advertise records: Network is unreachable` / `No endpoint
       was available to send the message` mDNS errors in the first ~100ms
