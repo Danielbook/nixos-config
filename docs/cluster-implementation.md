@@ -626,19 +626,24 @@ Do this **before** cutover so the weekend is just apply + restore.
       **one line**. k8s-Traefik becomes the whole-homelab front door, replacing
       jupiter's. (Cruft to leave behind on jupiter: 2.4G unrotated `logs/`,
       `_removed/`, `*.backup*`.)
-- [ ] **E5 (unifi part) IN PROGRESS.** Manifests authored for a dedicated
-      **MetalLB LoadBalancer IP `10.10.40.52`** (`k8s/apps/unifi/unifi.yaml`,
-      `k8s/infra/unifi.yaml`). Correction: jupiter's real IP is **`10.10.40.30`**,
-      not `.10` as this bullet previously said (`.10` is scarif/TrueNAS's
-      management IP) — and jupiter keeps `.30` for many other services until
-      Stage F2, so **IP reuse doesn't work here**; this uses a new IP + UniFi's
-      supported `set-inform` device re-point instead, not clever LB tricks.
-      Image pinned to `lscr.io/linuxserver/unifi-network-application:10.4.57-ls135`
-      (jupiter's `:latest` resolved to this — same `:latest` lesson as authentik).
-      Data restore (mongo + `/config`) and device `set-inform` re-point not yet
-      executed — see Stage F1.
-      Mosquitto MQTT (1883) → **not migrated yet**, stays on jupiter with HA
-      until Stage F2/F3 (out of scope for the unifi migration, deliberately).
+- [x] **E5 (unifi part) DONE (2026-07-07).** Dedicated **MetalLB LoadBalancer
+      IP `10.10.40.52`** (`k8s/apps/unifi/unifi.yaml`, `k8s/infra/unifi.yaml`).
+      Correction: jupiter's real IP is **`10.10.40.30`**, not `.10` as this
+      bullet previously said (`.10` is scarif/TrueNAS's management IP) — and
+      jupiter keeps `.30` for many other services until Stage F2, so **IP
+      reuse doesn't work here**. Image pinned to
+      `lscr.io/linuxserver/unifi-network-application:10.4.57-ls135` (jupiter's
+      `:latest` resolved to this — same `:latest` lesson as authentik).
+      **Actual cutover mechanism ended up being DNS, not per-device
+      `set-inform`**: every UniFi device was originally adopted against the
+      hostname `unifi.local.bookorjeman.com` (an OPNsense Unbound override),
+      not jupiter's raw IP — so individual `set-inform <ip>` commands kept
+      losing to the device re-resolving that hostname back to jupiter.
+      Flipping the Unbound override from `.30` to `.52` cut over all 5
+      devices at once, with no per-device SSH step needed. Verified via fresh
+      `last_seen` timestamps in mongo and live wlan client counts.
+      Mosquitto MQTT (1883) → **not migrated**, stays on jupiter with HA
+      until Stage F2/F3 (deliberately out of scope for this migration).
 - [ ] **Verify (dry):** every app Healthy in Argo against empty PVs / test data
       before real data lands.
 
@@ -651,13 +656,16 @@ cluster, **service by service, with jupiter still serving as a live rollback.**
 Nothing on jupiter is destroyed until everything is verified on the cluster.
 
 - [x] **F1a. authentik DONE (2026-07-06).** See Stage E1 for the full writeup.
-- [ ] **F1b. unifi IN PROGRESS.** Manifests authored (see Stage E5). Remaining:
-      mongodump/restore + `/config` restore into the PVCs, verify controller
-      shows existing device inventory, re-point devices via `set-inform`
-      (one low-risk device first, then batch), then stop jupiter's
-      `unifi-network-application`/`unifi-db` containers. Mongo user password
-      rotated as part of the cutover (was exposed in a prior session's
-      terminal output).
+- [x] **F1b. unifi DONE (2026-07-07).** See Stage E5 for the full writeup —
+      mongo + `/config` restored, all 5 devices re-adopted via a DNS cutover
+      (`unifi.local.bookorjeman.com` → `10.10.40.52`), jupiter's
+      `unifi-network-application`/`unifi-db` stopped (not deleted — still
+      the rollback path, just `docker start` on jupiter). Mongo user
+      password rotated as part of the cutover (was exposed in a prior
+      session's terminal output). Jupiter's own copy of that mongo password
+      is still the original, now-leaked value — don't rotate it while the
+      stopped containers are still the rollback target; only do so once
+      jupiter itself is retired (Stage F2).
 - [ ] **F1.** Remaining after unifi: monitoring (vaultwarden skipped, see
       Stage E1). Per service: sync data to scarif → restore into PV → bring
       up via Argo → verify → cut its internal DNS over to the Traefik LB IP.

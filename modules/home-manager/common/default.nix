@@ -58,6 +58,7 @@
       ripgrep
       television
       unzip
+      uv
       opencode
       playwright-mcp
     ])
