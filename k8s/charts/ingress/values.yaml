@@ -13,3 +13,12 @@ authentikAddress: http://auth.authentik.svc.cluster.local:9000/outpost.goauthent
 #     namespace: <ns>      (optional, default "default")
 #     auth: true           (optional, adds authentik-forwardauth)
 routes: []
+
+# externalRoutes inputs: one entry per non-cluster target (Stage E4). name →
+# Host(<name>.<domain>) + a synthetic Service/Endpoints pointing at .url
+# (Traefik's IngressRoute CRD only references k8s Services, not bare URLs).
+#   - name: <host>              (required)
+#     url: https://1.2.3.4:8006 (required — scheme + IP + optional port)
+#     insecureSkipVerify: true  (optional, self-signed cert targets)
+#     auth: true                (optional, adds authentik-forwardauth)
+externalRoutes: []

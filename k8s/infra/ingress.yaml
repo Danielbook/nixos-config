@@ -92,6 +92,17 @@ spec:
             namespace: homeassistant
             port: 8099
             auth: true
+        externalRoutes: # Stage E4 — non-cluster targets, see docs/cluster-implementation.md
+          - name: router
+            url: https://192.168.1.1
+            insecureSkipVerify: true
+          - name: truenas
+            url: http://10.10.40.10
+          - name: n4
+            url: https://10.10.30.10:8006
+            insecureSkipVerify: true
+          - name: slzb
+            url: http://10.10.20.20
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik
