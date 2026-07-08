@@ -1,0 +1,60 @@
+# influxdb — Stage F1. Source was jupiter's grafana-stack docker-compose
+# (influxdb:2.7, bind mount ./influxdb -> /var/lib/influxdb2). Straight data-dir
+# restore of an existing running instance (not a fresh-init container), so no
+# env/secret is needed here. Starts at replicas 0 — don't let it run against an
+# empty volume before the tar-stream restore lands (same reasoning as unifi's
+# mongo, 2026-07-08) — see docs/cluster-implementation.md Stage F1.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb-data
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+  namespace: monitoring
+  labels:
+    app: influxdb
+spec:
+  replicas: 0 # data restore lands first — see comment above, docs/cluster-implementation.md Stage F1
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+        - name: influxdb
+          image: influxdb:2.7
+          ports:
+            - containerPort: 8086
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/influxdb2
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: influxdb-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+  namespace: monitoring
+spec:
+  selector:
+    app: influxdb
+  ports:
+    - port: 8086
+      targetPort: 8086

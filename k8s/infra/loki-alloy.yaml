@@ -1,0 +1,116 @@
+# Grafana Alloy (Stage F1 monitoring migration) — replaces the legacy
+# jupiter-scoped `promtail` container (which only ever watched jupiter's own
+# docker socket/`/var/log`) with a cluster-wide log-shipping DaemonSet across
+# all 3 nodes (naboo, endor, tatooine). Alloy was chosen over Promtail because
+# Grafana deprecated/EOL'd Promtail (Feb 2025) — no reason to deploy a dying
+# tool for a greenfield component. See docs/cluster-implementation.md. Lands
+# in the `monitoring` namespace alongside Grafana/Loki (authored elsewhere);
+# ships pod logs to the existing Loki instance at
+# loki.monitoring.svc.cluster.local:3100.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-alloy
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: alloy
+    targetRevision: 1.10.0 # bump deliberately
+    helm:
+      valuesObject:
+        controller:
+          tolerations:
+            # tatooine's GPU taint would otherwise exclude it from the
+            # DaemonSet (same pattern as democratic-csi-iscsi.yaml). Verified
+            # against the grafana/alloy chart's values.yaml (1.10.0):
+            # top-level `controller.tolerations` is the DaemonSet pod
+            # toleration key.
+            - key: nvidia.com/gpu
+              operator: Equal
+              value: present
+              effect: NoSchedule
+        alloy:
+          configMap:
+            content: |
+              // TODO(verify): adapted from Grafana's official
+              // "Collect logs in Kubernetes" example
+              // (https://grafana.com/docs/alloy/latest/collect/logs-in-kubernetes/).
+              // Not yet run against a live cluster — check pod discovery,
+              // __path__ globbing, and container_runtime relabeling actually
+              // match this cluster's containerd log layout before relying on
+              // it for anything alerting-critical.
+              discovery.kubernetes "pod" {
+                role = "pod"
+                selectors {
+                  role  = "pod"
+                  field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
+                }
+              }
+
+              discovery.relabel "pod_logs" {
+                targets = discovery.kubernetes.pod.targets
+
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace"]
+                  action        = "replace"
+                  target_label  = "namespace"
+                }
+
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_name"]
+                  action        = "replace"
+                  target_label  = "pod"
+                }
+
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_container_name"]
+                  action        = "replace"
+                  target_label  = "container"
+                }
+
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+                  action        = "replace"
+                  target_label  = "job"
+                  separator     = "/"
+                  replacement   = "$1"
+                }
+
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+                  action        = "replace"
+                  target_label  = "__path__"
+                  separator     = "/"
+                  replacement   = "/var/log/pods/*$1/*.log"
+                }
+
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_container_id"]
+                  action        = "replace"
+                  target_label  = "container_runtime"
+                  regex         = "^(\\S+):\\/\\/.+$"
+                  replacement   = "$1"
+                }
+              }
+
+              loki.source.kubernetes "pod_logs" {
+                targets    = discovery.relabel.pod_logs.output
+                forward_to = [loki.write.default.receiver]
+              }
+
+              loki.write "default" {
+                endpoint {
+                  url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+                }
+              }
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

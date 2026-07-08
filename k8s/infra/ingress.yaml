@@ -47,6 +47,9 @@ spec:
           - name: mealie
             namespace: mealie
             port: 80
+          - name: grafana # OAuth via authentik already, no forward-auth needed
+            namespace: monitoring
+            port: 80
           - name: sonarr
             namespace: arr
             port: 80
