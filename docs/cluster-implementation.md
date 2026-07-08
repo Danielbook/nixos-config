@@ -567,9 +567,10 @@ Do this **before** cutover so the weekend is just apply + restore.
   - **vaultwarden: SKIPPED (2026-07-06)** — not in use, replaced by paid
     Bitwarden. Left running as-is on jupiter, not migrated; jupiter's wipe in
     Stage F2 will take it with it, no offsite backup needed.
-  - Monitoring: **migrate influxdb** (home-metrics history, data → PV) +
-    **grafana** (dashboards; add Prometheus datasource); **loki fresh** (logs
-    transient); **add kube-prometheus-stack** for cluster observability.
+  - [x] **Monitoring DONE (2026-07-08).** See Stage F1 for the full writeup —
+    influxdb+grafana lift-and-shift with data restore, loki fresh,
+    telegraf/promtail dropped in favor of kube-prometheus-stack + Grafana
+    Alloy (cluster-wide, not jupiter-scoped).
 - [ ] **E2.** **HA pinning:** keep the garage Arduino plugged into jupiter; pin
       `home-assistant` → `nodeSelector: jupiter` + mount `/dev/ttyACM*`. So HA
       migrates **last, with jupiter** (no physical move now). Zigbee/Matter are
@@ -666,10 +667,104 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       is still the original, now-leaked value — don't rotate it while the
       stopped containers are still the rollback target; only do so once
       jupiter itself is retired (Stage F2).
-- [ ] **F1.** Remaining after unifi: monitoring (vaultwarden skipped, see
-      Stage E1). Per service: sync data to scarif → restore into PV → bring
-      up via Argo → verify → cut its internal DNS over to the Traefik LB IP.
-      Old container stays up until verified.
+- [x] **F1. monitoring DONE (2026-07-08).** Last item after unifi (vaultwarden
+      skipped, see Stage E1). `influxdb`/`grafana`/`loki` in a shared
+      `monitoring` namespace (`k8s/apps/monitoring/`, mirrors the `arr`
+      shared-namespace precedent, ADR-0005) — one Argo Application for the
+      workload, one for the ksops secrets (`k8s/monitoring/`), same
+      two-Application split as unifi/mealie/authentik.
+      **Scope decision (not a pure lift-and-shift, unlike authentik/unifi):**
+      jupiter's `telegraf`/`promtail` containers only ever scraped **jupiter's
+      own docker host** (its docker socket, `/var/log`, `/var/log/auth.log`)
+      — a shape with no equivalent once jupiter is wiped into a plain k3s
+      node at F2. Rather than lift-and-shift containers with a built-in
+      expiry date, replaced them with cluster-wide equivalents: **kube-
+      prometheus-stack** (Prometheus + node-exporter + kube-state-metrics,
+      chart `87.10.1`, its bundled Grafana/Alertmanager disabled) and
+      **Grafana Alloy** (chart `1.10.0`, DaemonSet, logs-collection mode →
+      Loki) — Alloy over Promtail because Grafana deprecated/EOL'd Promtail
+      (Feb 2025), no reason to deploy a dying tool for a greenfield
+      component. Both DaemonSets tolerate tatooine's `nvidia.com/gpu=present`
+      taint (same toleration block as `democratic-csi-iscsi.yaml`). Consequence:
+      the old `docker.json`/`watchtower.json` Grafana dashboards (fed by the
+      dropped telegraf) go historical-only — not rebuilt against
+      cAdvisor/kube-state-metrics, out of scope unless asked.
+      **influxdb** (image `influxdb:2.7`, pinned) + **grafana** (image
+      `grafana/grafana-enterprise:10.2.3`, pinned) shipped at `replicas: 0`
+      first (same restore-before-serve pattern as authentik/unifi), data
+      tar-streamed from jupiter's stopped containers (`docker compose stop`,
+      not `down` — same rollback discipline) into the new `iscsi` PVCs:
+      influxdb 6.9G (10Gi PVC), grafana 42.6M + 8 dashboard JSONs (already
+      owned `1000:1000`, matching the pod's `securityContext`, no chown
+      needed) into `grafana-data`/`grafana-provisioning` PVCs — then bumped to
+      `replicas: 1`. Grafana's datasource provisioning was **not** copied
+      verbatim (jupiter's pointed at docker-compose service names
+      `http://influxdb:8086`/`http://loki:3100` and a redacted InfluxDB
+      token) — freshly authored for Loki + Prometheus; InfluxDB datasource
+      deferred (needs a token generated post-restore, see below).
+      **loki** (image `grafana/loki:2.9.4`, pinned) shipped fresh, no
+      restore, straight to `replicas: 1` — matches the pre-existing "loki
+      fresh" decision (logs are transient). One bug hit + fixed: the
+      manifest used k8s `command:` for loki's `-config.file=...` flag, which
+      **replaces** the container's ENTRYPOINT (unlike compose's `command:`,
+      which appends) — crashlooped until changed to `args:`.
+      **Ingress**: `grafana` added as a normal templated route
+      (`k8s/infra/ingress.yaml`, no `auth: true` — Grafana does its own OAuth
+      via authentik already, same reasoning as jellyfin/navidrome/seerr).
+      **influxdb** also went through the shared ingress
+      (`influxdb.local.bookorjeman.com`, no forward-auth — it's a machine
+      writer authenticating with its own token, not a browser) rather than a
+      dedicated MetalLB IP like unifi's `.52` — deliberately reconsidered
+      mid-migration: unifi genuinely needs raw UDP (STUN/discovery) + a
+      non-standard TCP port that Traefik's Host-header HTTP routing can't
+      carry, but InfluxDB is pure HTTPS API, a clean fit for the existing
+      ingress model, so no need to spend another IP from the small MetalLB
+      pool (`.50`–`.60`).
+      **Gotcha: a mystery Traefik 502** hit grafana's route post-DNS-cutover —
+      Service/EndpointSlice/RBAC/cross-namespace routing all checked out
+      identical to working apps (immich-server), a full Traefik pod restart
+      didn't fix it, deleting+recreating the IngressRoute didn't fix it, but
+      adding-then-removing a temporary `--accesslog=true` flag (forcing
+      another rollout) did. Root cause not fully pinned down — worth
+      watching if it recurs on a future ingress addition.
+      **DNS cutover**: per-app OPNsense Unbound overrides, same pattern as
+      every prior migration — `grafana` (pre-existing override, `.30`→`.51`)
+      and a **new** `influxdb` override (`.51`, since that hostname didn't
+      exist before). **Secret hygiene incident**: an InfluxDB write token got
+      echoed into a terminal reading jupiter's `telegraf.conf` — checked
+      InfluxDB's actual token list post-restore and found tokens were
+      already scoped per-writer (`OPNsense Telegraf Write Token`,
+      `HomeAssistant`, `Grafana` all separate), not one shared admin token as
+      feared; only the leaked one (`Telegraf Docker Monitoring`) needed
+      deleting — regenerated then left unused, since jupiter's docker
+      telegraf (the only consumer) isn't coming back.
+      **External InfluxDB writers repointed**: OPNsense's native
+      `os-telegraf` output (via its own UI, `Services → Telegraf`) and Home
+      Assistant's `influxdb:` integration (`/srv/homeassistant-stack/config/
+      integrations/influxdb.yaml` on jupiter — already used HA's `!secret`
+      convention properly; added a new `influxdb_host` secret rather than
+      repointing the existing `ha_ip` one, which is reused elsewhere) both
+      now target `influxdb.local.bookorjeman.com` over HTTPS (443, `ssl:
+      true`) instead of jupiter's raw `10.10.40.30:8086`. OPNsense verified
+      live (fresh data in the `OPNsense` Grafana dashboard). **Home
+      Assistant's write is currently NOT working** — traced to a pre-existing
+      jupiter DNS bug, not our config: jupiter's `resolv.conf` lists both
+      `1.1.1.1` and OPNsense's `10.10.40.1`, and `/etc/nsswitch.conf`'s
+      `hosts: files dns` bypasses systemd-resolved's routing logic entirely
+      (confirmed `resolvectl query` resolves correctly, `getent
+      hosts`/`curl`/HA's own Python resolution do not) — a latent bug that
+      only surfaced because this is the first time anything running on
+      jupiter needed to resolve a `*.local.bookorjeman.com` name. Applied a
+      partial fix (`resolvectl domain ens18 ~local.bookorjeman.com` +
+      `dhcp4-overrides: {use-domains: route}` in netplan, persisted) but the
+      remaining `nsswitch.conf` fix (`hosts: files resolve
+      [!UNAVAIL=return] dns`) was **deliberately left undone** — not worth
+      troubleshooting further on a host being decommissioned at F2; HA's
+      migration into the cluster at F3 makes this moot (in-cluster CoreDNS,
+      no jupiter resolver involved). **Follow-up if HA's InfluxDB data gap
+      matters before F3**: apply that one `nsswitch.conf` line on jupiter.
+      Full `grafana-stack` compose stopped on jupiter (`docker compose stop`,
+      not `down` — rollback path preserved same as every prior migration).
 - [ ] **F2.** HA is the last service still on jupiter. **Wipe jupiter → NixOS,
       join as the 3rd `join-server`** (Arduino stays plugged in). → etcd reaches
       **3-member HA quorum**; +16G headroom.
