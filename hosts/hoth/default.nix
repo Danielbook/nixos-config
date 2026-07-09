@@ -37,6 +37,8 @@
     serverAddr = "https://10.10.40.5:6443";
     apiVip = "10.10.40.5";
     nodeIp = "10.10.40.11"; # pin the real IP — see homelab.k3s.nodeIp doc
+    oidcIssuerUrl = "https://auth.local.bookorjeman.com/application/o/headlamp/"; # Headlamp OIDC
+    oidcClientId = "OatO4WXyxt47uFYEZ8UOmzFp2hq6wMAcjRzUa4rC";
   };
 
   # MetalLB L2 LoadBalancer — managed by the Argo `metallb` app (k8s/infra/metallb.yaml).

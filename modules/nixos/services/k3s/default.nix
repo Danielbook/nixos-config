@@ -151,6 +151,19 @@ in
       default = true;
       description = "Open k3s ports on the host firewall. OPNsense restricts inter-VLAN reach (see docs/cluster-implementation.md).";
     };
+
+    oidcIssuerUrl = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "https://auth.local.bookorjeman.com/application/o/headlamp/";
+      description = "kube-apiserver OIDC issuer (servers only). Empty = OIDC auth disabled. Client ID is not secret; bind RBAC via ClusterRoleBinding in k8s/infra (see Headlamp OIDC).";
+    };
+
+    oidcClientId = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "kube-apiserver OIDC client ID (aud claim), paired with oidcIssuerUrl.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -186,6 +199,14 @@ in
         ]
         ++ lib.optionals (cfg.nodeIp != "") [
           "--node-ip=${cfg.nodeIp}"
+        ]
+        ++ lib.optionals (isServer && cfg.oidcIssuerUrl != "") [
+          "--kube-apiserver-arg=oidc-issuer-url=${cfg.oidcIssuerUrl}"
+          "--kube-apiserver-arg=oidc-client-id=${cfg.oidcClientId}"
+          "--kube-apiserver-arg=oidc-username-claim=email"
+          "--kube-apiserver-arg=oidc-username-prefix=oidc:"
+          "--kube-apiserver-arg=oidc-groups-claim=groups"
+          "--kube-apiserver-arg=oidc-groups-prefix=oidc:"
         ];
       manifests = lib.mkIf (isServer && cfg.apiVip != "") {
         kube-vip.source = kubeVipManifest;
