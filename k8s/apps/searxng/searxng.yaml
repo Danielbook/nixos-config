@@ -39,6 +39,9 @@ spec:
       labels:
         app: searxng
     spec:
+      enableServiceLinks: false # k8s injects SEARXNG_PORT=tcp://... from the
+      # Service (Docker-links-style discovery), which collides with the
+      # app's own SEARXNG_PORT and breaks its --port flag
       containers:
         - name: searxng
           image: searxng/searxng:latest
