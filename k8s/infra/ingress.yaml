@@ -44,6 +44,10 @@ spec:
           - name: mealie
             namespace: mealie
             port: 80
+          - name: searxng
+            namespace: searxng
+            port: 8080
+            auth: true # no native OIDC in SearXNG, gate via authentik forward-auth
           - name: grafana # OAuth via authentik already, no forward-auth needed
             namespace: monitoring
             port: 80
