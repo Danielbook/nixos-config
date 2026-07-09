@@ -82,6 +82,19 @@ spec:
             allowCrossNamespace: true
           kubernetesIngress:
             enabled: false
+        # File provider (Stage E4): external/non-cluster targets (router, truenas,
+        # n4, slzb, …) can't use a Service+Endpoints backend — Argo CD excludes
+        # Endpoints/EndpointSlice from management by default, so that resource
+        # would never get created. The `ingress` chart (k8s/charts/ingress)
+        # renders a ConfigMap of per-route dynamic-config files instead, same
+        # mechanism jupiter's own Traefik used for these.
+        volumes:
+          - name: external-routes
+            mountPath: /etc/traefik/dynamic
+            type: configMap
+        additionalArguments:
+          - "--providers.file.directory=/etc/traefik/dynamic"
+          - "--providers.file.watch=true"
         # Wildcard cert generated ONCE via the Cloudflare resolver and served as the
         # default cert for every TLS route (IngressRoute tls: {} inherits it). This
         # is what actually triggers proactive ACME issuance in k8s Traefik.

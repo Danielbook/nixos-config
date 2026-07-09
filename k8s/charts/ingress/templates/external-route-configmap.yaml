@@ -1,0 +1,47 @@
+{{- /* mkExternalRoute: one file-provider dynamic-config file per
+       .Values.externalRoutes entry, mounted into Traefik (k8s/infra/traefik.yaml)
+       via --providers.file.directory. Argo CD excludes Endpoints/EndpointSlice
+       from management by default (argocd-cm resource.exclusions), so a
+       Service+Endpoints backing a raw external IP is a dead end — the file
+       provider is what jupiter's own Traefik already used for exactly this,
+       so this just ports that pattern instead of reinventing it. Middlewares
+       are defined via the kubernetesCRD provider (middlewares.yaml) — cross-
+       provider references need the "@kubernetescrd" suffix. */ -}}
+{{- if .Values.externalRoutes }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: external-routes
+  namespace: {{ .Release.Namespace }}
+data:
+{{- range .Values.externalRoutes }}
+  {{ .name }}.yml: |
+    http:
+      routers:
+        {{ .name }}:
+          entryPoints:
+            - websecure
+          rule: "Host(`{{ .name }}.{{ $.Values.domain }}`)"
+          middlewares:
+            - default-headers@kubernetescrd
+            {{- if .auth }}
+            - authentik-forwardauth@kubernetescrd
+            {{- end }}
+          tls: {}
+          service: {{ .name }}
+      services:
+        {{ .name }}:
+          loadBalancer:
+            servers:
+              - url: "{{ .url }}"
+            passHostHeader: true
+            {{- if .insecureSkipVerify }}
+            serversTransport: {{ .name }}-transport
+            {{- end }}
+      {{- if .insecureSkipVerify }}
+      serversTransports:
+        {{ .name }}-transport:
+          insecureSkipVerify: true
+      {{- end }}
+{{- end }}
+{{- end }}
