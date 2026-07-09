@@ -17,6 +17,8 @@ spec:
     targetRevision: 41.0.1 # Traefik v3.7.5 — bump deliberately
     helm:
       valuesObject:
+        updateStrategy:
+          type: Recreate # default RollingUpdate deadlocks: new pod can't attach the RWO /data PVC while the old one still holds it
         deployment:
           replicas: 1 # >1 races on the local-path acme.json (see B4 note)
           # PVC at /data is root-owned; Traefik runs as 65532 and can't create
