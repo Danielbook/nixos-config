@@ -17,6 +17,10 @@ spec:
           containers:
             - name: recyclarr
               image: ghcr.io/recyclarr/recyclarr:latest
+              # override default entrypoint: image normally runs its own cron
+              # daemon and never exits, which breaks Job completion since
+              # k8s already schedules this via CronJob
+              command: ["recyclarr", "sync"]
               env:
                 - name: TZ
                   value: Europe/Stockholm
