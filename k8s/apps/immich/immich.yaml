@@ -133,6 +133,9 @@ spec:
           envFrom:
             - secretRef:
                 name: immich-server-env
+          env:
+            - name: IMMICH_CONFIG_FILE
+              value: /config/immich.json # authentik OAuth — Immich has no OAuth env vars, only this full-JSON override
           ports:
             - containerPort: 2283
           volumeMounts:
@@ -146,6 +149,9 @@ spec:
               readOnly: true
             - name: model-cache
               mountPath: /data # geocoding data etc — regenerated on first start, not migrated
+            - name: oauth-config
+              mountPath: /config
+              readOnly: true
       volumes:
         - name: photos
           persistentVolumeClaim:
@@ -155,6 +161,9 @@ spec:
             claimName: nfs-image-backups
         - name: model-cache
           emptyDir: {}
+        - name: oauth-config
+          secret:
+            secretName: immich-oauth-config
 ---
 apiVersion: v1
 kind: Service

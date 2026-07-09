@@ -70,6 +70,29 @@ systemd.services.myservice = {
 };
 ```
 
+## Cluster GitOps Secrets (ksops)
+
+k8s workloads use a separate pipeline: any `k8s/**/*.enc.yaml` is sops-encrypted
+to the dedicated cluster Age key + daniel's key (`.sops.yaml`), and decrypted
+in-cluster by ksops into a plain `Secret` (see ADR 0001). Each app's ksops
+`kustomization.yaml`/`secret-generator.yaml` lists the `.enc.yaml` files it
+decrypts.
+
+- `k8s/immich/immich-oauth-config.enc.yaml` — Immich's authentik OAuth client
+  ID/secret. Immich has no OAuth env vars, only a full-JSON config-file
+  override, so this decrypts into a `Secret` mounted at `/config/immich.json`
+  (`IMMICH_CONFIG_FILE`) on the `immich-server` deployment.
+
+### Adding a New Cluster Secret
+
+1. Write a plaintext `k8s/<app>/<name>.enc.yaml` (a real `Secret` manifest,
+   real values — nothing encrypted yet)
+2. Encrypt it in place: `sops -e -i k8s/<app>/<name>.enc.yaml`
+3. Add the filename to that app's `secret-generator.yaml` under `files:`
+4. Reference the resulting `Secret` from the deployment — `envFrom.secretRef`
+   for env vars, or a `secret` volume if the app needs a mounted file (as
+   Immich's OAuth config does above)
+
 ## Security Best Practices
 
 ### Do's
