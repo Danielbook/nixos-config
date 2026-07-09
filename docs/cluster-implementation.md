@@ -626,14 +626,14 @@ Do this **before** cutover so the weekend is just apply + restore.
         mosquitto are IP-targeted and need no DNS at all.)
 
   </details>
-- [ ] **E4 (SCOPED 2026-07-08).** **External-services bucket** — audited all 34
-      files in jupiter's `/srv/traefik/dynamic/`. Most are dead weight: routes
-      for apps already migrated to k8s (authentik, bazarr, grafana,
+- [x] **E4 DONE (2026-07-09).** **External-services bucket** — audited all 34
+      files in jupiter's `/srv/traefik/dynamic/`. Most were dead weight:
+      routes for apps already migrated to k8s (authentik, bazarr, grafana,
       homeassistant, homepage, immich, jellyfin, sonarr, …) whose DNS already
-      points at the cluster — these just disappear for free when jupiter is
+      points at the cluster — those just disappear for free when jupiter is
       wiped at F2, nothing to port. The actual **external, non-cluster**
-      targets collapse into **one values list + one `range` template**, not a
-      file each:
+      targets collapsed into **one values list + one template** in the
+      `ingress` chart (`k8s/charts/ingress`):
       | route | target | what it is |
       |---|---|---|
       | `router` | `https://192.168.1.1` | OPNsense |
@@ -646,12 +646,42 @@ Do this **before** cutover so the weekend is just apply + restore.
       `hoth` (was tatooine's old Proxmox host pre-D1 bare-metal migration,
       moot), `uptime-kuma` (service dropped entirely, no replacement
       planned). See F1e below for `octoprint`, which pointed at jupiter's
-      own IP and needs real migration, not just a route.
-      The template emits the IngressRoute (+ Service-without-selector/external URL)
-      and attaches authentik forward-auth when `auth: true`. New external target =
-      **one line**. k8s-Traefik becomes the whole-homelab front door, replacing
-      jupiter's. (Cruft to leave behind on jupiter: 2.4G unrotated `logs/`,
-      `_removed/`, `*.backup*`.)
+      own IP and needed real migration, not just a route.
+
+      **Design pivot mid-implementation:** the first attempt backed each
+      external route with a synthetic `Service` + `Endpoints` (the standard
+      way to give a Traefik `IngressRoute` CRD a raw external IP, since the
+      CRD only references k8s Services, not bare URLs). This silently never
+      worked — **Argo CD excludes `Endpoints`/`EndpointSlice` from
+      management by default** (`argocd-cm` `resource.exclusions`, apiGroups
+      `''`/`discovery.k8s.io`), so those objects were rendered by the Helm
+      chart but never actually created. 3 of 4 test routes still returned
+      success because their DNS hadn't been cut over yet and were silently
+      hitting jupiter's still-live old Traefik — only `slzb` (already
+      pointed at the cluster) exposed the real `503`. Replaced with
+      Traefik's **file provider**: a ConfigMap (rendered from the same
+      values list) mounted into Traefik at `/etc/traefik/dynamic`
+      (`--providers.file.directory`, `--providers.file.watch=true`) — the
+      exact mechanism jupiter's own Traefik already used for these targets,
+      just templated instead of one file each.
+
+      **Two more bugs on the way to green:**
+      - Traefik's Deployment defaults to `RollingUpdate` (`maxSurge: 1`),
+        which starts the new pod before killing the old one — but both need
+        the same RWO `/data` (acme.json) PVC, so the new pod deadlocked on
+        `Multi-Attach error` exactly like the appdaemon/mosquitto issues in
+        F1c. Fixed: `updateStrategy.type: Recreate`.
+      - Cross-provider middleware references need a **namespace prefix**:
+        `default-headers@kubernetescrd` doesn't exist, the real name is
+        `traefik-default-headers@kubernetescrd` (`<namespace>-<name>`) —
+        confirmed by grepping Traefik's own logs for how it resolves the
+        same reference from the working in-cluster routes.
+      k8s-Traefik is now the whole-homelab front door, replacing jupiter's
+      for `router`/`truenas`/`n4`/`slzb` — jupiter's own `traefik` and the
+      resurrected `unifi-network-application` containers can be stopped for
+      good. New external target = one line in `k8s/infra/ingress.yaml`'s
+      `externalRoutes:` list. (Cruft to leave behind on jupiter: 2.4G
+      unrotated `logs/`, `_removed/`, `*.backup*`.)
 - [ ] **F1e (deferred, separate task — DECIDED 2026-07-08).** `octoprint`
       (jupiter, `10.10.40.30:5000`) is not a k8s migration candidate like the
       rest of F1 — it has a USB-attached **Prusa MK3S** 3D printer
