@@ -23,9 +23,9 @@ data:
             - websecure
           rule: "Host(`{{ .name }}.{{ $.Values.domain }}`)"
           middlewares:
-            - default-headers@kubernetescrd
+            - {{ $.Release.Namespace }}-default-headers@kubernetescrd
             {{- if .auth }}
-            - authentik-forwardauth@kubernetescrd
+            - {{ $.Release.Namespace }}-authentik-forwardauth@kubernetescrd
             {{- end }}
           tls: {}
           service: {{ .name }}
