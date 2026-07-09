@@ -19,6 +19,11 @@ keys:
   # install like naboo/endor; encrypted private key at
   # hosts/tatooine/ssh_host_ed25519_key.sops.
   - &tatooine age1m3xn2tnl430gk6eqavnnmf9a54p6r3f67jxyxx8pyex25cny8pwq2c0rv2
+  # Hoth host key (3rd k3s control-plane, F2 — was "jupiter" as a Docker box,
+  # reinstalled as NixOS with a Star Wars hostname to match the rest of the
+  # cluster). Pre-generated + injected at install like naboo/endor/tatooine;
+  # encrypted private key at hosts/hoth/ssh_host_ed25519_key.sops.
+  - &hoth age1upv82000x3dzg07gfmxp96clcpc5r8rfrvfua22m4mj0zv27qqgsk4narx
 
 creation_rules:
   # Coruscant SYSTEM secrets (NixOS-level: WireGuard private key, etc.).
@@ -72,6 +77,21 @@ creation_rules:
   # Tatooine's pre-generated SSH host key (raw key, sops binary). daniel only —
   # same rationale as naboo's above.
   - path_regex: hosts/tatooine/ssh_host_ed25519_key\.sops$
+    key_groups:
+      - age:
+          - *daniel
+
+  # Hoth (3rd k3s control-plane, F2) SYSTEM secrets — the shared k3s cluster token.
+  # Encrypted to daniel (recovery) + hoth's host key (unattended boot decrypt).
+  - path_regex: hosts/hoth/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *hoth
+
+  # Hoth's pre-generated SSH host key (raw key, sops binary). daniel only —
+  # same rationale as naboo's above.
+  - path_regex: hosts/hoth/ssh_host_ed25519_key\.sops$
     key_groups:
       - age:
           - *daniel

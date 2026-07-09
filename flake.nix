@@ -159,7 +159,7 @@
         coruscant = mkNixosConfiguration "coruscant" "daniel";
 
         # k3s cluster — see docs/cluster-implementation.md.
-        # naboo (M80q): bootstrap control-plane. endor/jupiter/tatooine follow.
+        # naboo (M80q): bootstrap control-plane. endor/hoth/tatooine follow.
         naboo = mkNixosConfiguration "naboo" "daniel";
 
         # endor (M70q): 2nd control-plane, joins naboo's etcd via the API VIP.
@@ -167,6 +167,10 @@
 
         # tatooine: bare-metal GPU agent (GTX 1070), Stage D. See ADR-0003.
         tatooine = mkNixosConfiguration "tatooine" "daniel";
+
+        # hoth (HP EliteDesk 800 G2 Mini): 3rd control-plane, F2 — was "jupiter"
+        # as a Docker box, wiped and reinstalled to complete 3-member etcd HA.
+        hoth = mkNixosConfiguration "hoth" "daniel";
       };
 
       darwinConfigurations = {
@@ -204,6 +208,12 @@
         };
 
         "daniel@tatooine" = mkHomeConfiguration "x86_64-linux" "daniel" "tatooine" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+
+        "daniel@hoth" = mkHomeConfiguration "x86_64-linux" "daniel" "hoth" {
           extraModules = [
             catppuccin.homeModules.catppuccin
           ];

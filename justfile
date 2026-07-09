@@ -101,9 +101,12 @@ deploy-naboo: (deploy "naboo" "10.10.40.13")
 # Deploy endor (k3s control-plane 2)
 deploy-endor: (deploy "endor" "10.10.40.14")
 
-# Deploy BOTH control-planes (required when a Nix-delivered k3s manifest changes,
+# Deploy hoth (k3s control-plane 3, F2)
+deploy-hoth: (deploy "hoth" "10.10.40.11")
+
+# Deploy ALL control-planes (required when a Nix-delivered k3s manifest changes,
 # or they drift/race)
-deploy-cluster: deploy-naboo deploy-endor
+deploy-cluster: deploy-naboo deploy-endor deploy-hoth
 
 # =============================================================================
 # Development & Maintenance

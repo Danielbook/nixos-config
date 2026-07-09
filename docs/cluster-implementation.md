@@ -955,17 +955,52 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       firewall pass rule covering the IPv6 address family on LAN. Link-local
       multicast (`ff02::fb`, UDP 5353) isn't routed so a global/WAN IPv6
       prefix is probably irrelevant to this specific symptom.
-- [ ] **F2.** Jupiter now empty (last service was HA, moved in F1c). **Wipe
-      jupiter → NixOS, join as the 3rd `join-server`.** → etcd reaches
-      **3-member HA quorum**; +16G headroom. No longer carries any
-      app-migration risk — F1c decoupled that, this is now just a plain node
-      join like naboo/endor/tatooine were.
-- [ ] **Verify:** `kubectl get nodes` → 4 Ready, 3 CP; etcd 3-member quorum;
-      drain/reboot one CP node → VIP/API stays up. Full smoke test (auth, data,
-      GPU transcode, garage door, *arr→download→jellyfin).
-- [ ] **Rollback:** each service's old container stays up until its cluster
-      counterpart is verified; DNS cutover is per-service and reversible.
-      jupiter (the last box) isn't wiped until the whole cluster is green.
+- [x] **F2.** ✅ Done (2026-07-09). Jupiter was empty (last service was HA,
+      moved in F1c). Discovered mid-stage that jupiter wasn't bare metal — it
+      was a single Proxmox VE VM (`jupiter`, VMID 101) consuming nearly all of
+      the box's resources (104G/238.5G disk, 16G/16G RAM), same shape as
+      tatooine's D1 install. Renamed to **`hoth`** at reinstall (the other
+      three cluster nodes are Star Wars planets; "jupiter" was a leftover
+      pre-cluster name). Stopped the VM, `nixos-anywhere --build-on-remote`
+      kexec'd from the live Proxmox host at its management IP and replaced
+      Proxmox entirely with bare-metal NixOS — `role = "server"`, joins via
+      the same `serverAddr`/`apiVip` pattern as endor. IP `10.10.40.11`
+      (fresh, not jupiter's old `.30` — avoids ARP/DNS cache staleness hit
+      repeatedly in F1c/E4); confirmed free via OPNsense ARP/lease check
+      first, then a stale ARP entry for a different retired host briefly
+      caused hesitation before confirming it was actually free. New OPNsense
+      DHCP static mapping added for the physical NIC MAC
+      (`ec:8e:b5:76:99:c8` → `.11`). Disk device `/dev/sda` (238.5G Samsung
+      SATA SSD, confirmed via `lsblk` on the Proxmox host — not NVMe like
+      naboo/endor/tatooine). etcd reached **3-member HA quorum**; ~230G disk +
+      16G RAM reclaimed as cluster headroom.
+      - **Bugs hit:** Proxmox host had `onboot: 1` on the VM — a host reboot
+        (during the IP-migration confusion) auto-restarted the VM after it had
+        already been manually stopped; had to stop it again and set
+        `onboot 0` before the wipe. `/srv/octoprint/config`'s core files
+        (`config.yaml`, `users.yaml`, `config.backup`) were owned by the
+        container's UID, not the SSH user — plain `rsync` silently skipped
+        them; full backup needed `sudo tar` on the box itself, pulled off via
+        `scp` before the wipe (kamino, octoprint's eventual home, doesn't
+        exist yet). Piping `sudo tar` straight over `ssh -t | > file` corrupts
+        the output (the sudo password prompt shares the pty's stdout stream
+        with the tar data) — write the tarball to a file on the remote box
+        first, then a separate `scp` to pull it down. `ssh -tt` host-key
+        churn: the box's identity changed three times in short order (Docker
+        VM → Proxmox management IP after a host reboot → final NixOS host
+        key) — expect `ssh-keygen -R <ip>` before each reconnect attempt, not
+        just once.
+- [x] **Verify:** `kubectl get nodes` → 4 Ready, 3 CP (naboo/endor/hoth) +
+      tatooine agent. Drained + rebooted endor — VIP (`10.10.40.5`) stayed
+      reachable (`/healthz` → `ok`) throughout the ~90s reboot, confirmed via
+      polling; endor rejoined cleanly and was uncordoned. Full smoke test
+      (auth, data, GPU transcode, garage door, *arr→download→jellyfin) not
+      yet re-run post-F2 — do this before considering the migration fully
+      closed out.
+- [x] **Rollback:** N/A past this point — jupiter (the box) is wiped; its
+      Docker/Proxmox identity no longer exists. octoprint config backed up
+      to `~/Desktop/octoprint-full.tar.gz` and naboo's
+      `/home/daniel/jupiter-backup/` as insurance until `kamino` exists.
 
 ---
 
