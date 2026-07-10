@@ -41,7 +41,6 @@ spec:
           - name: open-webui
             namespace: ollama
             port: 8080
-            auth: true
           - name: homepage
             namespace: homepage
             port: 80

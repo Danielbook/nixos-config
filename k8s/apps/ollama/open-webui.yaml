@@ -1,6 +1,6 @@
-# open-webui — chat frontend for ollama (k8s/apps/ollama/ollama.yaml). No
-# native OIDC worth wiring separately, gated by authentik forward-auth like
-# searxng/linkding instead (ingress.yaml `auth: true`).
+# open-webui — chat frontend for ollama (k8s/apps/ollama/ollama.yaml). Native
+# authentik OIDC (client creds in the open-webui-oauth ksops secret, same
+# pipeline as immich) instead of forward-auth — login form disabled, OIDC only.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -36,9 +36,26 @@ spec:
       containers:
         - name: open-webui
           image: ghcr.io/open-webui/open-webui:main
+          envFrom:
+            - secretRef:
+                name: open-webui-oauth
           env:
             - name: OLLAMA_BASE_URL
               value: http://ollama.ollama.svc.cluster.local:11434
+            - name: WEBUI_URL
+              value: https://open-webui.local.bookorjeman.com
+            - name: ENABLE_OAUTH_SIGNUP
+              value: "true"
+            - name: ENABLE_LOGIN_FORM
+              value: "false"
+            - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+              value: "true"
+            - name: OAUTH_PROVIDER_NAME
+              value: Authentik
+            - name: OAUTH_SCOPES
+              value: openid email profile
+            - name: OPENID_PROVIDER_URL
+              value: https://auth.local.bookorjeman.com/application/o/open-webui/.well-known/openid-configuration
           ports:
             - containerPort: 8080
           volumeMounts:
