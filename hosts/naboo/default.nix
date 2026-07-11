@@ -52,7 +52,14 @@
   # hostNetwork, pinned here. NixOS firewall blocks inbound by default, so the
   # Service ClusterIP -> node-IP:port path (used by Traefik/other nodes) needs
   # these opened explicitly — was a 504 until this landed.
-  networking.firewall.allowedTCPPorts = [ 8123 ]; # homeassistant
+  # 21063 = HA's HomeKit Bridge HAP port (integrations/homekit.yaml, PVC config).
+  # mDNS (UDP 5353) was never opened, unlike jupiter's plain host-network Docker
+  # box — Apple Home couldn't discover or pair the bridge after the k3s move.
+  networking.firewall.allowedTCPPorts = [
+    8123 # homeassistant
+    21063 # homekit bridge (HAP)
+  ];
+  networking.firewall.allowedUDPPorts = [ 5353 ]; # mDNS/Bonjour for HomeKit discovery
 
   system.stateVersion = "25.05";
 }
