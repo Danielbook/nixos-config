@@ -80,7 +80,7 @@ Goal: configs that `just flake-check` green, ready to deploy when `endor` lands.
 > yet). Before deploy: set `apiVip`/`vipInterface` (reserve `.40` IPs), static IP,
 > and re-key `secrets.yaml` to add naboo's host key after first install.
 
-- [ ] **A1.** `modules/nixos/services/k3s/default.nix` — wrap `services.k3s` with a
+- [x] **A1.** `modules/nixos/services/k3s/default.nix` — wrap `services.k3s` with a
       small role option:
   - `first-server`: `role="server"`, `clusterInit=true`, `--tls-san <VIP>`,
     `--disable servicelb` (MetalLB instead), **`--disable traefik`** (own Traefik
@@ -93,25 +93,25 @@ Goal: configs that `just flake-check` green, ready to deploy when `endor` lands.
     `hosts/coruscant/default.nix:32`.
   - Firewall (LAN-scoped): 6443, 2379-2380 (servers), 8472/udp, 10250; plus
     kube-vip ARP.
-- [ ] **A2.** kube-vip manifest as a k3s **auto-deploy** add-on (drop in
+- [x] **A2.** kube-vip manifest as a k3s **auto-deploy** add-on (drop in
       `/var/lib/rancher/k3s/server/manifests/` via the module) on control-plane
       nodes, advertising the API VIP.
-- [ ] **A3.** Per-node host dirs (**start with `hosts/naboo/`** — M80q is in hand;
+- [x] **A3.** Per-node host dirs (**start with `hosts/naboo/`** — M80q is in hand;
       `endor` follows when bought):
       `default.nix` (imports `common` + the k3s module, **no** `desktop/*`),
       `hardware-configuration.nix` (generated on the box), `secrets.yaml`
       (sops k3s token). Add `disko.nix` for declarative partitioning.
-- [ ] **A4.** `home/daniel/endor/default.nix` — minimal, imports only
+- [x] **A4.** `home/daniel/endor/default.nix` — minimal, imports only
       `${nhModules}/common`.
-- [ ] **A5.** `flake.nix` — add `endor = mkNixosConfiguration "endor" "daniel";`
+- [x] **A5.** `flake.nix` — add `endor = mkNixosConfiguration "endor" "daniel";`
       and `"daniel@endor" = mkHomeConfiguration "x86_64-linux" "daniel" "endor" {};`
       (repeat per node later). Add `disko` to inputs.
-- [ ] **A6.** `.sops.yaml` — creation_rule for `hosts/<node>/secrets.yaml`
+- [x] **A6.** `.sops.yaml` — creation_rule for `hosts/<node>/secrets.yaml`
       (node host key + daniel age key) for the k3s token. **Generate a dedicated
       cluster age key**; add a creation_rule for `k8s/**` encrypting to **cluster
       key + daniel key** (Argo decrypts with the cluster key; daniel = recovery).
       See [ADR 0001](./adr/0001-cluster-secrets-age-key.md).
-- [ ] **Verify:** `just flake-check` + `just check-all` green with `endor` added.
+- [x] **Verify:** `just flake-check` + `just check-all` green with `endor` added.
 
 ---
 
@@ -265,7 +265,7 @@ local-path.
       line and then go quiet on ACME success — no "obtained certificate" INFO
       line — don't mistake that silence for a hang; check the served cert
       instead of tailing logs.
-- [ ] **Verify:** PVC on each SC binds; pod writes, deletes, reschedules to
+- [x] **Verify:** PVC on each SC binds; pod writes, deletes, reschedules to
       another node (after Stage D), data persists; zvol/export visible in scarif.
 
 ---
@@ -407,7 +407,7 @@ Cloudflare DNS-01, cert-manager dropped — see B4], democratic-csi, nvidia-plug
 kube-vip) + `k8s/apps/` (one dir per service).
 Do this **before** cutover so the weekend is just apply + restore.
 
-- [ ] **E1.** Convert each current container → manifest/Helm release. PV from
+- [x] **E1.** Convert each current container → manifest/Helm release. PV from
       `iscsi` SC for app/DB data, `nfs` SC for media (RWX). Secrets via ksops.
   - [x] **navidrome. DONE (2026-07-04).** Migrated from servarr's Docker
         Compose VM. Config (SQLite db, artwork) tar-streamed in; the
@@ -695,28 +695,9 @@ Do this **before** cutover so the weekend is just apply + restore.
       good. New external target = one line in `k8s/infra/ingress.yaml`'s
       `externalRoutes:` list. (Cruft to leave behind on jupiter: 2.4G
       unrotated `logs/`, `_removed/`, `*.backup*`.)
-- [ ] **F1e (deferred, separate task — DECIDED 2026-07-08).** `octoprint`
-      (jupiter, `10.10.40.30:5000`) is not a k8s migration candidate like the
-      rest of F1 — it has a USB-attached **Prusa MK3S** 3D printer
-      (`/dev/serial/by-id/usb-Prusa_Research__prusa3d.com__Original_Prusa_i3_MK3_CZPX2921X004XK96438-if00`
-      → `/dev/ttyUSB0`), same hostPath-CharDevice shape as the HA-stack's
-      Arduino garage door. Decision: **don't migrate into k3s** — instead,
-      move the printer to a **dedicated Raspberry Pi running NixOS**,
-      hostname **`kamino`**, added as its own flake host later (once the
-      Pi is acquired). Deliberately docs-only for now — no skeleton host
-      dir, no NixOS module — nothing to go stale before the hardware
-      exists. Facts to carry forward when it's built:
-      - Image: `octoprint/octoprint:latest` (pin the resolved tag at
-        implementation time, same lesson as every other `:latest` on
-        jupiter).
-      - Config data: `/srv/octoprint/config` on jupiter, 961M
-        (`octoprint/` + `plugins/` dirs) — tar-stream to the Pi same as
-        every other F1 migration, or fresh-start if not worth carrying
-        print history/plugin state over.
-      - NixOS has a `services.octoprint` module — likely simpler than a
-        hand-rolled container on a single-purpose Pi.
-      - jupiter's `octoprint` container stays stopped (rollback) same as
-        everything else until this actually happens.
+- [x] **F1e (deferred → moved).** octoprint → dedicated Pi `kamino` — moved
+      to `docs/improvements.md` (decided 2026-07-08: not a k8s candidate,
+      USB-attached Prusa MK3S; config backup lives on hoth).
 - [x] **E5 (unifi part) DONE (2026-07-07).** Dedicated **MetalLB LoadBalancer
       IP `10.10.40.52`** (`k8s/apps/unifi/unifi.yaml`, `k8s/infra/unifi.yaml`).
       Correction: jupiter's real IP is **`10.10.40.30`**, not `.10` as this
@@ -737,7 +718,7 @@ Do this **before** cutover so the weekend is just apply + restore.
       2026-07-08: F1c covers the full 6-service homeassistant-stack, see F1c —
       this line previously said "stays on jupiter until F2/F3", which
       contradicted F1c's "jupiter has nothing left running on it").
-- [ ] **Verify (dry):** every app Healthy in Argo against empty PVs / test data
+- [x] **Verify (dry):** every app Healthy in Argo against empty PVs / test data
       before real data lands.
 
 ---
@@ -951,23 +932,9 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       jupiter's stack stays `docker compose stop`ped as rollback until
       Stage F2. Pin to naboo is temporary — revisit once the Arduino is
       decoupled from a specific node (e.g. ser2net bridge), see E2.
-- [ ] **F1d (deferred, separate task).** matter-server logged a burst of
-      `Failed to advertise records: Network is unreachable` / `No endpoint
-      was available to send the message` mDNS errors in the first ~100ms
-      after pod start on naboo (2026-07-08), then self-recovered (`Matter
-      Server successfully initialized`, no repeats since). Likely a
-      multicast-socket-join race at container startup, not a real network
-      gap — naboo's `eno2` already has a working link-local IPv6 address
-      (`fe80::.../64`, confirmed via `ip -6 addr show`), and Matter mDNS
-      only needs link-local, not routed/global IPv6. No action taken since
-      no Matter devices are currently in use. If `avahi-browse -t
-      _matter._tcp` verification (F1c checklist) or a future device
-      commissioning attempt shows real failures, investigate OPNsense IPv6:
-      WAN IPv6 type (DHCPv6-PD track-interface is the common ISP case), LAN
-      `Track Interface` + Router Advertisements (`Assisted` mode), and a
-      firewall pass rule covering the IPv6 address family on LAN. Link-local
-      multicast (`ff02::fb`, UDP 5353) isn't routed so a global/WAN IPv6
-      prefix is probably irrelevant to this specific symptom.
+- [x] **F1d (deferred → moved).** matter-server mDNS startup burst — moved
+      to `docs/improvements.md` (self-recovered, watch-only until a Matter
+      device is commissioned).
 - [x] **F2.** ✅ Done (2026-07-09). Jupiter was empty (last service was HA,
       moved in F1c). Discovered mid-stage that jupiter wasn't bare metal — it
       was a single Proxmox VE VM (`jupiter`, VMID 101) consuming nearly all of
@@ -1017,37 +984,21 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
 
 ---
 
-## Stage G — Convert `scarif` to bare-metal TrueNAS
+## Stage G — Convert `scarif` to bare-metal TrueNAS (moved)
 
-Gate: nothing left on the Jonsbo/Proxmox box (servarr pods live in-cluster).
-
-- [x] **G0 (precondition — RESOLVED).** Verified in Proxmox (VM 100 on node `n4`):
-      data pool = **2× 16TB Seagate Exos passed through raw via `/dev/disk/by-id`**
-      (scsi1/scsi2) → **pool imports cleanly on bare metal**. The only virtual
-      disk (scsi0, 32G local-lvm) is the disposable TrueNAS OS boot — reinstall
-      it fresh on bare metal. Export/import path (G1–G3) is valid as written.
-      (servarr = VM 101 on the same `n4` host.)
-      - [ ] Confirm the 2×16TB HDD pool layout (mirror vs stripe).
-      - [ ] SSD mirror pool for iSCSI app/DB PVs = **hardware to add** to the N4.
-
-- [ ] **G1.** Export ZFS pools (clean shutdown) in the TrueNAS VM.
-- [ ] **G2.** Wipe Proxmox; install TrueNAS SCALE bare-metal; **import** pools
-      (intact via passthrough).
-- [ ] **G3.** Re-point democratic-csi at the new IP/API if changed.
-- [ ] **Verify:** PVs reconnect; immich reads its library.
+Moved to `docs/improvements.md` — deferred, independent of the migration
+(G0 precondition already verified: data pool is raw-passthrough, imports
+cleanly on bare metal).
 
 ---
 
-## Stage H — Cleanup, docs, future
+## Stage H — Cleanup, docs
 
-- [ ] **H1.** Decommission Proxmox everywhere.
-- [ ] **H2.** Update `CLAUDE.md` host table, `docs/ARCHITECTURE.md` (k3s module +
-      server layer), `docs/FEATURES.md`. Keep CLUSTER.md current.
-- [ ] **H3.** `just check-all` green; commit.
-- [ ] **Future:** offsite backup for **immich photos** (vaultwarden dropped,
-      see Stage E1 — replaced by paid Bitwarden) — restic/ZFS-replication to
-      a cloud bucket. RAM 16→32G/node when
-      memory requests pass ~80% (see CLUSTER.md capacity section).
+- [x] **H1 (moved).** Decommission Proxmox — the only one left is the `n4`
+      box; goes away with the scarif conversion (`docs/improvements.md`).
+- [x] **H2.** DONE (2026-07-17). `CLAUDE.md` host table, `docs/ARCHITECTURE.md`,
+      `docs/FEATURES.md` current. Deferred/future work → `docs/improvements.md`.
+- [x] **H3.** `just check-all` green; merged to main.
 
 ---
 
