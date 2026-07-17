@@ -48,6 +48,8 @@ spec:
       labels:
         app: forgejo-runner
     spec:
+      securityContext:
+        fsGroup: 1000 # runner image runs uid 1000; PVC otherwise root-owned
       initContainers:
         - name: register
           image: code.forgejo.org/forgejo/runner:12
