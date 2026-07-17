@@ -82,6 +82,7 @@
       "discord"
       "docker-desktop"
       "home-assistant"
+      "keepingyouawake"
       "microsoft-excel"
       "microsoft-outlook"
       "obsidian"
