@@ -63,6 +63,8 @@ spec:
               value: https://forgejo.local.bookorjeman.com/
             - name: FORGEJO__server__DISABLE_SSH
               value: "true"
+            - name: FORGEJO__actions__ENABLED
+              value: "true"
           ports:
             - containerPort: 3000
           volumeMounts:
