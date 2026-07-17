@@ -1,8 +1,8 @@
 # forgejo — self-hosted git for personal apps (community Gitea fork, GH-Actions
 # compatible CI later via forgejo-runner). SQLite on the PVC — single user, no
 # Postgres needed. No ksops secret: security keys auto-generate on first boot.
-# INSTALL_LOCK skips the web installer; first registered user becomes admin —
-# register, then flip DISABLE_REGISTRATION to true.
+# INSTALL_LOCK skips the web installer; first registered user became admin,
+# registration now closed.
 # HTTPS-only — git remotes over https with a Forgejo token, no SSH exposure
 # (ponytail: add a Traefik TCP entrypoint or LB if SSH ever wanted). HTTP route
 # in k8s/infra/ingress.yaml (no forward-auth — git clients need Forgejo's own auth).
@@ -56,7 +56,7 @@ spec:
             - name: FORGEJO__security__INSTALL_LOCK
               value: "true"
             - name: FORGEJO__service__DISABLE_REGISTRATION
-              value: "false" # flip to true after first (admin) signup
+              value: "true" # admin account created 2026-07-17; no public signup
             - name: FORGEJO__server__DOMAIN
               value: forgejo.local.bookorjeman.com
             - name: FORGEJO__server__ROOT_URL
