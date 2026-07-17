@@ -51,6 +51,9 @@ spec:
             namespace: searxng
             port: 8080
             auth: true # no native OIDC in SearXNG, gate via authentik forward-auth
+          - name: forgejo # own auth (git clients/API break behind forward-auth)
+            namespace: forgejo
+            port: 3000
           - name: grafana # OAuth via authentik already, no forward-auth needed
             namespace: monitoring
             port: 80
