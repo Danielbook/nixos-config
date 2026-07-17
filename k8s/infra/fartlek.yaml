@@ -1,0 +1,24 @@
+# fartlek — AI running coach (Go API + SPA in one image, per-app postgres).
+# Image comes from the in-cluster Forgejo registry; the CHANGEME-SHA tag in
+# k8s/apps/fartlek/fartlek.yaml must be pinned to a CI-built sha before this
+# can sync green.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fartlek
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Danielbook/nixos-config.git
+    targetRevision: feat/cluster
+    path: k8s/apps/fartlek
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fartlek
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

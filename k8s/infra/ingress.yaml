@@ -51,6 +51,9 @@ spec:
             namespace: searxng
             port: 8080
             auth: true # no native OIDC in SearXNG, gate via authentik forward-auth
+          - name: fartlek # own Strava auth; forward-auth would break OAuth callback
+            namespace: fartlek
+            port: 8080
           - name: forgejo # own auth (git clients/API break behind forward-auth)
             namespace: forgejo
             port: 3000
