@@ -141,7 +141,7 @@ let
     spec:
       project: default
       source:
-        repoURL: https://github.com/Danielbook/nixos-config.git
+        repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
         targetRevision: feat/cluster
         path: k8s/infra
         directory:
