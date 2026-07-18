@@ -41,11 +41,13 @@
     age.keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
     defaultSopsFile = ./secrets.yaml;
     secrets.authentik_mcp_token = { };
+    secrets.forgejo_api_token = { };
   };
 
   # Source sops secrets as environment variables in the shell
   programs.zsh.initContent = lib.mkOrder 1200 ''
     export AUTHENTIK_MCP_TOKEN="$(cat ${config.sops.secrets.authentik_mcp_token.path} 2>/dev/null)"
+    export FORGEJO_TOKEN="$(cat ${config.sops.secrets.forgejo_api_token.path} 2>/dev/null)"
   '';
 
   programs.home-manager.enable = true;
