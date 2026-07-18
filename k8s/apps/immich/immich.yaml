@@ -129,7 +129,7 @@ spec:
     spec:
       containers:
         - name: immich-server
-          image: ghcr.io/immich-app/immich-server:release # matches the live tatooine container's tag exactly (docker inspect)
+          image: ghcr.io/immich-app/immich-server:v3.0.2
           envFrom:
             - secretRef:
                 name: immich-server-env

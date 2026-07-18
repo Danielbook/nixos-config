@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
         - name: mealie
-          image: ghcr.io/mealie-recipes/mealie:latest
+          image: ghcr.io/mealie-recipes/mealie:v3.20.1
           env:
             - name: ALLOW_SIGNUP
               value: "false"
