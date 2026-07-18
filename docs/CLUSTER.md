@@ -5,7 +5,10 @@
 > **why** (hardware, decisions, capacity); the **how** (stage-by-stage build)
 > lives in [cluster-implementation.md](./cluster-implementation.md). The
 > node-provisioning pattern (pre-generated host keys + portable admin key) is
-> [ADR 0002](./adr/0002-node-provisioning-host-keys.md). Last update: 2026-06-30.
+> [ADR 0002](./adr/0002-node-provisioning-host-keys.md). For where each config
+> file actually lives (Nix modules, `k8s/` manifests, secrets), see
+> [ARCHITECTURE.md → k3s Cluster Config Map](./ARCHITECTURE.md#k3s-cluster-config-map).
+> Last update: 2026-06-30.
 
 ## Goal
 
@@ -46,6 +49,7 @@ Notes:
 | Topology | **3-node HA, embedded etcd** (`naboo`+`jupiter`+`endor`); `tatooine` a GPU worker | Survives one control-plane node failing. |
 | Storage | **democratic-csi on TrueNAS**, single CSI | NFS for media/RWX; iSCSI zvols (SSD **mirror** pool) for app/DB PVs. ZFS snapshots = backup. No Longhorn. |
 | Workloads | **Argo CD** app-of-apps, manifests in `k8s/` in this repo | Clean nodes-by-NixOS / apps-by-GitOps boundary. |
+| Git hosting | **Forgejo (in-cluster) is the source of truth** — Argo and all `repoURL`s point at `forgejo.local.bookorjeman.com/danielbook/nixos-config`; push-mirrors (sync on commit, all branches) to **GitHub** and **Codeberg** | Own the data; mirrors are the disaster-recovery copies since Forgejo runs *on* the cluster it defines — see rebuild runbook below. |
 | API endpoint | **kube-vip** floating VIP across the 3 control-plane nodes | Losing a node doesn't move the endpoint. |
 | Network | Whole cluster (4 nodes + `scarif` + MetalLB + VIP) in the **`.40` services VLAN** (`10.10.40.x`); `.30` Proxmox VLAN decommissioned | Service IPs stay where DNS/Traefik point; storage intra-VLAN. k3s CIDRs (`10.42/16`,`10.43/16`) don't clash. |
 | LB IPs | **MetalLB** (L2) pool in `.40`; kube-vip for the API VIP | Stable LAN IPs for ingress + device-facing services. |
@@ -138,6 +142,27 @@ Today's real usage ≈ **11G** ⇒ **~3.5× headroom** out of the gate.
 - **`scarif` = single dependency** for cluster state → on the UPS, planned reboots.
 - **No offsite backup yet** — plan restic/replication for immich + vaultwarden
   (the irreplaceable data) as a follow-up.
+
+## Disaster recovery: full cluster rebuild
+
+Forgejo runs **on** the cluster, and Argo syncs the cluster **from** Forgejo —
+on a total rebuild neither exists yet. Escape hatch (untested — walk it before
+trusting it at 3am):
+
+1. Clone this repo from a mirror: `https://github.com/Danielbook/nixos-config.git`
+   (or `https://codeberg.org/Danielbook/nixos-config.git`).
+2. Rebuild the nodes: `just deploy-cluster` (+ agents). Argo comes up but every
+   app — including the `forgejo` child app — points at Forgejo, which isn't
+   running yet, so nothing syncs. Do **not** flip `repoURL`s to a mirror; that
+   splits history and touches ~36 files. Instead:
+3. Manually bootstrap Forgejo from the local clone: render its manifests
+   (ksops secrets decrypt with the personal `daniel` age key — the recovery
+   key per [ADR 0001](./adr/0001-cluster-secrets-age-key.md)) and
+   `kubectl apply` them. Forgejo's data survives on the TrueNAS PVC, so it
+   returns with all repos intact.
+4. Once Forgejo serves the repo again, Argo syncs everything else on its own;
+   it also adopts the hand-applied Forgejo resources (same names/namespace).
+5. Verify `kubectl -n argocd get applications` — all Synced/Healthy.
 
 ---
 

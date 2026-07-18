@@ -98,6 +98,7 @@ atuin, bat, btop, carapace, dust, eza, fastfetch, fd, fzf, jq, lazydocker, lazyg
 ## Quick Start
 
 ```bash
+# canonical repo is self-hosted Forgejo; GitHub/Codeberg are push mirrors
 git clone https://github.com/Danielbook/nixos-config.git
 cd nixos-config
 

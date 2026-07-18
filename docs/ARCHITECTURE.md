@@ -197,3 +197,22 @@ All overlays are applied automatically via `builtins.attrValues outputs.overlays
 ## Noctalia Config
 
 Noctalia config lives in `home/daniel/coruscant/noctalia/` — files are **copied** (not symlinked) on activation so the GUI can edit them. `just noctalia-sync` copies runtime changes back to the repo (runs automatically before `just home-manager-switch`).
+
+## k3s Cluster Config Map
+
+Cluster config splits across two layers: **NixOS provisions the nodes**, **Argo CD (GitOps) provisions the workloads**. Strategy/decisions live in `docs/CLUSTER.md`; stage-by-stage build history in `docs/cluster-implementation.md`.
+
+| Layer | Path | Purpose |
+|-------|------|---------|
+| Node role module | `modules/nixos/services/k3s/` | Role-parameterized k3s node (`homelab.k3s`: server-init/server/agent) + kube-vip |
+| Argo CD bootstrap | `modules/nixos/services/argocd/` | Nix-delivered Argo CD install + root app-of-apps pointed at `k8s/infra` |
+| Per-host config | `hosts/naboo/`, `hosts/endor/`, `hosts/tatooine/`, `hosts/hoth/` | Sets `homelab.k3s` role/options per node; host-level secrets (`secrets.yaml`, pre-generated `ssh_host_ed25519_key.sops`) |
+| App-of-apps root | `k8s/infra/` | Child Argo CD `Application` manifests (one per workload) that Argo's directory generator applies — see `k8s/infra/README.md` |
+| Per-app manifests | `k8s/<app>/` (e.g. `k8s/traefik/`, `k8s/authentik/`, `k8s/ollama/`) | Kustomize dirs — `kustomization.yaml`, `secret-generator.yaml`, sops-encrypted `*-env.enc.yaml` |
+| Raw Kubernetes manifests | `k8s/apps/<app>/` | Deployment/Service/etc. YAML referenced by the matching `k8s/infra/<app>.yaml` Application |
+| Helm charts | `k8s/charts/` | Vendored/local charts (e.g. `k8s/charts/ingress` for Traefik) |
+| One-off migration Jobs | `k8s/migration/` | Data migration Jobs run during cutover (Stage F), not part of steady-state GitOps |
+| Cluster secrets policy | `.sops.yaml` | Age recipients (daniel + per-host + dedicated `cluster` key) and `path_regex` rules deciding which keys encrypt which paths |
+| ADRs | `docs/adr/` | e.g. `0001-cluster-secrets-age-key.md` (ksops uses a dedicated cluster key, never daniel's personal key), `0002-node-provisioning-host-keys.md` |
+
+All `k8s/**/*.enc.yaml` files are sops-encrypted and decrypted in-cluster by ksops using the dedicated cluster age key — see [SECRETS.md](./SECRETS.md) and [ADR 0001](./adr/0001-cluster-secrets-age-key.md).

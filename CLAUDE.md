@@ -52,6 +52,12 @@ rule → cluster + daniel keys) and decrypted in-cluster by **ksops** using a
 dedicated cluster age key (never the personal key — see `docs/adr/0001`).
 Full stage history in `docs/cluster-implementation.md`.
 
+This repo's source of truth is **self-hosted Forgejo**
+(`forgejo.local.bookorjeman.com/danielbook/nixos-config` — all Argo `repoURL`s
+point there), with push mirrors to GitHub and Codeberg. Since Forgejo runs on
+the cluster it defines, full-rebuild recovery goes through a mirror — runbook
+in `docs/CLUSTER.md`.
+
 ## Version Constraints
 
 - **nixpkgs**: nixos-unstable — check `flake.lock` for exact rev
