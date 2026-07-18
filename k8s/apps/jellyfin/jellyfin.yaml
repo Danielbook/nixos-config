@@ -59,7 +59,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: jellyfin
-          image: jellyfin/jellyfin # matches the live tatooine container (no tag = latest)
+          image: jellyfin/jellyfin:10.11.11
           ports:
             - containerPort: 8096
           resources:
