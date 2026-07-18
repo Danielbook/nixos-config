@@ -39,6 +39,11 @@ spec:
               value: http://homeassistant:8123
             - name: DASH_URL
               value: http://0.0.0.0:5050 # appdaemon's http.url is a BIND addr, not a display link — Service ClusterIP isn't a local iface
+            - name: MQTT_PASSWORD # consumed by !env_var in /conf/appdaemon.yaml MQTT block (issue #18)
+              valueFrom:
+                secretKeyRef:
+                  name: mosquitto-creds
+                  key: APPDAEMON_MQTT_PASSWORD
           volumeMounts:
             - name: config
               mountPath: /conf
