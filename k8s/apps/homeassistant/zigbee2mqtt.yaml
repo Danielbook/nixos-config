@@ -36,6 +36,18 @@ spec:
       containers:
         - name: zigbee2mqtt
           image: koenkk/zigbee2mqtt:2.12.1
+          env:
+            # ZIGBEE2MQTT_CONFIG_* overrides configuration.yaml at startup
+            - name: ZIGBEE2MQTT_CONFIG_MQTT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mosquitto-creds
+                  key: ZIGBEE2MQTT_CONFIG_MQTT_USER
+            - name: ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mosquitto-creds
+                  key: ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
           ports:
             - containerPort: 8099
           volumeMounts:

@@ -1,8 +1,8 @@
 # mosquitto — Stage F1c. Source: eclipse-mosquitto:2 on jupiter, resolved
-# 2.1.2. mosquitto.conf has no password_file (allow_anonymous true) so it's a
-# plain ConfigMap, not a secret. Service is LoadBalancer on a dedicated
-# MetalLB IP (raw TCP, can't ride Traefik's Host-header routing — same
-# reasoning as unifi's .52).
+# 2.1.2. Auth required since issue #7: password_file from the mosquitto-creds
+# ksops Secret (k8s/homeassistant/mosquitto-creds.enc.yaml), anonymous
+# refused. Service is LoadBalancer on a dedicated MetalLB IP (raw TCP, can't
+# ride Traefik's Host-header routing — same reasoning as unifi's .52).
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,7 +11,8 @@ metadata:
 data:
   mosquitto.conf: |
     listener 1883
-    allow_anonymous true
+    allow_anonymous false
+    password_file /mosquitto/config/passwd
     persistence true
     persistence_location /mosquitto/data/
 ---
@@ -54,12 +55,18 @@ spec:
             - name: config
               mountPath: /mosquitto/config/mosquitto.conf
               subPath: mosquitto.conf
+            - name: passwd
+              mountPath: /mosquitto/config/passwd
+              subPath: passwd
             - name: data
               mountPath: /mosquitto/data
       volumes:
         - name: config
           configMap:
             name: mosquitto-config
+        - name: passwd
+          secret:
+            secretName: mosquitto-creds
         - name: data
           persistentVolumeClaim:
             claimName: mosquitto-data
