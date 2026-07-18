@@ -6,8 +6,8 @@
 #   agent       : worker node (e.g. the GPU box, tatooine).
 #
 # The shared cluster token comes from the host's sops secrets.yaml. kube-vip is
-# auto-deployed on control-plane nodes once `apiVip` is set (it stays inert until
-# the .40 VIP is reserved — see docs/cluster-implementation.md).
+# auto-deployed on control-plane nodes (apiVip defaults to the cluster VIP —
+# see docs/cluster-implementation.md).
 {
   config,
   lib,
@@ -113,9 +113,8 @@ in
 
     apiVip = lib.mkOption {
       type = lib.types.str;
-      default = "";
-      example = "10.10.40.5";
-      description = "Control-plane VIP (kube-vip, servers only). Empty = kube-vip disabled until the .40 IP is reserved.";
+      default = "10.10.40.5"; # kube.local.bookorjeman.com
+      description = "Control-plane VIP. Drives kube-vip + --tls-san on servers and the default serverAddr on all roles. Empty = kube-vip disabled.";
     };
 
     vipInterface = lib.mkOption {
@@ -127,9 +126,9 @@ in
 
     serverAddr = lib.mkOption {
       type = lib.types.str;
-      default = "";
-      example = "https://10.10.40.5:6443";
-      description = "API endpoint joining nodes register against (the VIP). Required for role server/agent.";
+      default = if cfg.apiVip != "" then "https://${cfg.apiVip}:6443" else "";
+      defaultText = lib.literalExpression ''"https://''${apiVip}:6443"'';
+      description = "API endpoint joining nodes register against. Defaults to the VIP. Required for role server/agent.";
     };
 
     nodeIp = lib.mkOption {
@@ -154,14 +153,13 @@ in
 
     oidcIssuerUrl = lib.mkOption {
       type = lib.types.str;
-      default = "";
-      example = "https://auth.local.bookorjeman.com/application/o/headlamp/";
+      default = "https://auth.local.bookorjeman.com/application/o/headlamp/"; # Headlamp OIDC
       description = "kube-apiserver OIDC issuer (servers only). Empty = OIDC auth disabled. Client ID is not secret; bind RBAC via ClusterRoleBinding in k8s/infra (see Headlamp OIDC).";
     };
 
     oidcClientId = lib.mkOption {
       type = lib.types.str;
-      default = "";
+      default = "OatO4WXyxt47uFYEZ8UOmzFp2hq6wMAcjRzUa4rC";
       description = "kube-apiserver OIDC client ID (aud claim), paired with oidcIssuerUrl.";
     };
   };
