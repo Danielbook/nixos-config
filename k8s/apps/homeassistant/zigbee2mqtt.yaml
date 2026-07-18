@@ -25,6 +25,8 @@ metadata:
     app: zigbee2mqtt
 spec:
   replicas: 1 # data restored + mqtt.server repointed 2026-07-08 (Stage F1c)
+  strategy:
+    type: Recreate # RWO iscsi PVC — RollingUpdate deadlocks on Multi-Attach
   selector:
     matchLabels:
       app: zigbee2mqtt

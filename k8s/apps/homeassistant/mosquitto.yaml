@@ -38,6 +38,8 @@ metadata:
     app: mosquitto
 spec:
   replicas: 1 # data restored + verified 2026-07-08 (Stage F1c)
+  strategy:
+    type: Recreate # RWO iscsi PVC — RollingUpdate deadlocks on Multi-Attach
   selector:
     matchLabels:
       app: mosquitto
