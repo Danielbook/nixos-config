@@ -96,14 +96,14 @@ spec:
         # Schema migrations run before the server starts, from the same image
         # (custom golang-migrate wrapper; reads DATABASE_URL from env).
         - name: migrate
-          image: forgejo.local.bookorjeman.com/danielbook/fartlek:CHANGEME-SHA # pin to git sha from CI build; bump to deploy (owner Danielbook, lowercased for docker)
+          image: forgejo.local.bookorjeman.com/danielbook/fartlek:069c1cc2ee4e18f80c8d4a64b9cc3690f0e760ca # pin to git sha from CI build; bump to deploy
           command: ["/bin/migrate", "-path", "/migrations", "up"]
           envFrom:
             - secretRef:
                 name: fartlek-env
       containers:
         - name: fartlek
-          image: forgejo.local.bookorjeman.com/danielbook/fartlek:CHANGEME-SHA # pin to git sha from CI build; bump to deploy (owner Danielbook, lowercased for docker)
+          image: forgejo.local.bookorjeman.com/danielbook/fartlek:069c1cc2ee4e18f80c8d4a64b9cc3690f0e760ca # pin to git sha from CI build; bump to deploy
           envFrom:
             - secretRef:
                 name: fartlek-env
