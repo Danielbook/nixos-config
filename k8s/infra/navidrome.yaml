@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
-    targetRevision: feat/cluster
+    targetRevision: main
     path: k8s/apps/navidrome
   destination:
     server: https://kubernetes.default.svc

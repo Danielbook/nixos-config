@@ -14,7 +14,7 @@ spec:
   project: default
   sources:
     - repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
-      targetRevision: feat/cluster
+      targetRevision: main
       path: k8s/nvidia
     - repoURL: https://nvidia.github.io/k8s-device-plugin
       chart: nvidia-device-plugin

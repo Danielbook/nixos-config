@@ -142,7 +142,7 @@ let
       project: default
       source:
         repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
-        targetRevision: feat/cluster
+        targetRevision: main
         path: k8s/infra
         directory:
           recurse: true
