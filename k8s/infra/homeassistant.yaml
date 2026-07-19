@@ -1,0 +1,22 @@
+# homeassistant-stack — Stage F1c. See k8s/apps/homeassistant/ for the
+# workload manifests (6 services, migration notes per-service).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homeassistant
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/homeassistant
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: homeassistant
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

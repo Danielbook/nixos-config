@@ -1,0 +1,9 @@
+# TrueNAS API credentials for democratic-csi, decrypted in-cluster by ksops.
+# Same pipeline as k8s/traefik: repo-server runs the ksops generator against the
+# *.enc.yaml files using the mounted cluster age key. Each Secret carries a FULL
+# democratic-csi driver config (the chart's existingConfigSecret is the only
+# supported way to keep the apiKey out of git — no key-only reference exists).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+generators:
+  - ./secret-generator.yaml

@@ -35,6 +35,7 @@
   environment.systemPackages = with pkgs; [
     sops
     just
+    kubectl
     feishin # Navidrome/Subsonic music client (matches the NixOS setup)
   ];
 
@@ -81,6 +82,7 @@
       "discord"
       "docker-desktop"
       "home-assistant"
+      "keepingyouawake"
       "microsoft-excel"
       "microsoft-outlook"
       "obsidian"

@@ -1,0 +1,25 @@
+# monitoring — Stage F1. influxdb + grafana + loki, migrated from jupiter's
+# grafana-stack docker-compose. See k8s/apps/monitoring/*.yaml for the workload
+# and restore-ordering notes. telegraf and promtail are intentionally NOT part
+# of this migration — they're replaced by kube-prometheus-stack and a logging
+# DaemonSet, authored as separate infra apps.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

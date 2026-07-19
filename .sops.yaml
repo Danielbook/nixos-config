@@ -5,6 +5,25 @@ keys:
   # Coruscant host key (derived from /etc/ssh/ssh_host_ed25519_key via ssh-to-age).
   # Convenience recipient for unattended boot decrypt; regenerable on reinstall.
   - &coruscant age1a3h3kn2fzrdx6ysq57lmselk77yj6lk4x0vs6mrr05ge28rtxfqspf8h3n
+  # Naboo host key (k3s bootstrap node). Pre-generated and injected at install via
+  # nixos-anywhere --extra-files; backed up in Bitwarden so reinstalls reuse it.
+  - &naboo age1j3mpqpcmnhz8vmutuz9uw94zym4t0h8u8txzvj5e8wh6trzakymqdker0p
+  # Endor host key (2nd k3s control-plane). Pre-generated + injected at install
+  # like naboo; the encrypted private key lives at hosts/endor/ssh_host_ed25519_key.sops.
+  - &endor age10hll8ljnr870rqp3vhzkxwjuqv6qk057qg2v67y42nmah704cuqq9pqnqu
+  # Dedicated CLUSTER key (Argo/ksops). Its private half is the ONLY key loaded
+  # into the cluster; the personal daniel key never enters it. Backed by Bitwarden.
+  # See docs/adr/0001-cluster-secrets-age-key.md.
+  - &cluster age1nl0nmje9vetdgudflgcnnydcg44kv9a5px4e8lhyaz3qfqewjfhqhdg5ra
+  # Tatooine host key (k3s GPU agent node, Stage D). Pre-generated + injected at
+  # install like naboo/endor; encrypted private key at
+  # hosts/tatooine/ssh_host_ed25519_key.sops.
+  - &tatooine age1m3xn2tnl430gk6eqavnnmf9a54p6r3f67jxyxx8pyex25cny8pwq2c0rv2
+  # Hoth host key (3rd k3s control-plane, F2 — was "jupiter" as a Docker box,
+  # reinstalled as NixOS with a Star Wars hostname to match the rest of the
+  # cluster). Pre-generated + injected at install like naboo/endor/tatooine;
+  # encrypted private key at hosts/hoth/ssh_host_ed25519_key.sops.
+  - &hoth age1upv82000x3dzg07gfmxp96clcpc5r8rfrvfua22m4mj0zv27qqgsk4narx
 
 creation_rules:
   # Coruscant SYSTEM secrets (NixOS-level: WireGuard private key, etc.).
@@ -14,6 +33,68 @@ creation_rules:
       - age:
           - *daniel
           - *coruscant
+
+  # Naboo (k3s bootstrap) SYSTEM secrets — the shared k3s cluster token.
+  # Encrypted to daniel (recovery) + naboo's host key (unattended boot decrypt).
+  - path_regex: hosts/naboo/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *naboo
+
+  # Naboo's pre-generated SSH host key (raw key, sops binary). Decrypted on the
+  # admin machine at install time, injected via nixos-anywhere --extra-files so
+  # reinstalls reuse the same identity (sops keeps decrypting). daniel only — it
+  # can't be encrypted to the host key it *is*.
+  - path_regex: hosts/naboo/ssh_host_ed25519_key\.sops$
+    key_groups:
+      - age:
+          - *daniel
+
+  # Endor (2nd k3s control-plane) SYSTEM secrets — the shared k3s cluster token.
+  # Encrypted to daniel (recovery) + endor's host key (unattended boot decrypt).
+  - path_regex: hosts/endor/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *endor
+
+  # Endor's pre-generated SSH host key (raw key, sops binary). daniel only — same
+  # rationale as naboo's above.
+  - path_regex: hosts/endor/ssh_host_ed25519_key\.sops$
+    key_groups:
+      - age:
+          - *daniel
+
+  # Tatooine (k3s GPU agent) SYSTEM secrets — the shared k3s cluster token.
+  # Encrypted to daniel (recovery) + tatooine's host key (unattended boot decrypt).
+  - path_regex: hosts/tatooine/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *tatooine
+
+  # Tatooine's pre-generated SSH host key (raw key, sops binary). daniel only —
+  # same rationale as naboo's above.
+  - path_regex: hosts/tatooine/ssh_host_ed25519_key\.sops$
+    key_groups:
+      - age:
+          - *daniel
+
+  # Hoth (3rd k3s control-plane, F2) SYSTEM secrets — the shared k3s cluster token.
+  # Encrypted to daniel (recovery) + hoth's host key (unattended boot decrypt).
+  - path_regex: hosts/hoth/secrets\.yaml$
+    key_groups:
+      - age:
+          - *daniel
+          - *hoth
+
+  # Hoth's pre-generated SSH host key (raw key, sops binary). daniel only —
+  # same rationale as naboo's above.
+  - path_regex: hosts/hoth/ssh_host_ed25519_key\.sops$
+    key_groups:
+      - age:
+          - *daniel
 
   # Coruscant home-manager secrets
   - path_regex: home/daniel/coruscant/secrets\.yaml$
@@ -25,6 +106,14 @@ creation_rules:
   - path_regex: home/daniel/dagobah/secrets\.yaml$
     key_groups:
       - age:
+          - *daniel
+
+  # Cluster GitOps secrets (Argo/ksops). Any *.enc.yaml under k8s/ is encrypted to
+  # the cluster key (Argo decrypts in-cluster) + daniel (recovery). See ADR 0001.
+  - path_regex: k8s/.*\.enc\.yaml$
+    key_groups:
+      - age:
+          - *cluster
           - *daniel
 
   # Global rule for any other secrets.yaml files

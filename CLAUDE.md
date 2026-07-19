@@ -4,12 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Declarative, flake-based Nix configuration with a dendritic (multi-host-ready) architecture. 2 hosts, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
+Declarative, flake-based Nix configuration with a layered, multi-host modular architecture. 6 hosts, 1 user (daniel). Uses nixos-unstable, modern flakes syntax only (no channels, no `nix-env`).
 
 | Host | Platform | Purpose |
 |------|----------|---------|
 | `coruscant` | NixOS + Hyprland | Primary workstation |
 | `dagobah` | macOS (nix-darwin) | Apple Silicon MacBook Pro |
+| `naboo` | NixOS (headless) | k3s cluster bootstrap control-plane node (`10.10.40.13`; see `docs/cluster-implementation.md`) |
+| `endor` | NixOS (headless) | k3s 2nd control-plane node (`10.10.40.14`, embedded-etcd HA) |
+| `tatooine` | NixOS (headless) | k3s GPU agent node (`10.10.40.15`, GTX 1070) |
+| `hoth` | NixOS (headless) | k3s 3rd control-plane node (`10.10.40.11`, bare metal — formerly "jupiter", a Docker/Proxmox box, wiped in Stage F2) |
 
 Modules are layered: `common` (universal for all hosts) and `desktop/common` (shared by desktop hosts). Adding a new host requires a host config, home config, and flake entry — servers skip desktop imports, desktops compose from the desktop layer.
 
@@ -19,13 +23,20 @@ Modules are layered: `common` (universal for all hosts) and `desktop/common` (sh
 
 ```bash
 just nixos-rebuild          # NixOS system rebuild (Linux)
+just nixos-rebuild-boot     # Build for next boot, no live activation (kernel/driver swaps)
 just darwin-rebuild         # nix-darwin system rebuild (macOS)
 just home-manager-switch    # Home Manager switch
+just deploy-naboo           # Remote deploy k3s control-plane naboo (10.10.40.13)
+just deploy-endor           # Remote deploy k3s control-plane endor (10.10.40.14)
+just deploy-hoth            # Remote deploy k3s control-plane hoth (10.10.40.11)
+just deploy-cluster         # Deploy ALL three control-planes (required when a Nix-delivered k3s manifest changes)
+just deploy <host> <ip>     # Generic remote deploy (build + activate on target)
 just flake-check            # Validate before building
 just flake-update           # Update all flake inputs
 just nix-gc                 # Garbage collection
 just noctalia-sync          # Sync Noctalia UI changes to repo
 just format                 # Format Nix files (nixfmt-rfc-style)
+just format-check           # Check formatting without modifying
 just lint                   # Run statix + deadnix
 just check-all              # Format + lint + flake check
 ```
@@ -33,6 +44,22 @@ just check-all              # Format + lint + flake check
 ## Architecture
 
 See `docs/ARCHITECTURE.md` for detailed module patterns, specialArgs, and import conventions.
+
+### Cluster GitOps (`k8s/`)
+
+k3s workloads are GitOps-managed by **Argo CD** (bootstrapped in Nix via
+`modules/nixos/services/argocd`, auto-deployed on the control-planes). The
+Nix-delivered root app-of-apps tracks `k8s/infra`; add child `Application`
+manifests there. Secrets are **sops-encrypted as `k8s/**/*.enc.yaml`** (`.sops.yaml`
+rule → cluster + daniel keys) and decrypted in-cluster by **ksops** using a
+dedicated cluster age key (never the personal key — see `docs/adr/0001`).
+Full stage history in `docs/cluster-implementation.md`.
+
+This repo's source of truth is **self-hosted Forgejo**
+(`forgejo.local.bookorjeman.com/danielbook/nixos-config` — all Argo `repoURL`s
+point there), with push mirrors to GitHub and Codeberg. Since Forgejo runs on
+the cluster it defines, full-rebuild recovery goes through a mirror — runbook
+in `docs/CLUSTER.md`.
 
 ## Version Constraints
 
@@ -93,3 +120,17 @@ Define success criteria. Loop until verified.
 - "Fix the bug" → write a test that reproduces it, then make it pass.
 - "Refactor X" → ensure tests pass before and after.
 - Multi-step → state a brief plan with a verify check per step.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live on self-hosted Forgejo (source of truth) via its REST API. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five labels, names as-is. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.

@@ -26,7 +26,6 @@
 ## Tools & Utilities
 - **Cliphist**: Clipboard history manager
 - **Hyprpicker**: Color picker tool
-- **awww**: Wayland wallpaper daemon with smooth transitions
 - **Wlsunset**: Automatic screen temperature adjustment
 
 ## Terminal & Shell
@@ -67,3 +66,11 @@
 - **Nix Flakes**: Reproducible package management
 - **Home Manager**: User environment configuration
 - **Flatpak**: Sandboxed application support
+
+## Homelab Cluster
+- **k3s HA cluster**: 3 control-planes (naboo/endor/hoth, embedded etcd) + GPU
+  agent (tatooine, GTX 1070 time-sliced via NVIDIA device plugin)
+- **GitOps**: Argo CD app-of-apps over `k8s/`, secrets via ksops + sops/Age
+- **Storage**: democratic-csi against TrueNAS (iSCSI + NFS StorageClasses)
+- See `docs/CLUSTER.md` (strategy), `docs/cluster-implementation.md` (history),
+  `docs/improvements.md` (deferred work)

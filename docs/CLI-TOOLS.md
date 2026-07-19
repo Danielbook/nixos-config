@@ -57,6 +57,13 @@ All command-line tools used across this NixOS configuration, organized by catego
 | pi | Minimal terminal coding harness, multi-provider | [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) |
 | github-copilot-cli | GitHub Copilot CLI | [github.com/github/copilot-cli](https://github.com/github/copilot-cli) |
 
+> **claude-code install method:** On Linux it's installed via the npm HM
+> activation (`modules/home-manager/common/default.nix`). On macOS it uses
+> Claude Code's native self-updating installer (`claude install` →
+> `~/.local/bin/claude`), so it's omitted from the npm set there. `codex` and
+> `pi` stay on npm for both. User data (settings, skills, plugins, MCP) lives
+> in `~/.claude/` and is shared by either binary.
+
 ## Development
 
 | Tool | Description | Link |

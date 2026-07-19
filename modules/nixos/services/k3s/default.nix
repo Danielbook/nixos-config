@@ -1,0 +1,241 @@
+# k3s cluster node — role-parameterized wrapper around services.k3s.
+#
+# Roles:
+#   server-init : first control-plane node, initialises the embedded-etcd cluster.
+#   server      : additional control-plane node, joins via the API VIP.
+#   agent       : worker node (e.g. the GPU box, tatooine).
+#
+# The shared cluster token comes from the host's sops secrets.yaml. kube-vip is
+# auto-deployed on control-plane nodes (apiVip defaults to the cluster VIP —
+# see docs/cluster-implementation.md).
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.homelab.k3s;
+  isServer = cfg.role != "agent";
+
+  # kube-vip control-plane manifest (ARP / L2 mode). k3s auto-applies anything in
+  # /var/lib/rancher/k3s/server/manifests/. Only rendered when apiVip is set.
+  kubeVipManifest = pkgs.writeText "kube-vip.yaml" ''
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: kube-vip
+      namespace: kube-system
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: system:kube-vip-role
+    rules:
+      - apiGroups: [""]
+        resources: ["services", "services/status", "nodes", "endpoints"]
+        verbs: ["list", "get", "watch", "update"]
+      - apiGroups: ["coordination.k8s.io"]
+        resources: ["leases"]
+        verbs: ["list", "get", "watch", "update", "create"]
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: system:kube-vip-binding
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:kube-vip-role
+    subjects:
+      - kind: ServiceAccount
+        name: kube-vip
+        namespace: kube-system
+    ---
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: kube-vip-ds
+      namespace: kube-system
+    spec:
+      selector:
+        matchLabels:
+          name: kube-vip-ds
+      template:
+        metadata:
+          labels:
+            name: kube-vip-ds
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: Exists
+          containers:
+            - name: kube-vip
+              image: ghcr.io/kube-vip/kube-vip:v0.8.4
+              args: ["manager"]
+              env:
+                - { name: vip_arp, value: "true" }
+                - { name: port, value: "6443" }
+                - { name: vip_interface, value: "${cfg.vipInterface}" }
+                - { name: vip_cidr, value: "32" }
+                - { name: cp_enable, value: "true" }
+                - { name: cp_namespace, value: "kube-system" }
+                - { name: svc_enable, value: "false" }
+                - { name: vip_leaderelection, value: "true" }
+                - { name: address, value: "${cfg.apiVip}" }
+              securityContext:
+                capabilities:
+                  add: ["NET_ADMIN", "NET_RAW"]
+              imagePullPolicy: IfNotPresent
+          hostNetwork: true
+          serviceAccountName: kube-vip
+          tolerations:
+            - { effect: NoSchedule, operator: Exists }
+            - { effect: NoExecute, operator: Exists }
+  '';
+in
+{
+  options.homelab.k3s = {
+    enable = lib.mkEnableOption "k3s cluster node";
+
+    role = lib.mkOption {
+      type = lib.types.enum [
+        "server-init"
+        "server"
+        "agent"
+      ];
+      description = "server-init = first control-plane (etcd init); server = joining control-plane; agent = worker.";
+    };
+
+    apiVip = lib.mkOption {
+      type = lib.types.str;
+      default = "10.10.40.5"; # kube.local.bookorjeman.com
+      description = "Control-plane VIP. Drives kube-vip + --tls-san on servers and the default serverAddr on all roles. Empty = kube-vip disabled.";
+    };
+
+    vipInterface = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "eno1";
+      description = "LAN NIC kube-vip ARP-announces the VIP on. Empty (default) = auto-detect the default-route NIC per node — required when cluster nodes have different NIC names (naboo eno2 / endor eno1). Set explicitly only to override a wrong auto-detect.";
+    };
+
+    serverAddr = lib.mkOption {
+      type = lib.types.str;
+      default = if cfg.apiVip != "" then "https://${cfg.apiVip}:6443" else "";
+      defaultText = lib.literalExpression ''"https://''${apiVip}:6443"'';
+      description = "API endpoint joining nodes register against. Defaults to the VIP. Required for role server/agent.";
+    };
+
+    nodeIp = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "10.10.40.13";
+      description = ''
+        Node's real LAN IP, passed as --node-ip. Required on control-plane
+        nodes running kube-vip: without it, flannel's public-ip
+        auto-detection can pick up the floating VIP (also on the same NIC)
+        instead of the node's own address, corrupting the VXLAN FDB on
+        other nodes after a k3s restart (see docs/adr for the incident).
+        Empty = auto-detect (k3s default).
+      '';
+    };
+
+    openFirewall = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Open k3s ports on the host firewall. OPNsense restricts inter-VLAN reach (see docs/cluster-implementation.md).";
+    };
+
+    oidcIssuerUrl = lib.mkOption {
+      type = lib.types.str;
+      default = "https://auth.local.bookorjeman.com/application/o/headlamp/"; # Headlamp OIDC
+      description = "kube-apiserver OIDC issuer (servers only). Empty = OIDC auth disabled. Client ID is not secret; bind RBAC via ClusterRoleBinding in k8s/infra (see Headlamp OIDC).";
+    };
+
+    oidcClientId = lib.mkOption {
+      type = lib.types.str;
+      default = "OatO4WXyxt47uFYEZ8UOmzFp2hq6wMAcjRzUa4rC";
+      description = "kube-apiserver OIDC client ID (aud claim), paired with oidcIssuerUrl.";
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
+    # Joining nodes must know the API endpoint (the VIP) to register against.
+    assertions = [
+      {
+        assertion = cfg.role == "server-init" || cfg.serverAddr != "";
+        message = "homelab.k3s.serverAddr is required for role \"${cfg.role}\" (only server-init may omit it).";
+      }
+    ];
+
+    # Shared cluster token — provided by the host's sops secrets.yaml.
+    sops.secrets.k3s_token = { };
+
+    services.k3s = {
+      enable = true;
+      role = if cfg.role == "agent" then "agent" else "server";
+      tokenFile = config.sops.secrets.k3s_token.path;
+      clusterInit = cfg.role == "server-init";
+      serverAddr = lib.mkIf (cfg.role != "server-init") cfg.serverAddr;
+      extraFlags =
+        # Feed kubelet a resolv.conf with the upstream nameserver but NO search
+        # line. Pods otherwise inherit the node's `search local.bookorjeman.com`
+        # which, with k8s default ndots:5, suffixes external short names into the
+        # *.local.bookorjeman.com wildcard (→ Traefik), hijacking e.g. github.com.
+        [ "--resolv-conf=/etc/rancher/k3s/resolv.conf" ]
+        ++ lib.optionals isServer [
+          "--disable=traefik"
+          "--disable=servicelb"
+        ]
+        ++ lib.optionals (isServer && cfg.apiVip != "") [
+          "--tls-san=${cfg.apiVip}"
+        ]
+        ++ lib.optionals (cfg.nodeIp != "") [
+          "--node-ip=${cfg.nodeIp}"
+        ]
+        ++ lib.optionals (isServer && cfg.oidcIssuerUrl != "") [
+          "--kube-apiserver-arg=oidc-issuer-url=${cfg.oidcIssuerUrl}"
+          "--kube-apiserver-arg=oidc-client-id=${cfg.oidcClientId}"
+          "--kube-apiserver-arg=oidc-username-claim=email"
+          "--kube-apiserver-arg=oidc-username-prefix=oidc:"
+          "--kube-apiserver-arg=oidc-groups-claim=groups"
+          "--kube-apiserver-arg=oidc-groups-prefix=oidc:"
+        ];
+      manifests = lib.mkIf (isServer && cfg.apiVip != "") {
+        kube-vip.source = kubeVipManifest;
+      };
+    };
+
+    # democratic-csi node prerequisites (Stage C): every node that can run pods
+    # needs the iSCSI initiator daemon (block PVs) and NFS mount support (RWX PVs).
+    services.openiscsi = {
+      enable = true;
+      name = "iqn.2026-07.com.bookorjeman:${config.networking.hostName}";
+    };
+    boot.supportedFilesystems = [ "nfs" ];
+
+    # Upstream resolver for kubelet's --resolv-conf (see extraFlags). Same
+    # nameserver as the host, minus the LAN search domain. 10.10.40.1 = OPNsense.
+    environment.etc."rancher/k3s/resolv.conf".text = ''
+      nameserver 10.10.40.1
+      options edns0
+    '';
+
+    networking.firewall = lib.mkIf cfg.openFirewall {
+      allowedTCPPorts = [
+        10250
+      ]
+      ++ lib.optionals isServer [
+        6443
+        2379
+        2380
+      ];
+      allowedUDPPorts = [ 8472 ]; # flannel vxlan
+    };
+  };
+}

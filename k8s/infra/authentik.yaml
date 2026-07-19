@@ -1,0 +1,22 @@
+# authentik — Stage E1/F1. See k8s/apps/authentik/authentik.yaml for the
+# workload and the migration notes (outpost retired, secret_key carried over).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/authentik
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

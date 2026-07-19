@@ -15,7 +15,8 @@ Only two low-effort, high-confidence findings were turned into plans.
 | Plan | Title                                          | Priority | Effort | Depends on | Status |
 |------|------------------------------------------------|----------|--------|------------|--------|
 | 001  | Make `just check-all` pass (green lint gate)   | P1       | S      | —          | DONE (applied to working tree, uncommitted) |
-| 002  | Remove stale `awww` refs; fix dagobah label    | P2       | S      | —          | TODO   |
+| 002  | Remove stale `awww` refs; fix dagobah label    | P2       | S      | —          | DONE (applied to working tree, uncommitted) |
+| 003  | Declarative partitioning for `naboo` (disko)   | P1       | S      | —          | DONE (applied + installed on naboo 2026-06-30) |
 
 > **001 note**: scope was wider than planned. `just check-all` also failed on
 > ~30 pre-existing nixfmt-dirty files and a broken `just format` recipe

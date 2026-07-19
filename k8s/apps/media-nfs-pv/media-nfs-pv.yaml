@@ -1,0 +1,98 @@
+# Static PVs for pre-existing TrueNAS NFS exports (ADR-0004) — NOT the `nfs`
+# StorageClass, which would dynamically provision a new, empty dataset. These
+# hand-authored PV/PVC pairs point straight at the existing pool1 datasets so
+# jellyfin/immich mount data that's already there. `storage` capacity is
+# nominal (NFS doesn't enforce a quota via this path) — set above known usage,
+# not a real limit. `persistentVolumeReclaimPolicy: Retain` so deleting the
+# PVC never touches the underlying NAS data.
+#
+# Same shape Stage E1 will reuse for servarr's media once it migrates.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-data
+spec:
+  capacity:
+    storage: 8Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 10.10.40.10
+    path: /mnt/pool1/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-data
+  namespace: jellyfin
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-data
+  resources:
+    requests:
+      storage: 8Ti
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-photos
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 10.10.40.10
+    path: /mnt/pool1/media/photos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-photos
+  namespace: immich
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-photos
+  resources:
+    requests:
+      storage: 2Ti
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-image-backups
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 10.10.40.10
+    path: /mnt/pool1/media/image-backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-image-backups
+  namespace: immich
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-image-backups
+  resources:
+    requests:
+      storage: 2Ti

@@ -1,0 +1,88 @@
+# mosquitto — Stage F1c. Source: eclipse-mosquitto:2 on jupiter, resolved
+# 2.1.2. Auth required since issue #7: password_file from the mosquitto-creds
+# ksops Secret (k8s/homeassistant/mosquitto-creds.enc.yaml), anonymous
+# refused. Service is LoadBalancer on a dedicated MetalLB IP (raw TCP, can't
+# ride Traefik's Host-header routing — same reasoning as unifi's .52).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mosquitto-config
+  namespace: homeassistant
+data:
+  mosquitto.conf: |
+    listener 1883
+    allow_anonymous false
+    password_file /mosquitto/config/passwd
+    persistence true
+    persistence_location /mosquitto/data/
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mosquitto-data
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto
+  namespace: homeassistant
+  labels:
+    app: mosquitto
+spec:
+  replicas: 1 # data restored + verified 2026-07-08 (Stage F1c)
+  strategy:
+    type: Recreate # RWO iscsi PVC — RollingUpdate deadlocks on Multi-Attach
+  selector:
+    matchLabels:
+      app: mosquitto
+  template:
+    metadata:
+      labels:
+        app: mosquitto
+    spec:
+      containers:
+        - name: mosquitto
+          image: eclipse-mosquitto@sha256:6f8d8a947c506f8a2290ec65cd4bd2bc7cb4d43fb5f6271f861cb013e2ef9797 # 2.1.2 — eclipse-mosquitto doesn't publish a 2.1.2 tag, pin by digest
+          ports:
+            - containerPort: 1883
+          volumeMounts:
+            - name: config
+              mountPath: /mosquitto/config/mosquitto.conf
+              subPath: mosquitto.conf
+            - name: passwd
+              mountPath: /mosquitto/config/passwd
+              subPath: passwd
+            - name: data
+              mountPath: /mosquitto/data
+      volumes:
+        - name: config
+          configMap:
+            name: mosquitto-config
+        - name: passwd
+          secret:
+            secretName: mosquitto-creds
+        - name: data
+          persistentVolumeClaim:
+            claimName: mosquitto-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto
+  namespace: homeassistant
+  annotations:
+    metallb.io/loadBalancerIPs: 10.10.40.53
+spec:
+  type: LoadBalancer
+  selector:
+    app: mosquitto
+  ports:
+    - port: 1883

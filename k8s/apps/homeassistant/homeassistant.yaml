@@ -1,0 +1,79 @@
+# homeassistant — Stage F1c. Source was jupiter's homeassistant-stack
+# (ghcr.io/home-assistant/home-assistant:stable, resolved 2026-7.1 at
+# implementation time — pinned per the authentik :latest lesson). hostNetwork
+# stays (HomeKit Bridge mDNS/UDP 5353 needs LAN visibility — see
+# docs/cluster-implementation.md Stage F1c for why this isn't cargo-culted).
+# Pinned to naboo — the Arduino garage-door controller is physically attached
+# there. privileged + hostPath CharDevice for the Arduino, same as jupiter
+# (no device-plugin infra for one device — ponytail: upgrade path is
+# generic-device-plugin or ser2net per Stage E2 if a second USB device shows
+# up). configuration.yaml needs an `http:` block added post-restore (jupiter
+# had none — Traefik is new) with use_x_forwarded_for + trusted_proxies for
+# the pod CIDR. replicas 0 until ha-config PVC is restored.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ha-config
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+  labels:
+    app: homeassistant
+spec:
+  replicas: 1 # data restored + http: block added 2026-07-08 (Stage F1c)
+  selector:
+    matchLabels:
+      app: homeassistant
+  template:
+    metadata:
+      labels:
+        app: homeassistant
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: naboo
+      containers:
+        - name: homeassistant
+          image: ghcr.io/home-assistant/home-assistant:2026.7.1
+          envFrom:
+            - secretRef:
+                name: appdaemon-env
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: arduino
+              mountPath: /dev/arduino
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: ha-config
+        - name: arduino
+          hostPath:
+            path: /dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_550373132373514142B0-if00
+            type: CharDevice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+spec:
+  selector:
+    app: homeassistant
+  ports:
+    - port: 8123
+      targetPort: 8123

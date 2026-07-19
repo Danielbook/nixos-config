@@ -1,0 +1,109 @@
+# jellyfin — GPU (NVENC) transcode, pinned to tatooine via the `nvidia.com/gpu`
+# resource request (only tatooine's device plugin advertises it) + a toleration
+# for the node's nvidia.com/gpu=present:NoSchedule taint.
+#
+# Media mounts replicate the old tatooine container's exact layout (confirmed
+# via `docker inspect jellyfin` — the library paths are baked into jellyfin's
+# migrated config DB, so the new mounts must match old destinations exactly):
+#   /media/kids/movies <- data:media/kids/movies
+#   /media/kids/series <- data:media/kids/tv   (old container renamed tv->series)
+#   /media/movies      <- data:media/movies
+#   /media/series      <- data:media/tv        (same rename)
+# All four are subPath mounts of the single static nfs-data PVC (ADR-0004).
+#
+# /cache is emptyDir, not migrated: it's regenerable transcode/thumbnail cache,
+# not source data. /config (SQLite db, metadata) is the iscsi PVC below,
+# migrated from the old container in Stage D0.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jellyfin
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-config
+  namespace: jellyfin
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+  labels:
+    app: jellyfin
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single RWO config PVC — no rolling overlap
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      runtimeClassName: nvidia
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Equal
+          value: present
+          effect: NoSchedule
+      containers:
+        - name: jellyfin
+          image: jellyfin/jellyfin:10.11.11
+          ports:
+            - containerPort: 8096
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: cache
+              mountPath: /cache
+            - name: media
+              subPath: media/kids/movies
+              mountPath: /media/kids/movies
+              readOnly: true
+            - name: media
+              subPath: media/kids/tv
+              mountPath: /media/kids/series
+              readOnly: true
+            - name: media
+              subPath: media/movies
+              mountPath: /media/movies
+              readOnly: true
+            - name: media
+              subPath: media/tv
+              mountPath: /media/series
+              readOnly: true
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: jellyfin-config
+        - name: cache
+          emptyDir: {}
+        - name: media
+          persistentVolumeClaim:
+            claimName: nfs-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+spec:
+  selector:
+    app: jellyfin
+  ports:
+    - port: 80
+      targetPort: 8096

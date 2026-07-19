@@ -1,0 +1,8 @@
+# Maps pods (runtimeClassName: nvidia) to the "nvidia" containerd runtime that
+# modules/nixos/services/nvidia-headless templates into k3s' containerd on
+# tatooine. The device plugin DaemonSet needs it to see /dev/nvidia*.
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: nvidia
+handler: nvidia

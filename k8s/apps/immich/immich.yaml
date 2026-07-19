@@ -1,0 +1,178 @@
+# immich — postgres on iscsi (RWO, pg_dump'd in from the old tatooine
+# container during Stage D0), photos/image-backups on the static NFS PVs from
+# ../media-nfs-pv (ADR-0004). immich-machine-learning is deliberately NOT
+# deployed (out of scope per docs/cluster-implementation.md Stage D — it
+# wasn't running on tatooine before the migration either).
+#
+# Image tags confirmed via `docker inspect` against the live tatooine
+# containers (2026-07-03): postgres 14-vectorchord0.4.3-pgvectors0.2.0,
+# immich-server :release, redis is actually valkey/valkey:8-bookworm.
+#
+# The `immich-postgres-env` / `immich-server-env` Secrets (DB creds,
+# REDIS_HOSTNAME=immich-redis, DB_HOSTNAME=immich-postgres) are authored as
+# ksops `k8s/immich/immich-secrets.enc.yaml` (fresh generated DB password —
+# doesn't need to match the old container's, the pg_dump restore just needs
+# to land in a DB this password can reach).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: immich
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-postgres
+  namespace: immich
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-postgres
+  namespace: immich
+  labels:
+    app: immich-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: immich-postgres
+  template:
+    metadata:
+      labels:
+        app: immich-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0 # confirmed via `docker inspect immich_postgres` on live tatooine
+          envFrom:
+            - secretRef:
+                name: immich-postgres-env
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata # ext4 PVC root has lost+found; initdb needs an empty dir
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: immich-postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-postgres
+  namespace: immich
+spec:
+  selector:
+    app: immich-postgres
+  ports:
+    - port: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-redis
+  namespace: immich
+  labels:
+    app: immich-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: immich-redis
+  template:
+    metadata:
+      labels:
+        app: immich-redis
+    spec:
+      containers:
+        - name: redis
+          image: valkey/valkey:8-bookworm # confirmed via `docker inspect immich_redis` on live tatooine
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-redis
+  namespace: immich
+spec:
+  selector:
+    app: immich-redis
+  ports:
+    - port: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-server
+  namespace: immich
+  labels:
+    app: immich-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: immich-server
+  template:
+    metadata:
+      labels:
+        app: immich-server
+    spec:
+      containers:
+        - name: immich-server
+          image: ghcr.io/immich-app/immich-server:v3.0.2
+          envFrom:
+            - secretRef:
+                name: immich-server-env
+          env:
+            - name: IMMICH_CONFIG_FILE
+              value: /config/immich.json # authentik OAuth — Immich has no OAuth env vars, only this full-JSON override
+          ports:
+            - containerPort: 2283
+          volumeMounts:
+            # NAS share names are misleading (confirmed via `mount`/fstab on
+            # live tatooine): image-backups (RW) is immich's actual upload
+            # storage; photos (RO) is a read-only external library.
+            - name: image-backups
+              mountPath: /usr/src/app/upload
+            - name: photos
+              mountPath: /mnt/photos_archive
+              readOnly: true
+            - name: model-cache
+              mountPath: /data # geocoding data etc — regenerated on first start, not migrated
+            - name: oauth-config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: photos
+          persistentVolumeClaim:
+            claimName: nfs-photos
+        - name: image-backups
+          persistentVolumeClaim:
+            claimName: nfs-image-backups
+        - name: model-cache
+          emptyDir: {}
+        - name: oauth-config
+          secret:
+            secretName: immich-oauth-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-server
+  namespace: immich
+spec:
+  selector:
+    app: immich-server
+  ports:
+    - port: 80
+      targetPort: 2283

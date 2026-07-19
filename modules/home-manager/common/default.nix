@@ -58,6 +58,7 @@
       ripgrep
       television
       unzip
+      uv
       opencode
       playwright-mcp
     ])
@@ -65,12 +66,14 @@
       pkgs.nh
     ];
 
-  # Install latest claude-code, codex, and pi via npm (nixpkgs lags behind)
+  # Install latest codex and pi via npm (nixpkgs lags behind). claude-code is
+  # npm-installed on Linux but uses the native installer on darwin (`claude
+  # install` → ~/.local/bin), so it's omitted from the npm set there.
   home.activation.installNpmCLITools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export npm_config_prefix="$HOME/.npm-global"
     PATH="${pkgs.nodejs_24}/bin:$PATH"
     $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/npm install -g \
-      @anthropic-ai/claude-code@latest \
+      ${lib.optionalString pkgs.stdenv.isLinux "@anthropic-ai/claude-code@latest"} \
       @openai/codex@latest \
       @mariozechner/pi-coding-agent@latest \
       2>&1 | tail -5

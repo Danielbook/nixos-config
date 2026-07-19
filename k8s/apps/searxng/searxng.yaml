@@ -1,0 +1,81 @@
+# searxng — self-hosted metasearch engine, no tracking. Auth gated by
+# authentik forward-auth (ingress.yaml `auth: true`) since SearXNG has no
+# native OIDC. Secret key auto-generated into settings.yml on the PVC by the
+# official entrypoint on first boot — no ksops secret needed.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: searxng
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: searxng-data
+  namespace: searxng
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searxng
+  namespace: searxng
+  labels:
+    app: searxng
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: searxng
+  template:
+    metadata:
+      labels:
+        app: searxng
+    spec:
+      enableServiceLinks: false # k8s injects SEARXNG_PORT=tcp://... from the
+      # Service (Docker-links-style discovery), which collides with the
+      # app's own SEARXNG_PORT and breaks its --port flag
+      containers:
+        - name: searxng
+          image: searxng/searxng:2026.7.9-8456831a0
+          env:
+            - name: SEARXNG_BASE_URL
+              value: https://searxng.local.bookorjeman.com/
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: data
+              mountPath: /etc/searxng
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: searxng-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: searxng
+  namespace: searxng
+spec:
+  selector:
+    app: searxng
+  ports:
+    - port: 8080
+      targetPort: 8080

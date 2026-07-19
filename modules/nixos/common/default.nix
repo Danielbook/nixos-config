@@ -18,6 +18,10 @@
         "nvidia-settings"
         "nvidia-persistenced"
         "nvidia-vaapi-driver"
+        # closed kernel modules (open = false, tatooine/Pascal — open kernel
+        # modules only support Turing+, and are dual MIT/GPL so don't need
+        # this predicate at all).
+        "nvidia-kernel-modules"
       ];
   };
 
@@ -123,6 +127,13 @@
     ];
     isNormalUser = true;
     shell = pkgs.zsh;
+    # Portable admin identity (private key lives in Bitwarden, served by its SSH
+    # agent) — so any machine with Bitwarden unlocked can SSH in. Headless nodes
+    # have no other login path (root disabled, password auth off), so this is the
+    # only way in; keep at least one working key here.
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILnp41RlfnpB82pkrQF6aI1VE5ULTY1+A2u3nNPBTO+b k3s-cluster-admin"
+    ];
   };
 
   # Passwordless sudo
@@ -141,6 +152,7 @@
     wireguard-tools
     openssl
     unixtools.xxd
+    kubectl
   ];
 
   # PATH configuration

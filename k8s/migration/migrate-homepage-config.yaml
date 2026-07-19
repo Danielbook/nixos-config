@@ -1,0 +1,21 @@
+# THROWAWAY migration pod — not part of the real homepage deployment, not
+# Argo-synced. Same pattern as migrate-arr-configs.yaml.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: migrate-homepage-config
+  namespace: homepage
+  labels:
+    app: migrate-homepage-config
+spec:
+  containers:
+    - name: rsync-target
+      image: busybox:1.36
+      command: ["sleep", "infinity"]
+      volumeMounts:
+        - name: config
+          mountPath: /target
+  volumes:
+    - name: config
+      persistentVolumeClaim:
+        claimName: homepage-config

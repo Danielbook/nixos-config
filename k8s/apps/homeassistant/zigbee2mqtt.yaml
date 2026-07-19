@@ -1,0 +1,72 @@
+# zigbee2mqtt — Stage F1c. Source: koenkk/zigbee2mqtt:latest on jupiter,
+# resolved 2.12.1. Drops hostNetwork (it only dials out to the slzb
+# coordinator + mosquitto over TCP; jupiter's host mode was unnecessary
+# here). Post-restore edit: configuration.yaml mqtt.server ->
+# mqtt://mosquitto:1883 (see docs/cluster-implementation.md Stage F1c).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: z2m-data
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zigbee2mqtt
+  namespace: homeassistant
+  labels:
+    app: zigbee2mqtt
+spec:
+  replicas: 1 # data restored + mqtt.server repointed 2026-07-08 (Stage F1c)
+  strategy:
+    type: Recreate # RWO iscsi PVC — RollingUpdate deadlocks on Multi-Attach
+  selector:
+    matchLabels:
+      app: zigbee2mqtt
+  template:
+    metadata:
+      labels:
+        app: zigbee2mqtt
+    spec:
+      containers:
+        - name: zigbee2mqtt
+          image: koenkk/zigbee2mqtt:2.12.1
+          env:
+            # ZIGBEE2MQTT_CONFIG_* overrides configuration.yaml at startup
+            - name: ZIGBEE2MQTT_CONFIG_MQTT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mosquitto-creds
+                  key: ZIGBEE2MQTT_CONFIG_MQTT_USER
+            - name: ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mosquitto-creds
+                  key: ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
+          ports:
+            - containerPort: 8099
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: z2m-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zigbee2mqtt
+  namespace: homeassistant
+spec:
+  selector:
+    app: zigbee2mqtt
+  ports:
+    - port: 8099

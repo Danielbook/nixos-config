@@ -1,0 +1,24 @@
+# Defaults. Routes are supplied per-cluster by the Argo app (k8s/infra/ingress.yaml)
+# so every app's ingress is one line in one file — no dynamic config per service.
+domain: local.bookorjeman.com
+
+# authentik forward-auth — embedded outpost on authentik-server itself
+# (in-cluster since Stage E1; the standalone servarr proxy-outpost was
+# retired, no longer needed once Traefik and authentik share a network).
+authentikAddress: http://auth.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
+
+# mkRoute inputs: one entry per app. name → Host(<name>.<domain>) + Service <name>.
+#   - name: <svc>          (required)
+#     port: <int>          (required)
+#     namespace: <ns>      (optional, default "default")
+#     auth: true           (optional, adds authentik-forwardauth)
+routes: []
+
+# externalRoutes inputs: one entry per non-cluster target (Stage E4). name →
+# Host(<name>.<domain>) + a synthetic Service/Endpoints pointing at .url
+# (Traefik's IngressRoute CRD only references k8s Services, not bare URLs).
+#   - name: <host>              (required)
+#     url: https://1.2.3.4:8006 (required — scheme + IP + optional port)
+#     insecureSkipVerify: true  (optional, self-signed cert targets)
+#     auth: true                (optional, adds authentik-forwardauth)
+externalRoutes: []

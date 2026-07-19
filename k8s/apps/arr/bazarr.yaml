@@ -1,0 +1,66 @@
+# bazarr — float, see sonarr.yaml for the shared-volume rationale.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: arr
+  labels:
+    app: bazarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bazarr
+  template:
+    metadata:
+      labels:
+        app: bazarr
+    spec:
+      containers:
+        - name: bazarr
+          image: lscr.io/linuxserver/bazarr:v1.6.0-ls354
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 6767
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          startupProbe:
+            tcpSocket:
+              port: 6767
+            periodSeconds: 10
+            failureThreshold: 30 # up to 300s — bazarr's first boot took ~200s against the migrated library
+          livenessProbe:
+            tcpSocket:
+              port: 6767
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: bazarr-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: arr-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bazarr
+  namespace: arr
+spec:
+  selector:
+    app: bazarr
+  ports:
+    - port: 80
+      targetPort: 6767

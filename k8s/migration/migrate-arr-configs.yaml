@@ -1,0 +1,59 @@
+# THROWAWAY migration pod — NOT part of the real arr stack, NOT Argo-synced
+# (see k8s/migration/README-equivalent note on migrate-config.yaml/
+# migrate-postgres.yaml — same pattern, applied by hand, deleted after use).
+# Mounts every *arr config iscsi PVC as a tar target for streaming each app's
+# config in from the live servarr host bind mounts (10.10.40.11).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: migrate-arr-configs
+  namespace: arr
+  labels:
+    app: migrate-arr-configs
+spec:
+  containers:
+    - name: rsync-target
+      image: busybox:1.36
+      command: ["sleep", "infinity"]
+      volumeMounts:
+        - name: deluge-config
+          mountPath: /target/deluge
+        - name: nzbget-config
+          mountPath: /target/nzbget
+        - name: prowlarr-config
+          mountPath: /target/prowlarr
+        - name: sonarr-config
+          mountPath: /target/sonarr
+        - name: radarr-config
+          mountPath: /target/radarr
+        - name: lidarr-config
+          mountPath: /target/lidarr
+        - name: bazarr-config
+          mountPath: /target/bazarr
+        - name: recyclarr-config
+          mountPath: /target/recyclarr
+  volumes:
+    - name: deluge-config
+      persistentVolumeClaim:
+        claimName: deluge-config
+    - name: nzbget-config
+      persistentVolumeClaim:
+        claimName: nzbget-config
+    - name: prowlarr-config
+      persistentVolumeClaim:
+        claimName: prowlarr-config
+    - name: sonarr-config
+      persistentVolumeClaim:
+        claimName: sonarr-config
+    - name: radarr-config
+      persistentVolumeClaim:
+        claimName: radarr-config
+    - name: lidarr-config
+      persistentVolumeClaim:
+        claimName: lidarr-config
+    - name: bazarr-config
+      persistentVolumeClaim:
+        claimName: bazarr-config
+    - name: recyclarr-config
+      persistentVolumeClaim:
+        claimName: recyclarr-config

@@ -1,0 +1,119 @@
+# homepage — migrated from jupiter's Docker Compose VM (10.10.40.30).
+# services.yaml/widgets.yaml live on the PVC (app state, not git-tracked) —
+# stale hostnames for already-migrated apps were fixed by hand post-migration,
+# same as the *arr reconnection work. Kubernetes cluster/node CPU+memory
+# widget needs read access to nodes/pods + metrics.k8s.io, hence the RBAC
+# below.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homepage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homepage-config
+  namespace: homepage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: homepage
+  namespace: homepage
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homepage-k8s-widget
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "namespaces", "pods"]
+    verbs: ["get", "list"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homepage-k8s-widget
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: homepage-k8s-widget
+subjects:
+  - kind: ServiceAccount
+    name: homepage
+    namespace: homepage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+  labels:
+    app: homepage
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      serviceAccountName: homepage
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:v1.13.2
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.local.bookorjeman.com,localhost,127.0.0.1
+          envFrom:
+            - secretRef:
+                name: homepage-env
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+          startupProbe:
+            tcpSocket:
+              port: 3000
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: homepage-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  selector:
+    app: homepage
+  ports:
+    - port: 80
+      targetPort: 3000

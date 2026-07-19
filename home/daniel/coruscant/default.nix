@@ -32,6 +32,7 @@ in
     darktable # Open-source photo editor (Lightroom alternative)
     feishin # Navidrome/Subsonic music player
     # google-chrome # Installed via programs.chromium below with custom flags
+    k9s # Terminal UI for the k3s cluster (kubeconfig at ~/.kube/config)
     nixos-anywhere # Remote NixOS deployment tool
     obsidian # Markdown knowledge base (bundles official CLI; enable in Settings → General)
     pgadmin4-desktopmode # PostgreSQL administration tool

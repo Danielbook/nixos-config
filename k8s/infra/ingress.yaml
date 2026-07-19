@@ -1,0 +1,122 @@
+# Templated ingress — the mkRoute helper chart (k8s/charts/ingress). Middlewares
+# render once; each app is ONE line under `routes` below (no dynamic config file
+# per service — that docker file-provider habit is gone). Runs in the `traefik` ns
+# so IngressRoutes/Middlewares sit alongside Traefik.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/charts/ingress
+    helm:
+      valuesObject:
+        routes:
+          - name: auth # authentik itself — auth: false, it must not forward-auth itself
+            namespace: authentik
+            port: 9000
+          - name: headlamp
+            namespace: headlamp
+            port: 80
+          - name: jellyfin
+            namespace: jellyfin
+            port: 80
+          - name: immich-server # Host(immich-server.local.bookorjeman.com) — mkRoute's .name drives both hostname and Service name
+            namespace: immich
+            port: 80
+          - name: seerr
+            namespace: seerr
+            port: 80
+          - name: navidrome
+            namespace: navidrome
+            port: 80
+          - name: linkding
+            namespace: linkding
+            port: 80
+            auth: true
+          - name: open-webui
+            namespace: ollama
+            port: 8080
+          - name: homepage
+            namespace: homepage
+            port: 80
+          - name: mealie
+            namespace: mealie
+            port: 80
+          - name: searxng
+            namespace: searxng
+            port: 8080
+            auth: true # no native OIDC in SearXNG, gate via authentik forward-auth
+          - name: fartlek # own Strava auth; forward-auth would break OAuth callback
+            namespace: fartlek
+            port: 8080
+          - name: forgejo # own auth (git clients/API break behind forward-auth)
+            namespace: forgejo
+            port: 3000
+          - name: grafana # OAuth via authentik already, no forward-auth needed
+            namespace: monitoring
+            port: 80
+          - name: influxdb # machine writer (OPNsense telegraf, Home Assistant), own token auth
+            namespace: monitoring
+            port: 8086
+          - name: sonarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: radarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: lidarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: bazarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: prowlarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: deluge
+            namespace: arr
+            port: 80
+            auth: true
+          - name: nzbget
+            namespace: arr
+            port: 80
+            auth: true
+          - name: homeassistant # HA has its own auth; mobile app breaks behind forward-auth
+            namespace: homeassistant
+            port: 8123
+          - name: esphome
+            namespace: homeassistant
+            port: 6052
+            auth: true
+          - name: zigbee2mqtt
+            namespace: homeassistant
+            port: 8099
+            auth: true
+        externalRoutes: # Stage E4 — non-cluster targets, see docs/cluster-implementation.md
+          - name: router
+            url: https://192.168.1.1
+            insecureSkipVerify: true
+          - name: truenas
+            url: http://10.10.40.10
+          - name: n4
+            url: https://10.10.30.10:8006
+            insecureSkipVerify: true
+          - name: slzb
+            url: http://10.10.20.20
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

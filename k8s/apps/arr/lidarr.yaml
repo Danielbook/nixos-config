@@ -1,0 +1,66 @@
+# lidarr — float, see sonarr.yaml for the shared-volume rationale.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lidarr
+  namespace: arr
+  labels:
+    app: lidarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: lidarr
+  template:
+    metadata:
+      labels:
+        app: lidarr
+    spec:
+      containers:
+        - name: lidarr
+          image: lscr.io/linuxserver/lidarr:3.1.0.4875-ls34
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 8686
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          startupProbe:
+            tcpSocket:
+              port: 8686
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 8686
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: lidarr-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: arr-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lidarr
+  namespace: arr
+spec:
+  selector:
+    app: lidarr
+  ports:
+    - port: 80
+      targetPort: 8686

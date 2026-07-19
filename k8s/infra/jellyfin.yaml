@@ -1,0 +1,22 @@
+# jellyfin — Stage D. See docs/adr/0003 (bare-metal), docs/adr/0004 (static
+# NFS PV for media). Depends on media-nfs-pv (nfs-data PVC) already applied.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jellyfin
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/jellyfin
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jellyfin
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,24 @@
+# THROWAWAY Stage D0 migration pod — NOT part of the real jellyfin stack.
+# Mounts the empty jellyfin-config iscsi PVC as an rsync target for the old
+# tatooine container's /config volume. Delete after D0's data migration is
+# verified; the real jellyfin Deployment (jellyfin.yaml) starts fresh against
+# this same PVC's data at D4.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: migrate-config
+  namespace: jellyfin
+  labels:
+    app: migrate-config
+spec:
+  containers:
+    - name: rsync-target
+      image: busybox:1.36
+      command: [ "sleep", "infinity" ]
+      volumeMounts:
+        - name: config
+          mountPath: /config
+  volumes:
+    - name: config
+      persistentVolumeClaim:
+        claimName: jellyfin-config

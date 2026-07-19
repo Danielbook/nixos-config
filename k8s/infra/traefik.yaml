@@ -1,0 +1,120 @@
+# Traefik ingress — reuses jupiter's proven Cloudflare DNS-01 wildcard setup, now
+# as an Argo Helm app (no upstream single-file install exists → Helm is canonical;
+# --enable-helm is NOT needed, this is Argo's native Helm source, not kustomize
+# inflation). Shared-once config lives here: the wildcard cert on the websecure
+# entrypoint (per-route `tls: {}` inherits it) + http→https redirect. Per-app
+# routes/middlewares live in the `ingress` app (k8s/charts/ingress).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 41.0.1 # Traefik v3.7.5 — bump deliberately
+    helm:
+      valuesObject:
+        updateStrategy:
+          type: Recreate # default RollingUpdate deadlocks: new pod can't attach the RWO /data PVC while the old one still holds it
+        deployment:
+          replicas: 1 # >1 races on the local-path acme.json (see B4 note)
+          # PVC at /data is root-owned; Traefik runs as 65532 and can't create
+          # acme.json without this chown. Cert persistence breaks otherwise.
+          initContainers:
+            - name: volume-permissions
+              image: busybox:1.36
+              command:
+                - sh
+                - -c
+                - "touch /data/acme.json && chmod 600 /data/acme.json && chown 65532:65532 /data/acme.json"
+              securityContext:
+                runAsNonRoot: false
+                runAsUser: 0
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+        persistence:
+          enabled: true
+          storageClass: iscsi
+          size: 128Mi
+          path: /data
+        env:
+          - name: CF_DNS_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: cloudflare-api-token
+                key: token
+        certificatesResolvers:
+          cloudflare:
+            acme:
+              email: daniel@bookorjeman.se
+              storage: /data/acme.json
+              caServer: https://acme-v02.api.letsencrypt.org/directory
+              dnsChallenge:
+                provider: cloudflare
+                resolvers:
+                  - "1.1.1.1:53"
+                  - "1.0.0.1:53"
+        ports:
+          web:
+            http:
+              redirections:
+                entryPoint:
+                  to: websecure # http→https natively (replaces jupiter's redirect middleware)
+                  scheme: https
+                  permanent: true
+          websecure:
+            http:
+              tls:
+                enabled: true
+                # No per-entrypoint certResolver/domains on purpose: that triggers
+                # on-demand per-HOST issuance (rate-limit risk). The wildcard is
+                # generated once via the TLSStore below and used as the default cert.
+        service:
+          annotations:
+            metallb.io/loadBalancerIPs: 10.10.40.51 # stable IP for the DNS record
+        providers:
+          kubernetesCRD:
+            enabled: true
+            # mkRoute renders IngressRoutes in the traefik ns pointing at Services
+            # in each app's own ns (whoami→default, …) — blocked without this.
+            allowCrossNamespace: true
+          kubernetesIngress:
+            enabled: false
+        # File provider (Stage E4): external/non-cluster targets (router, truenas,
+        # n4, slzb, …) can't use a Service+Endpoints backend — Argo CD excludes
+        # Endpoints/EndpointSlice from management by default, so that resource
+        # would never get created. The `ingress` chart (k8s/charts/ingress)
+        # renders a ConfigMap of per-route dynamic-config files instead, same
+        # mechanism jupiter's own Traefik used for these.
+        volumes:
+          - name: external-routes
+            mountPath: /etc/traefik/dynamic
+            type: configMap
+        additionalArguments:
+          - "--providers.file.directory=/etc/traefik/dynamic"
+          - "--providers.file.watch=true"
+        # Wildcard cert generated ONCE via the Cloudflare resolver and served as the
+        # default cert for every TLS route (IngressRoute tls: {} inherits it). This
+        # is what actually triggers proactive ACME issuance in k8s Traefik.
+        tlsStore:
+          default:
+            defaultGeneratedCert:
+              resolver: cloudflare
+              domain:
+                main: local.bookorjeman.com
+                sans:
+                  - "*.local.bookorjeman.com"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # Traefik CRDs are large; SSA avoids last-applied bloat

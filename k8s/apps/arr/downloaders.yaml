@@ -1,0 +1,179 @@
+# Downloaders behind gluetun's WireGuard tunnel (Mullvad). In Docker Compose
+# this was `network_mode: service:gluetun` per container; in k8s, containers
+# in one Pod already share a network namespace, so deluge/nzbget/prowlarr just
+# reach the internet through gluetun's tunnel automatically — no equivalent
+# flag needed. gluetun's kill-switch (its own default behaviour) protects all
+# three if the tunnel drops.
+#
+# Note: Mullvad does not support gluetun's VPN port-forwarding (confirmed via
+# the live .env on servarr) — deluge's torrent port is just a static port
+# through the tunnel, nothing to preserve there.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: downloaders
+  namespace: arr
+  labels:
+    app: downloaders
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO config PVCs — no rolling overlap
+  selector:
+    matchLabels:
+      app: downloaders
+  template:
+    metadata:
+      labels:
+        app: downloaders
+    spec:
+      containers:
+        - name: gluetun
+          image: qmcgaw/gluetun:v3.41.1@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+          env:
+            - name: VPN_SERVICE_PROVIDER
+              value: mullvad
+            - name: VPN_TYPE
+              value: wireguard
+            - name: HEALTH_VPN_DURATION_INITIAL
+              value: "120s"
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "10.42.0.0/16,10.43.0.0/16" # k3s pod + service CIDR — exempt
+              # in-cluster traffic from the kill-switch so prowlarr can reach
+              # sonarr/radarr/lidarr; real internet egress still forced through
+              # the WireGuard tunnel.
+          envFrom:
+            - secretRef:
+                name: gluetun-env
+          volumeMounts:
+            - name: tun
+              mountPath: /dev/net/tun
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "ping -c 1 www.google.com"] # matches the old compose healthcheck
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 5
+        - name: deluge
+          image: lscr.io/linuxserver/deluge:2.2.0-ls381
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+            - name: DELUGE_LOGLEVEL
+              value: error
+          ports:
+            - containerPort: 8112
+            - containerPort: 6881
+          volumeMounts:
+            - name: deluge-config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          livenessProbe:
+            tcpSocket:
+              port: 8112
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            failureThreshold: 3
+        - name: nzbget
+          image: lscr.io/linuxserver/nzbget:v26.2-ls254
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 6789
+          volumeMounts:
+            - name: nzbget-config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          livenessProbe:
+            tcpSocket:
+              port: 6789
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            failureThreshold: 3
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:2.4.0.5397-ls154
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 9696
+          volumeMounts:
+            - name: prowlarr-config
+              mountPath: /config
+          livenessProbe:
+            tcpSocket:
+              port: 9696
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: tun
+          hostPath:
+            path: /dev/net/tun
+        - name: deluge-config
+          persistentVolumeClaim:
+            claimName: deluge-config
+        - name: nzbget-config
+          persistentVolumeClaim:
+            claimName: nzbget-config
+        - name: prowlarr-config
+          persistentVolumeClaim:
+            claimName: prowlarr-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: arr-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deluge
+  namespace: arr
+spec:
+  selector:
+    app: downloaders
+  ports:
+    - port: 80
+      targetPort: 8112
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nzbget
+  namespace: arr
+spec:
+  selector:
+    app: downloaders
+  ports:
+    - port: 80
+      targetPort: 6789
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prowlarr
+  namespace: arr
+spec:
+  selector:
+    app: downloaders
+  ports:
+    - port: 80
+      targetPort: 9696

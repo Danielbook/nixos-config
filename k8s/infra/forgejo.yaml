@@ -1,0 +1,22 @@
+# forgejo — self-hosted git server. See k8s/apps/forgejo/forgejo.yaml for
+# details (SQLite, HTTPS-only git remotes).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: forgejo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/forgejo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: forgejo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

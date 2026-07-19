@@ -1,0 +1,146 @@
+# *arr stack, migrated from the servarr Docker Compose VM (10.10.40.11).
+# Single namespace (not one-per-app like jellyfin/immich/seerr) because the
+# downloaders pod and every *arr float share one NFS downloads volume — see
+# downloaders.yaml.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: arr
+---
+# Static PV for the pre-existing TrueNAS NFS export servarr already mounts at
+# /mnt/truenas/data (ADR-0004 pattern — same server/path jellyfin's nfs-data
+# PV uses in its own namespace; a second static PV object pointing at the same
+# NFS export is fine, NFS itself allows concurrent client mounts).
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-arr-data
+spec:
+  capacity:
+    storage: 8Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 10.10.40.10
+    path: /mnt/pool1/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: arr-data
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-arr-data
+  resources:
+    requests:
+      storage: 8Ti
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: deluge-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nzbget-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prowlarr-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarr-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: radarr-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lidarr-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bazarr-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: recyclarr-config
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi

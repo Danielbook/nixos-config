@@ -1,0 +1,22 @@
+# THROWAWAY Stage F1c migration pod — NOT part of the real homeassistant
+# stack. Mounts the empty esphome-config iscsi PVC as a tar-stream target
+# for jupiter's ./esphome-config. Delete after the restore is verified.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: migrate-esphome-config
+  namespace: homeassistant
+  labels:
+    app: migrate-esphome-config
+spec:
+  containers:
+    - name: tar-target
+      image: busybox:1.36
+      command: ["sleep", "infinity"]
+      volumeMounts:
+        - name: config
+          mountPath: /mnt
+  volumes:
+    - name: config
+      persistentVolumeClaim:
+        claimName: esphome-config

@@ -1,0 +1,57 @@
+# esphome — Stage F1c. Source: esphome/esphome:latest on jupiter, resolved
+# 2026.6.4. Drops `privileged: true` (jupiter had it for USB flashing; only
+# network OTA is in use). Routed via ingress with auth: true (the dashboard
+# has no auth of its own).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: esphome-config
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esphome
+  namespace: homeassistant
+  labels:
+    app: esphome
+spec:
+  replicas: 1 # data restored 2026-07-08 (Stage F1c)
+  selector:
+    matchLabels:
+      app: esphome
+  template:
+    metadata:
+      labels:
+        app: esphome
+    spec:
+      containers:
+        - name: esphome
+          image: esphome/esphome:2026.6.4
+          ports:
+            - containerPort: 6052
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: esphome-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: esphome
+  namespace: homeassistant
+spec:
+  selector:
+    app: esphome
+  ports:
+    - port: 6052

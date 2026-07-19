@@ -1,0 +1,129 @@
+# navidrome — migrated from servarr's Docker Compose VM (10.10.40.11).
+# Config (SQLite db, cache, artwork) on iscsi; music library is the
+# pre-existing TrueNAS NFS export, read-only (ADR-0004 pattern, same server
+# as jellyfin's nfs-data but a distinct subpath: media/music).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: navidrome
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-music
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 10.10.40.10
+    path: /mnt/pool1/data/media/music
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-music
+  namespace: navidrome
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: ""
+  volumeName: nfs-music
+  resources:
+    requests:
+      storage: 2Ti
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: navidrome-data
+  namespace: navidrome
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: navidrome
+  namespace: navidrome
+  labels:
+    app: navidrome
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO config PVC — no rolling overlap
+  selector:
+    matchLabels:
+      app: navidrome
+  template:
+    metadata:
+      labels:
+        app: navidrome
+    spec:
+      containers:
+        - name: navidrome
+          image: deluan/navidrome:0.62.0
+          env:
+            - name: ND_SCANNER_SCHEDULE
+              value: "@every 1h"
+            - name: ND_LOGLEVEL
+              value: info
+            - name: ND_SESSIONTIMEOUT
+              value: 168h
+            - name: ND_ENABLETRANSCODINGCONFIG
+              value: "true"
+            - name: ND_ENABLESHARING
+              value: "true"
+            - name: ND_DEFAULTTHEME
+              value: Dark
+            - name: ND_MUSICFOLDER
+              value: /music
+          envFrom:
+            - secretRef:
+                name: navidrome-lastfm
+          ports:
+            - containerPort: 4533
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: music
+              mountPath: /music
+              readOnly: true
+          startupProbe:
+            tcpSocket:
+              port: 4533
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 4533
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: navidrome-data
+        - name: music
+          persistentVolumeClaim:
+            claimName: nfs-music
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: navidrome
+  namespace: navidrome
+spec:
+  selector:
+    app: navidrome
+  ports:
+    - port: 80
+      targetPort: 4533

@@ -1,0 +1,22 @@
+# linkding — migrated from jupiter's Docker Compose VM. See
+# k8s/apps/linkding/linkding.yaml for details.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: linkding
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/linkding
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: linkding
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

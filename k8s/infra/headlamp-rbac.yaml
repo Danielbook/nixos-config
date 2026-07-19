@@ -1,0 +1,17 @@
+# Binds Daniel's authentik OIDC identity to cluster-admin, now that k3s's
+# apiserver trusts the Headlamp OIDC provider (homelab.k3s.oidcIssuerUrl,
+# hosts/{naboo,endor,hoth}). Username claim = email, prefixed "oidc:" by
+# --kube-apiserver-arg=oidc-username-prefix to avoid colliding with other
+# Subject kinds (ServiceAccounts, the ${node} cert CN, etc).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: headlamp-oidc-admin
+subjects:
+  - kind: User
+    name: "oidc:daniel@bookorjeman.se"
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

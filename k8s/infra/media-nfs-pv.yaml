@@ -1,0 +1,22 @@
+# Static PVs for pre-existing TrueNAS NFS media (ADR-0004). Plain-manifest
+# directory source — no Helm/kustomize needed for hand-authored PV/PVC pairs.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: media-nfs-pv
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/media-nfs-pv
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

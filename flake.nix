@@ -26,6 +26,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative disk partitioning (k3s node installs via nixos-anywhere)
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Curated wallpaper collection
     walls = {
       url = "github:dharmx/walls";
@@ -151,6 +157,20 @@
     {
       nixosConfigurations = {
         coruscant = mkNixosConfiguration "coruscant" "daniel";
+
+        # k3s cluster — see docs/cluster-implementation.md.
+        # naboo (M80q): bootstrap control-plane. endor/hoth/tatooine follow.
+        naboo = mkNixosConfiguration "naboo" "daniel";
+
+        # endor (M70q): 2nd control-plane, joins naboo's etcd via the API VIP.
+        endor = mkNixosConfiguration "endor" "daniel";
+
+        # tatooine: bare-metal GPU agent (GTX 1070), Stage D. See ADR-0003.
+        tatooine = mkNixosConfiguration "tatooine" "daniel";
+
+        # hoth (HP EliteDesk 800 G2 Mini): 3rd control-plane, F2 — was "jupiter"
+        # as a Docker box, wiped and reinstalled to complete 3-member etcd HA.
+        hoth = mkNixosConfiguration "hoth" "daniel";
       };
 
       darwinConfigurations = {
@@ -168,6 +188,32 @@
         };
 
         "daniel@dagobah" = mkHomeConfiguration "aarch64-darwin" "daniel" "dagobah" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+
+        # Headless k3s node — CLI tooling only. catppuccin is required by the
+        # shared home `common` layer (tmux/starship/etc. theming).
+        "daniel@naboo" = mkHomeConfiguration "x86_64-linux" "daniel" "naboo" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+
+        "daniel@endor" = mkHomeConfiguration "x86_64-linux" "daniel" "endor" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+
+        "daniel@tatooine" = mkHomeConfiguration "x86_64-linux" "daniel" "tatooine" {
+          extraModules = [
+            catppuccin.homeModules.catppuccin
+          ];
+        };
+
+        "daniel@hoth" = mkHomeConfiguration "x86_64-linux" "daniel" "hoth" {
           extraModules = [
             catppuccin.homeModules.catppuccin
           ];

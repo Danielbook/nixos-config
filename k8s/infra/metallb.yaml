@@ -1,0 +1,29 @@
+# MetalLB — adopted into GitOps out of the Nix module (Stage E3). Child of the
+# Nix-delivered `root` app-of-apps. Points at k8s/metallb (kustomize: pinned
+# upstream native manifest + pool CRs). The native manifest carries its own
+# metallb-system Namespace + CRDs; the pool CRs need those CRDs + the webhook, so
+# the first sync pass can fail — Argo retries until they exist (like the old k3s
+# addon controller did).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/metallb
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 15s
+        maxDuration: 3m

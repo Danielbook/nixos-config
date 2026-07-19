@@ -1,0 +1,24 @@
+# immich — Stage D. immich-machine-learning intentionally not deployed (out
+# of scope, see k8s/apps/immich/immich.yaml). NOT SYNCABLE YET: the
+# immich-postgres-env / immich-server-env Secrets referenced by the deployment
+# still need authoring (see the NOT YET AUTHORED note in the app manifest).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: immich
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/immich
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: immich
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
