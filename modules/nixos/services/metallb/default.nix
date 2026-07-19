@@ -1,6 +1,8 @@
 # MetalLB (L2/ARP mode) — the cluster's only service LoadBalancer (k3s servicelb
-# is disabled in services/k3s). Deployed via k3s auto-deploy manifests, mirroring
-# the kube-vip pattern. Transitional: Argo adopts k8s/infra/metallb at Stage B5.
+# is disabled in services/k3s). ADOPTED INTO GITOPS (Stage E3): now managed by
+# the Argo `metallb` app (k8s/infra/metallb.yaml). This module stays in-tree but
+# disabled on every host — do not re-enable (both managing it would race).
+# When enabled it deploys via k3s auto-deploy manifests, mirroring kube-vip.
 #
 # Two manifests: the pinned upstream native manifest (CRDs + controller + speaker
 # + validating webhook), then the address-pool CRs. The pool CRs reference the

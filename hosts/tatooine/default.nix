@@ -13,8 +13,6 @@
     "${nixosModules}/common"
     "${nixosModules}/services/k3s"
     "${nixosModules}/services/nvidia-headless"
-    "${nixosModules}/services/metallb"
-    "${nixosModules}/services/argocd"
   ];
 
   networking.hostName = hostname;
@@ -29,10 +27,9 @@
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   };
 
-  # k3s: GPU worker (agent), joins via the API VIP. metallb/argocd are
-  # imported for parity with naboo/endor but left disabled below — only
-  # control-plane nodes run the k3s addon-manifest controller that would use
-  # them, so enabling here would be inert.
+  # k3s: GPU worker (agent), joins via the API VIP. No metallb/argocd imports —
+  # only control-plane nodes run the k3s addon-manifest controller, so those
+  # modules would be inert here.
   homelab.k3s = {
     enable = true;
     role = "agent";

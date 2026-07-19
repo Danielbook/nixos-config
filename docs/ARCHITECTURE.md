@@ -84,6 +84,8 @@ Shared home-manager modules use `pkgs.stdenv.isDarwin` / `pkgs.stdenv.isLinux` f
 | `services/audio-lowlatency/` | Per-host | PipeWire pro-audio tuning |
 | `services/usb-serial/` | Per-host | USB serial device support |
 | `services/k3s/` | Cluster | Role-parameterized k3s node (`homelab.k3s`: server-init/server/agent) + kube-vip |
+| `services/metallb/` | Cluster | MetalLB L2 service LoadBalancer (`homelab.metallb`): pinned upstream native manifest + `lan-pool` (10.10.40.50–.60) via k3s auto-deploy manifests. Disabled everywhere — adopted into GitOps (Argo `metallb` app, `k8s/infra/metallb.yaml`); do not re-enable |
+| `services/nvidia-headless/` | Per-host | Headless NVIDIA for the k3s GPU agent (tatooine): legacy_580 driver (Pascal), nvidia-container-toolkit CDI + k3s containerd `nvidia` runtime override |
 
 ### Home-Manager Modules (`modules/home-manager/`)
 

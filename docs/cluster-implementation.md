@@ -998,7 +998,8 @@ cleanly on bare metal).
       box; goes away with the scarif conversion (`docs/improvements.md`).
 - [x] **H2.** DONE (2026-07-17). `CLAUDE.md` host table, `docs/ARCHITECTURE.md`,
       `docs/FEATURES.md` current. Deferred/future work → `docs/improvements.md`.
-- [x] **H3.** `just check-all` green; merged to main.
+- [ ] **H3.** `just check-all` green; merge to main pending — `feat/cluster`
+      is not yet merged, gated on the hardening issues (#16/#17).
 
 ---
 

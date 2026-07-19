@@ -23,17 +23,20 @@ Modules are layered: `common` (universal for all hosts) and `desktop/common` (sh
 
 ```bash
 just nixos-rebuild          # NixOS system rebuild (Linux)
+just nixos-rebuild-boot     # Build for next boot, no live activation (kernel/driver swaps)
 just darwin-rebuild         # nix-darwin system rebuild (macOS)
 just home-manager-switch    # Home Manager switch
 just deploy-naboo           # Remote deploy k3s control-plane naboo (10.10.40.13)
 just deploy-endor           # Remote deploy k3s control-plane endor (10.10.40.14)
-just deploy-cluster         # Deploy BOTH control-planes (required when a Nix-delivered k3s manifest changes)
+just deploy-hoth            # Remote deploy k3s control-plane hoth (10.10.40.11)
+just deploy-cluster         # Deploy ALL three control-planes (required when a Nix-delivered k3s manifest changes)
 just deploy <host> <ip>     # Generic remote deploy (build + activate on target)
 just flake-check            # Validate before building
 just flake-update           # Update all flake inputs
 just nix-gc                 # Garbage collection
 just noctalia-sync          # Sync Noctalia UI changes to repo
 just format                 # Format Nix files (nixfmt-rfc-style)
+just format-check           # Check formatting without modifying
 just lint                   # Run statix + deadnix
 just check-all              # Format + lint + flake check
 ```

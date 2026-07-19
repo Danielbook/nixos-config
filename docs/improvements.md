@@ -28,6 +28,34 @@ tatooine (D1) and hoth (F2) are already bare-metal NixOS. The only Proxmox
 left is the `n4` box hosting the TrueNAS VM — it goes away with the scarif
 conversion above. Afterwards: no Proxmox anywhere.
 
+## democratic-csi → TrueNAS TLS deferral (was C3, re-affirmed 2026-07-19, #14)
+
+**Deferred:** both driver configs (`k8s/truenas/driver-config-{iscsi,nfs}.enc.yaml`,
+mounted via the charts' `existingConfigSecret`) reach the TrueNAS API at the raw
+IP `host: 10.10.40.10` with `allowInsecure: true` — TrueNAS presents only a
+self-signed cert, so the connection is unverified.
+
+**Why:** the original plan (C3) assumed `truenas.local.bookorjeman.com` would
+carry a valid cert, but that name resolved to jupiter's legacy Traefik (.30),
+and jupiter is wiped (F2). Making TrueNAS itself present a trustable cert is
+manual TrueNAS-UI work (ACME setup), and the scarif bare-metal conversion above
+reinstalls TrueNAS anyway — doing it twice is disproportionate, so it waits.
+
+**Risk accepted:** CSI API traffic (incl. the api key) is MITM-able by any host
+on the storage LAN segment; traffic never leaves the LAN and no untrusted hosts
+sit on it. Accepted until the conversion.
+
+**Lift when** TrueNAS is reinstalled (scarif conversion), in one pass:
+
+1. TrueNAS native ACME cert: Credentials → Certificates → ACME
+   DNS-Authenticator (Cloudflare) → CSR for `truenas.local.bookorjeman.com` →
+   ACME cert → set as GUI cert.
+2. OPNsense Unbound override `truenas.local.bookorjeman.com` → `10.10.40.10`
+   (or the post-conversion IP).
+3. Flip both driver configs (`EDITOR=nano sops <file>` — see
+   cluster-implementation C2 for the formatter pitfall) to the hostname +
+   `allowInsecure: false`; Argo resync + restart the controller pods.
+
 ## octoprint → dedicated Pi `kamino` (was F1e, decided 2026-07-08)
 
 Not a k8s migration candidate — USB-attached Prusa MK3S
@@ -59,6 +87,36 @@ network-wide (2026-07); currently one per-app override each pointing at the
 Traefik LB (`10.10.40.51`). Revisit with a dedicated subdomain zone
 (`local-zone: ... redirect` + one `local-data` A) so new services need no DNS
 change.
+
+## Homepage kubernetes widget (review leftover)
+
+`k8s/apps/homepage/homepage.yaml` already ships the RBAC (ServiceAccount +
+`homepage-k8s-widget` ClusterRole/Binding: get/list on nodes/namespaces/pods
+and `metrics.k8s.io`), but the widget config itself lives in
+`widgets.yaml`/`services.yaml` on the PVC — app state, not git-tracked. Enable
+the cluster/node CPU+memory widget there and verify it reads metrics (k3s'
+bundled metrics-server).
+
+## argocd-initial-admin-secret deletion check (review leftover)
+
+Argo CD's install auto-generates `argocd-initial-admin-secret` (plaintext
+initial admin password) in the `argocd` namespace. Nothing in the Nix
+bootstrap (`modules/nixos/services/argocd`) deletes it or checks that it's
+gone. Verify in-cluster that it has been deleted post-setup — Argo docs say to
+delete it once the password is changed/stored — and delete it if it still
+exists.
+
+## dind runner hardening (review leftover)
+
+`k8s/apps/forgejo/runner.yaml` runs CI jobs against a **privileged**
+`docker:dind` sidecar — any Actions workflow is effectively root on the node
+it lands on. Ideas, none applied yet:
+
+- Rootless dind (`docker:*-dind-rootless`) instead of `privileged: true`.
+- Pin the runner off the control-planes (nodeSelector/taint) to contain blast
+  radius.
+- Resource limits on the runner + dind containers (currently none).
+- Keep Actions restricted to trusted repos/users on the Forgejo side.
 
 ## Future
 
