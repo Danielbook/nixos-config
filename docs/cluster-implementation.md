@@ -973,10 +973,39 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
 - [x] **Verify:** `kubectl get nodes` → 4 Ready, 3 CP (naboo/endor/hoth) +
       tatooine agent. Drained + rebooted endor — VIP (`10.10.40.5`) stayed
       reachable (`/healthz` → `ok`) throughout the ~90s reboot, confirmed via
-      polling; endor rejoined cleanly and was uncordoned. Full smoke test
-      (auth, data, GPU transcode, garage door, *arr→download→jellyfin) not
-      yet re-run post-F2 — do this before considering the migration fully
-      closed out.
+      polling; endor rejoined cleanly and was uncordoned.
+
+      **Post-F2 / post-merge smoke test (2026-07-19, #17), run against the
+      `feat/cluster`→`main` merge:**
+      - **Auth via Authentik:** `authentik-server` `/-/health/live/` → 200.
+        `https://jellyfin.local.bookorjeman.com` → 302 (forward-auth redirect
+        to Authentik, as expected for an unauthenticated request).
+        `https://homeassistant.local.bookorjeman.com` → 200 (HA has its own
+        auth, reachable through Traefik). Both apps route through Traefik and
+        respond correctly.
+      - **Data intact:** jellyfin's NFS media mount lists 121 movies + 23
+        series (untouched by the migration); immich's upload/library/thumbs
+        directories present and populated.
+      - **GPU transcode (tatooine):** jellyfin pod scheduled on tatooine with
+        `nvidia.com/gpu: 1` request/limit granted; `/dev/nvidia0`,
+        `/dev/nvidiactl`, `/dev/dri/renderD128` all present inside the
+        container. Device path is wired correctly — did not force an actual
+        transcode session (needs a real playback client).
+      - **Garage door via Home Assistant:** `zigbee2mqtt` bridge healthy, MQTT
+        connected, 38 zigbee devices actively reporting through
+        `mosquitto`/`zigbee2mqtt`/HA. Did not physically actuate the garage
+        door — that's a manual check from the HA UI/app, not scriptable from
+        here.
+      - ***arr→download→jellyfin*:** sonarr/radarr/lidarr/bazarr and the
+        `downloaders` pod (gluetun/deluge/nzbget/prowlarr) all `Running` on
+        hoth; jellyfin's populated library is consistent with the pipeline
+        having worked historically. Did not run a live end-to-end download
+        (needs a real download job, not scriptable as a smoke check).
+
+      Everything checkable from in-cluster/kubectl came back healthy; the two
+      items needing a human at a UI (physical door actuation, a live
+      real-time transcode/playback) are flagged above for manual spot-check
+      rather than assumed.
 - [x] **Rollback:** N/A past this point — jupiter (the box) is wiped; its
       Docker/Proxmox identity no longer exists. octoprint config backed up
       to `~/Desktop/octoprint-full.tar.gz` and naboo's
@@ -998,8 +1027,9 @@ cleanly on bare metal).
       box; goes away with the scarif conversion (`docs/improvements.md`).
 - [x] **H2.** DONE (2026-07-17). `CLAUDE.md` host table, `docs/ARCHITECTURE.md`,
       `docs/FEATURES.md` current. Deferred/future work → `docs/improvements.md`.
-- [ ] **H3.** `just check-all` green; merge to main pending — `feat/cluster`
-      is not yet merged, gated on the hardening issues (#16/#17).
+- [x] **H3.** DONE (2026-07-19). `just check-all` green; `feat/cluster` merged
+      to `main` (PR #20); post-merge smoke test above; all 41 Argo
+      Applications Synced/Healthy.
 
 ---
 
