@@ -73,6 +73,12 @@ spec:
               value: https://auth.local.bookorjeman.com/application/o/mealie/.well-known/openid-configuration
             - name: OIDC_CLIENT_ID
               value: i38EuNvUIUkgA1fEKhgQlnTiUjIndIrZJuN6nQGR
+            - name: OPENAI_BASE_URL
+              value: http://ollama.ollama.svc.cluster.local:11434/v1
+            - name: OPENAI_API_KEY
+              value: ollama
+            - name: OPENAI_MODEL
+              value: llama3.1:8b-instruct-q4_K_M
           envFrom:
             - secretRef:
                 name: mealie-env
