@@ -458,6 +458,13 @@ Do this **before** cutover so the weekend is just apply + restore.
         PVC (`iscsi`, 100Gi). `open-webui` is a plain (no-GPU) pod pointed at
         `ollama.ollama.svc.cluster.local:11434`, gated by authentik
         forward-auth like searxng/linkding.
+  - [x] **ollama model pulled: `llama3.1:8b-instruct-q4_K_M`. DONE
+        (2026-07-24, issue #21).** ~4.9GB VRAM, leaves headroom on the 1070's
+        8GB alongside jellyfin's transcode usage. Pulled onto the
+        `ollama-models` PVC (`kubectl exec -n ollama deploy/ollama -- ollama
+        pull llama3.1:8b-instruct-q4_K_M`); confirmed it survives pod restart
+        and inference works via `/api/generate`. Consumers (mealie #19,
+        open-webui) should set `OPENAI_MODEL=llama3.1:8b-instruct-q4_K_M`.
   - [x] **Cluster-wide flannel/kube-vip node-ip bug found + fixed
         (2026-07-05).** kube-vip's floating API VIP (`10.10.40.5`) shares a
         NIC with naboo's real IP; flannel's `public-ip` node-annotation
