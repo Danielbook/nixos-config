@@ -31,7 +31,7 @@ spec:
         - name: storybook-registry
       containers:
         - name: storybook
-          image: forgejo.local.bookorjeman.com/danielbook/db-storybook:CHANGEME-SHA # pin to git sha from CI build; bump to deploy
+          image: forgejo.local.bookorjeman.com/danielbook/db-storybook:cd2e60ca71670294cfc45c88df524bf1bd5ae4e2 # pin to git sha from CI build; bump to deploy
           ports:
             - containerPort: 80
           livenessProbe:
