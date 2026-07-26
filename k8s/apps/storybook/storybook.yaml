@@ -1,0 +1,60 @@
+# storybook — db design system component explorer
+# (forgejo.local.bookorjeman.com/Danielbook/db-design-system). Static site baked
+# into an nginx image by Forgejo Actions CI, pushed to the in-cluster Forgejo
+# registry. No state, no PVC — redeploy = bump the image tag.
+#
+# The `storybook-registry` Secret (registry pull auth) is authored as ksops,
+# same as fartlek's.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storybook
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storybook
+  namespace: storybook
+  labels:
+    app: storybook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storybook
+  template:
+    metadata:
+      labels:
+        app: storybook
+    spec:
+      imagePullSecrets:
+        - name: storybook-registry
+      containers:
+        - name: storybook
+          image: forgejo.local.bookorjeman.com/danielbook/db-storybook:CHANGEME-SHA # pin to git sha from CI build; bump to deploy
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storybook # mkRoute's .name drives both hostname and Service name — must be "storybook"
+  namespace: storybook
+spec:
+  selector:
+    app: storybook
+  ports:
+    - port: 80
+      targetPort: 80

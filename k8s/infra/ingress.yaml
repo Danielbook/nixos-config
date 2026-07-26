@@ -54,6 +54,10 @@ spec:
           - name: fartlek # own Strava auth; forward-auth would break OAuth callback
             namespace: fartlek
             port: 8080
+          - name: storybook # static component explorer, no native auth
+            namespace: storybook
+            port: 80
+            auth: true
           - name: forgejo # own auth (git clients/API break behind forward-auth)
             namespace: forgejo
             port: 3000
