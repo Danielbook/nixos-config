@@ -67,6 +67,10 @@ spec:
               value: "true"
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
           volumeMounts:
             - name: data
               mountPath: /data

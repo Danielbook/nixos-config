@@ -57,6 +57,10 @@ spec:
       containers:
         - name: mongo
           image: mongo:4.4
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
           volumeMounts:
             - name: data
               mountPath: /data/db
@@ -113,6 +117,10 @@ spec:
               protocol: UDP
             - containerPort: 10001
               protocol: UDP
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 25m
           volumeMounts:
             - name: config
               mountPath: /config

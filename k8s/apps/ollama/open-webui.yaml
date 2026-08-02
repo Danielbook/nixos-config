@@ -58,6 +58,10 @@ spec:
               value: https://auth.local.bookorjeman.com/application/o/open-webui/.well-known/openid-configuration
           ports:
             - containerPort: 8080
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 25m
           volumeMounts:
             - name: data
               mountPath: /app/backend/data

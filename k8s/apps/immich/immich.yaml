@@ -59,6 +59,10 @@ spec:
           env:
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata # ext4 PVC root has lost+found; initdb needs an empty dir
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 25m
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
@@ -98,6 +102,10 @@ spec:
       containers:
         - name: redis
           image: valkey/valkey:8-bookworm # confirmed via `docker inspect immich_redis` on live tatooine
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 10m
 ---
 apiVersion: v1
 kind: Service
@@ -138,6 +146,10 @@ spec:
               value: /config/immich.json # authentik OAuth — Immich has no OAuth env vars, only this full-JSON override
           ports:
             - containerPort: 2283
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 50m
           volumeMounts:
             # NAS share names are misleading (confirmed via `mount`/fstab on
             # live tatooine): image-backups (RW) is immich's actual upload

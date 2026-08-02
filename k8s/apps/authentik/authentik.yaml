@@ -72,6 +72,10 @@ spec:
           env:
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata # ext4 PVC root has lost+found; initdb needs an empty dir
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 25m
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
@@ -111,6 +115,10 @@ spec:
       containers:
         - name: redis
           image: redis:8.8.0-alpine
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 10m
 ---
 apiVersion: v1
 kind: Service
@@ -163,6 +171,10 @@ spec:
                 name: authentik-env
           ports:
             - containerPort: 9000
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 50m
           volumeMounts:
             - name: media
               mountPath: /media
@@ -211,6 +223,10 @@ spec:
           envFrom:
             - secretRef:
                 name: authentik-env
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 25m
           volumeMounts:
             - name: media
               mountPath: /media

@@ -79,6 +79,10 @@ spec:
               value: "1"
             - name: DOCKER_CERT_PATH
               value: /certs/client
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 25m
           volumeMounts:
             - name: data
               mountPath: /data
@@ -93,6 +97,10 @@ spec:
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 25m
           volumeMounts:
             - name: docker-certs
               mountPath: /certs
