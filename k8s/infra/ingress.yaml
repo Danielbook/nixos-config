@@ -41,6 +41,9 @@ spec:
           - name: open-webui
             namespace: ollama
             port: 8080
+          - name: ollama # raw API, no native auth, no forward-auth either (server-to-server)
+            namespace: ollama
+            port: 11434
           - name: homepage
             namespace: homepage
             port: 80
