@@ -42,12 +42,14 @@
     defaultSopsFile = ./secrets.yaml;
     secrets.authentik_mcp_token = { };
     secrets.forgejo_api_token = { };
+    secrets.jira_api_token = { };
   };
 
   # Source sops secrets as environment variables in the shell
   programs.zsh.initContent = lib.mkOrder 1200 ''
     export AUTHENTIK_MCP_TOKEN="$(cat ${config.sops.secrets.authentik_mcp_token.path} 2>/dev/null)"
     export FORGEJO_TOKEN="$(cat ${config.sops.secrets.forgejo_api_token.path} 2>/dev/null)"
+    export JIRA_API_TOKEN="$(cat ${config.sops.secrets.jira_api_token.path} 2>/dev/null)"
   '';
 
   programs.home-manager.enable = true;
@@ -56,6 +58,8 @@
     inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default
     pkgs.bitwarden-cli
     pkgs.k9s # Terminal UI for the k3s cluster (kubeconfig at ~/.kube/config)
+    pkgs.tea # Gitea/Forgejo CLI
+    pkgs.jira-cli-go # Jira CLI
   ];
 
   # Catpuccin flavor and accent
