@@ -62,10 +62,12 @@ spec:
               value: https://mealie.local.bookorjeman.com
             - name: DB_ENGINE
               value: sqlite
-            - name: SQLITE_BACKUP_ENABLED
-              value: "true"
-            - name: SQLITE_BACKUP_FREQUENCY
-              value: daily
+            # No backup env vars here: SQLITE_BACKUP_ENABLED/FREQUENCY were
+            # carried over from the compose file but exist nowhere in mealie
+            # (v3.20.1), so they silently did nothing and the instance had zero
+            # backups until 2026-08-04. mealie v3 registers six daily tasks and
+            # none of them is a backup — it has no scheduled-backup feature at
+            # all. The mealie-backup CronJob below drives the API instead.
             - name: OIDC_AUTH_ENABLED
               value: "true"
             - name: OIDC_SIGNUP_ENABLED
@@ -100,6 +102,63 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: mealie-data
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mealie-backup
+  namespace: mealie
+spec:
+  schedule: "30 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: curlimages/curl:8.11.1
+              env:
+                - name: TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: mealie-env
+                      key: MEALIE_API_TOKEN
+              # backups land in /app/data/backups on the iscsi PVC, which the
+              # TrueNAS ZFS snapshot then carries off — a logical export inside
+              # a block snapshot, unlike snapshotting the live sqlite file
+              # alone. mealie never prunes, so keep the newest 14 (~25 MB each).
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  API=http://mealie.mealie.svc.cluster.local/api
+                  auth="Authorization: Bearer $TOKEN"
+                  echo "creating backup"
+                  code=$(curl -sS -o /tmp/new.json -w '%{http_code}' \
+                    -X POST -H "$auth" "$API/admin/backups")
+                  test "$code" = "201" || { echo "backup failed: HTTP $code"; cat /tmp/new.json; exit 1; }
+                  curl -sS -H "$auth" "$API/admin/backups" > /tmp/list.json
+                  total=$(tr ',' '\n' < /tmp/list.json | grep -c '"name"' || true)
+                  echo "backup created; $total on disk"
+                  # names sort chronologically (mealie_v3.20.1_YYYY.MM.DD.HH.MM.SS.zip);
+                  # reverse-sort + tail keeps the newest 14 (POSIX — busybox
+                  # takes 'head -n -14' but BSD head does not, so avoid it)
+                  tr ',' '\n' < /tmp/list.json \
+                    | sed -n 's/.*"name":"\([^"]*\)".*/\1/p' \
+                    | sort -r | tail -n +15 \
+                    | while read -r old; do
+                        echo "pruning $old"
+                        curl -sS -X DELETE -H "$auth" "$API/admin/backups/$old" >/dev/null
+                      done
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
 ---
 apiVersion: v1
 kind: Service
