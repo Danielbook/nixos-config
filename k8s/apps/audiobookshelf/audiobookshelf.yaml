@@ -1,0 +1,135 @@
+# audiobookshelf — player/library server for the books bindery fills. Own
+# namespace + read-only NFS subpath, same shape as navidrome (ADR-0004):
+# config/metadata (SQLite, cache, cover art) on iscsi, library from the
+# pre-existing TrueNAS export at media/books. Two ABS libraries are configured
+# in-app against the ebooks/ and audiobooks/ subdirs bindery writes.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: audiobookshelf
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-books
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 10.10.40.10
+    path: /mnt/pool1/data/media/books
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-books
+  namespace: audiobookshelf
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: ""
+  volumeName: nfs-books
+  resources:
+    requests:
+      storage: 2Ti
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-config
+  namespace: audiobookshelf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-metadata
+  namespace: audiobookshelf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+  labels:
+    app: audiobookshelf
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO config PVC — no rolling overlap
+  selector:
+    matchLabels:
+      app: audiobookshelf
+  template:
+    metadata:
+      labels:
+        app: audiobookshelf
+    spec:
+      containers:
+        - name: audiobookshelf
+          image: ghcr.io/advplyr/audiobookshelf:2.36.0
+          env:
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: metadata
+              mountPath: /metadata
+            - name: books
+              mountPath: /books
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /healthcheck
+              port: 80
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 80
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: audiobookshelf-config
+        - name: metadata
+          persistentVolumeClaim:
+            claimName: audiobookshelf-metadata
+        - name: books
+          persistentVolumeClaim:
+            claimName: nfs-books
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+spec:
+  selector:
+    app: audiobookshelf
+  ports:
+    - port: 80
+      targetPort: 80

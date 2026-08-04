@@ -1,0 +1,77 @@
+# bindery — Readarr replacement (ebooks + audiobooks), float, see sonarr.yaml
+# for the shared-volume rationale. Distroless/nonroot image with no PUID/PGID
+# knob, so the uid the *arr stack writes NFS as (1000 = linuxserver's `abc`) is
+# pinned via securityContext instead.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bindery
+  namespace: arr
+  labels:
+    app: bindery
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bindery
+  template:
+    metadata:
+      labels:
+        app: bindery
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: bindery
+          image: ghcr.io/vavallee/bindery:v1.29.0
+          env:
+            - name: TZ
+              value: Europe/Stockholm
+            - name: BINDERY_LOG_LEVEL
+              value: info
+            - name: BINDERY_LIBRARY_DIR
+              value: /data/media/books/ebooks
+            - name: BINDERY_AUDIOBOOK_DIR
+              value: /data/media/books/audiobooks
+          ports:
+            - containerPort: 8787
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          startupProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8787
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8787
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: bindery-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: arr-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bindery
+  namespace: arr
+spec:
+  selector:
+    app: bindery
+  ports:
+    - port: 80
+      targetPort: 8787

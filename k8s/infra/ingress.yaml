@@ -34,6 +34,9 @@ spec:
           - name: navidrome
             namespace: navidrome
             port: 80
+          - name: audiobookshelf # own auth; mobile apps break behind forward-auth
+            namespace: audiobookshelf
+            port: 80
           - name: linkding
             namespace: linkding
             port: 80
@@ -83,6 +86,10 @@ spec:
             port: 80
             auth: true
           - name: bazarr
+            namespace: arr
+            port: 80
+            auth: true
+          - name: bindery
             namespace: arr
             port: 80
             auth: true

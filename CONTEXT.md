@@ -37,7 +37,7 @@ _Avoid_: assuming every app follows this — see Shared namespace group.
 An exception to App namespace: several cooperating apps placed in one
 namespace because they must share a namespace-scoped resource (typically a
 PVC) that can't cross namespace boundaries. Currently only `arr` (the
-downloaders pod + sonarr/radarr/lidarr/bazarr floats, sharing one NFS
+downloaders pod + sonarr/radarr/lidarr/bazarr/bindery floats, sharing one NFS
 downloads PVC) — see ADR-0005.
 _Avoid_: creating one of these by default; it's a deliberate exception, not
 the norm.
