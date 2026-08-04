@@ -21,6 +21,11 @@ spec:
       labels:
         app: bindery
     spec:
+      # The Service is also named `bindery`, so kubelet's legacy docker-link env
+      # vars inject BINDERY_PORT=tcp://<clusterIP>:80 — which bindery reads as
+      # its own listen address and dies on ("too many colons in address").
+      # Nothing here consumes those vars, so drop the whole class.
+      enableServiceLinks: false
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
