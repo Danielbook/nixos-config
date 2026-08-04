@@ -38,6 +38,12 @@ spec:
               value: Europe/Stockholm
             - name: BINDERY_LOG_LEVEL
               value: info
+            # Bindery imports from the path the download client reports, and
+            # accepts anything at or under this root — so it's the common
+            # parent of deluge's /data/torrents and nzbget's /data/usenet, not
+            # a directory it scans. Default is /downloads, which isn't mounted.
+            - name: BINDERY_DOWNLOAD_DIR
+              value: /data
             - name: BINDERY_LIBRARY_DIR
               value: /data/media/books/ebooks
             - name: BINDERY_AUDIOBOOK_DIR
