@@ -56,7 +56,7 @@ spec:
         - name: holocron-registry
       containers:
         - name: holocron
-          image: forgejo.local.bookorjeman.com/danielbook/holocron:latest # pin to git sha from CI build; bump to deploy
+          image: forgejo.local.bookorjeman.com/danielbook/holocron:1a0dc74afa510d41fdbf3a1591c09bc0232e79f4 # pin to git sha from CI build; bump to deploy
           envFrom:
             - secretRef:
                 name: holocron-env # STT_TOKEN
