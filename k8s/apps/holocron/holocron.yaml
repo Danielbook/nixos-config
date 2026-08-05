@@ -1,0 +1,115 @@
+# holocron — self-hosted dictation Server (forgejo.local.bookorjeman.com/danielbook/holocron).
+# FastAPI + faster-whisper; the macOS menu-bar Client posts a WAV and gets text
+# back. Shares tatooine's GTX 1070 with ollama/jellyfin via the device plugin's
+# time-sliced nvidia.com/gpu (k8s/infra/nvidia-plugin.yaml) — pinned there the
+# same way, GPU resource request + toleration for the node's taint.
+#
+# GTX 1070 is Pascal (compute 6.1), so COMPUTE_TYPE=int8 — float16 needs ≥ 7.0.
+# large-v3 at int8 is ≈ 3 GB VRAM.
+#
+# The `holocron-env` (STT_TOKEN) / `holocron-registry` (registry pull auth)
+# Secrets are authored as ksops `k8s/holocron/holocron-secrets.enc.yaml`.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holocron
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: holocron-models
+  namespace: holocron
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: holocron
+  namespace: holocron
+  labels:
+    app: holocron
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single RWO models PVC — no rolling overlap
+  selector:
+    matchLabels:
+      app: holocron
+  template:
+    metadata:
+      labels:
+        app: holocron
+    spec:
+      runtimeClassName: nvidia
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Equal
+          value: present
+          effect: NoSchedule
+      imagePullSecrets:
+        - name: holocron-registry
+      containers:
+        - name: holocron
+          image: forgejo.local.bookorjeman.com/danielbook/holocron:latest # pin to git sha from CI build; bump to deploy
+          envFrom:
+            - secretRef:
+                name: holocron-env # STT_TOKEN
+          env:
+            - name: MODEL_SIZE
+              value: large-v3
+            - name: DEVICE
+              value: cuda
+            - name: COMPUTE_TYPE
+              value: int8 # Pascal card — float16 needs compute capability ≥ 7.0
+            - name: LANGUAGE
+              value: en
+            - name: MODEL_DIR
+              value: /models
+            - name: CLEANUP
+              value: "off" # default off; the Client overrides per request
+            - name: OLLAMA_URL
+              value: http://ollama.ollama.svc.cluster.local:11434 # in-cluster, for CLEANUP=llm
+            - name: OLLAMA_MODEL
+              value: llama3.1:8b-instruct-q4_K_M
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+            failureThreshold: 30 # first start downloads large-v3 into the PVC
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: holocron-models
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: holocron # mkRoute's .name drives both hostname and Service name — must be "holocron"
+  namespace: holocron
+spec:
+  selector:
+    app: holocron
+  ports:
+    - port: 8000
+      targetPort: 8000

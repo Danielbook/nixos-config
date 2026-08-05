@@ -47,6 +47,9 @@ spec:
           - name: ollama # raw API, no native auth, no forward-auth either (server-to-server)
             namespace: ollama
             port: 11434
+          - name: holocron # bearer-token API for the macOS Client; forward-auth would break it (no browser)
+            namespace: holocron
+            port: 8000
           - name: homepage
             namespace: homepage
             port: 80

@@ -1,0 +1,22 @@
+# holocron — self-hosted dictation Server on tatooine's GPU. See
+# k8s/apps/holocron/ for details.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: holocron
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+    targetRevision: main
+    path: k8s/apps/holocron
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: holocron
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
