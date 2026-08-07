@@ -28,6 +28,16 @@ in
     # even more plugins : https://search.nixos.org/packages
     plugins =
       let
+        # copilot-cmp calls `client.is_stopped()` with a dot, which Nvim 0.11+
+        # flags as deprecated on every completion — swap in the colon call.
+        # ponytail: drop this override once upstream fixes it.
+        copilot-cmp-fixed = pkgs.vimPlugins.copilot-cmp.overrideAttrs (old: {
+          postPatch = (old.postPatch or "") + ''
+            substituteInPlace lua/copilot_cmp/source.lua \
+              --replace-fail 'self.client.is_stopped()' 'self.client:is_stopped()'
+          '';
+        });
+
         nvim-treesitter-with-plugins = pkgs.vimPlugins.nvim-treesitter.withPlugins (
           treesitter-plugins: with treesitter-plugins; [
             bash
@@ -55,7 +65,7 @@ in
         cmp-buffer # Buffer completion source for nvim-cmp
         cmp_luasnip # LuaSnip completion source for nvim-cmp
         copilot-lua # GitHub Copilot integration
-        copilot-cmp # Copilot integration with nvim-cmp
+        copilot-cmp-fixed # Copilot integration with nvim-cmp (patched, see above)
         CopilotChat-nvim # Copilot chat for conversations with AI
         friendly-snippets # Collection of useful snippets
         gitsigns-nvim # Git signs in the gutter
