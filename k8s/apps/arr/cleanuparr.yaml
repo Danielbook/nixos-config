@@ -1,0 +1,75 @@
+# cleanuparr — float (no VPN), watches the *arr queues and the deluge/nzbget
+# behind gluetun via their Services. Un-jams the queue automations that used to
+# be manual: malware/.exe torrents, failed imports, stalled downloads → remove,
+# blocklist, re-search.
+#
+# Config lives in its own /config PVC and is set through the web UI (connection
+# URLs + API keys), not GitOps — same as the *arr apps themselves. Mounts the
+# shared arr-data NFS PVC so the orphan/hardlink cleaners can see real paths.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cleanuparr
+  namespace: arr
+  labels:
+    app: cleanuparr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cleanuparr
+  template:
+    metadata:
+      labels:
+        app: cleanuparr
+    spec:
+      containers:
+        - name: cleanuparr
+          image: ghcr.io/cleanuparr/cleanuparr:2.10.3
+          env:
+            - name: PORT
+              value: "11011"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 11011
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          startupProbe:
+            tcpSocket:
+              port: 11011
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 11011
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: cleanuparr-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: arr-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cleanuparr
+  namespace: arr
+spec:
+  selector:
+    app: cleanuparr
+  ports:
+    - port: 80
+      targetPort: 11011
