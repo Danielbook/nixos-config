@@ -108,6 +108,10 @@ spec:
             namespace: arr
             port: 80
             auth: true
+          - name: cleanuparr
+            namespace: arr
+            port: 80
+            auth: true
           - name: homeassistant # HA has its own auth; mobile app breaks behind forward-auth
             namespace: homeassistant
             port: 8123
