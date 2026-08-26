@@ -47,6 +47,11 @@ spec:
       containers:
         - name: homeassistant
           image: ghcr.io/home-assistant/home-assistant:2026.7.1
+          resources:
+            requests:
+              memory: 1Gi
+            limits:
+              memory: 2Gi
           envFrom:
             - secretRef:
                 name: appdaemon-env

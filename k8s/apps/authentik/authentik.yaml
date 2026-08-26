@@ -173,8 +173,10 @@ spec:
             - containerPort: 9000
           resources:
             requests:
-              memory: 512Mi
+              memory: 1Gi
               cpu: 50m
+            limits:
+              memory: 2Gi
           volumeMounts:
             - name: media
               mountPath: /media
@@ -227,6 +229,8 @@ spec:
             requests:
               memory: 512Mi
               cpu: 25m
+            limits:
+              memory: 1Gi
           volumeMounts:
             - name: media
               mountPath: /media

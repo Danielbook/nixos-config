@@ -89,6 +89,10 @@ metadata:
     app: unifi-network-application
 spec:
   replicas: 1 # mongo data + /config restored (2026-07-06) — see docs/cluster-implementation.md Stage F1
+  # RWO iscsi PVC: RollingUpdate deadlocks when the replacement lands on a
+  # different node -- it waits on a volume the old pod will not release.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: unifi-network-application
@@ -119,8 +123,10 @@ spec:
               protocol: UDP
           resources:
             requests:
-              memory: 512Mi
+              memory: 1Gi
               cpu: 25m
+            limits:
+              memory: 2Gi
           volumeMounts:
             - name: config
               mountPath: /config
