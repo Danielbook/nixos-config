@@ -148,8 +148,10 @@ spec:
             - containerPort: 2283
           resources:
             requests:
-              memory: 512Mi
+              memory: 768Mi
               cpu: 50m
+            limits:
+              memory: 1536Mi
           volumeMounts:
             # NAS share names are misleading (confirmed via `mount`/fstab on
             # live tatooine): image-backups (RW) is immich's actual upload

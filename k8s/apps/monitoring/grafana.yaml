@@ -46,6 +46,10 @@ metadata:
     app: grafana
 spec:
   replicas: 1 # data + dashboard restore verified 2026-07-08 — see comment above
+  # RWO iscsi PVCs: a RollingUpdate deadlocks — the new pod waits on volumes
+  # the old pod will not release until the new one is Ready. Hit 2026-08-26.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: grafana

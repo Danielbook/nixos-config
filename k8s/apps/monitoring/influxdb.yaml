@@ -27,6 +27,10 @@ metadata:
     app: influxdb
 spec:
   replicas: 1 # data restore verified 2026-07-08 — see comment above
+  # RWO iscsi PVC: RollingUpdate deadlocks when the replacement lands on a
+  # different node -- it waits on a volume the old pod will not release.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: influxdb
@@ -38,6 +42,11 @@ spec:
       containers:
         - name: influxdb
           image: influxdb:2.7
+          resources:
+            requests:
+              memory: 512Mi
+            limits:
+              memory: 1Gi
           ports:
             - containerPort: 8086
           volumeMounts:
