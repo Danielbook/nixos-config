@@ -63,10 +63,7 @@ spec:
           ports:
             - containerPort: 8096
           resources:
-            requests:
-              memory: 768Mi
             limits:
-              memory: 2Gi
               nvidia.com/gpu: 1
           volumeMounts:
             - name: config
