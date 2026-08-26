@@ -4,6 +4,8 @@ _: {
     enable = true;
 
     settings = {
+      gui.showNumstatInFilesView = true;
+
       git = {
         pagers = [
           {

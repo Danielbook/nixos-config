@@ -81,6 +81,7 @@
       "claude"
       "discord"
       "docker-desktop"
+      "figma"
       "home-assistant"
       "keepingyouawake"
       "microsoft-excel"
