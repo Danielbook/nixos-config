@@ -1,5 +1,5 @@
-# Shared namespace for the observability stack (grafana/loki/influxdb, plus
-# kube-prometheus-stack + loki-alloy from k8s/infra/) — same shared-namespace
+# Shared namespace for the observability stack (grafana/influxdb, plus
+# kube-prometheus-stack from k8s/infra/) — same shared-namespace
 # pattern as `arr` (ADR-0005): one related service family, one namespace.
 apiVersion: v1
 kind: Namespace

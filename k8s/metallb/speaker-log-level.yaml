@@ -1,0 +1,16 @@
+# The speaker's L2StatusReconciler logs a start/end pair per LoadBalancer
+# service at info level, ~890 MiB/day across the three nodes. Nothing below
+# warn has ever been worth reading here.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: speaker
+  namespace: metallb-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: speaker
+          args:
+            - --port=9120
+            - --log-level=warn

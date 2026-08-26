@@ -7,3 +7,8 @@ kind: Kustomization
 resources:
   - https://raw.githubusercontent.com/metallb/metallb/v0.16.1/config/manifests/metallb-native.yaml
   - pool.yaml
+patches:
+  - path: speaker-log-level.yaml
+    target:
+      kind: DaemonSet
+      name: speaker
