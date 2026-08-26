@@ -90,7 +90,8 @@ let
                   name: sops-age
   '';
 
-  # Enable kustomize exec plugins so repo-server runs the ksops generator.
+  # Enable kustomize exec plugins so repo-server runs the ksops generator, and
+  # keep MetalLB's churning status CRs out of Argo's watch set.
   argocdCmPatch = pkgs.writeText "argocd-cm-patch.yaml" ''
     apiVersion: v1
     kind: ConfigMap
@@ -98,6 +99,19 @@ let
       name: argocd-cm
     data:
       kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
+      # MetalLB's speakers delete+recreate their ServiceL2Status CRs every few
+      # seconds (new random names each time, not just resourceVersion bumps).
+      # Every one of those was a watch event on the metallb Application, so the
+      # application-controller refreshed and reconciled in a hot loop -- 98% of
+      # its log output, ~600 MiB/day, always ending in "No status changes".
+      # Speaker-owned status, never something Argo should track.
+      resource.exclusions: |
+        - apiGroups:
+            - metallb.io
+          kinds:
+            - ServiceL2Status
+          clusters:
+            - "*"
   '';
 
   kustomization = pkgs.writeText "kustomization.yaml" ''

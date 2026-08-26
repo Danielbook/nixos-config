@@ -1,8 +1,11 @@
-# monitoring — Stage F1. influxdb + grafana + loki, migrated from jupiter's
+# monitoring — Stage F1. influxdb + grafana, migrated from jupiter's
 # grafana-stack docker-compose. See k8s/apps/monitoring/*.yaml for the workload
 # and restore-ordering notes. telegraf and promtail are intentionally NOT part
-# of this migration — they're replaced by kube-prometheus-stack and a logging
-# DaemonSet, authored as separate infra apps.
+# of this migration — telegraf is replaced by kube-prometheus-stack. Log
+# aggregation (loki + a loki-alloy DaemonSet) was migrated in F1 and removed
+# again: in 24 days it served 3.6M pushes and zero queries, while eating 5.2Gi
+# of RAM on naboo and filling its 5Gi PVC. `kubectl logs` covers what we
+# actually reach for.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

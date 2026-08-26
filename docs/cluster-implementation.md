@@ -788,6 +788,14 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       manifest used k8s `command:` for loki's `-config.file=...` flag, which
       **replaces** the container's ENTRYPOINT (unlike compose's `command:`,
       which appends) — crashlooped until changed to `args:`.
+      **Removed again 2026-08-26** — loki + loki-alloy deleted. In 24 days
+      it took 3.59M pushes (38.2 GB) and served **zero** queries: the Grafana
+      datasource and `loki-logs.json` existed, nobody ever opened them. It
+      had no `limits_config`, compactor or retention, so it grew until it
+      held 5.2Gi RSS on naboo (89% of the node) and filled its 5Gi PVC —
+      wedged, unable even to answer a query. `kubectl logs` covers the
+      debugging actually done here. Reinstating it = revert the removal
+      commit, but configure retention + a memory limit first.
       **Ingress**: `grafana` added as a normal templated route
       (`k8s/infra/ingress.yaml`, no `auth: true` — Grafana does its own OAuth
       via authentik already, same reasoning as jellyfin/navidrome/seerr).
