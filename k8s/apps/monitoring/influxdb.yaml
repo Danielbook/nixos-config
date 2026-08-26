@@ -43,10 +43,13 @@ spec:
         - name: influxdb
           image: influxdb:2.7
           resources:
+            # 954Mi steady state once the TSM index is loaded after a restart.
+            # An earlier reading of 401Mi came from a pod with 24d uptime, after
+            # the kernel had reclaimed -- it understated the real footprint.
             requests:
-              memory: 512Mi
-            limits:
               memory: 1Gi
+            limits:
+              memory: 2Gi
           ports:
             - containerPort: 8086
           volumeMounts:
