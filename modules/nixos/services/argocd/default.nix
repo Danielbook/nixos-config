@@ -99,19 +99,79 @@ let
       name: argocd-cm
     data:
       kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
-      # MetalLB's speakers delete+recreate their ServiceL2Status CRs every few
-      # seconds (new random names each time, not just resourceVersion bumps).
-      # Every one of those was a watch event on the metallb Application, so the
-      # application-controller refreshed and reconciled in a hot loop -- 98% of
-      # its log output, ~600 MiB/day, always ending in "No status changes".
-      # Speaker-owned status, never something Argo should track.
+      # resource.exclusions is a single opaque string, so this key REPLACES
+      # upstream's default list rather than adding to it -- the whole thing has
+      # to be carried here. Everything up to the MetalLB block below is verbatim
+      # from the pinned argo-cd install.yaml; re-copy it when argo-cd is bumped
+      # (`kubectl get cm argocd-cm -n argocd -o jsonpath='{.data.resource\.exclusions}'`
+      # against a stock install) or these exclusions silently regress.
+      #
+      # The MetalLB entry is ours: the speakers delete+recreate their
+      # ServiceL2Status CRs every few seconds (new random names each time, not
+      # just resourceVersion bumps). Every one was a watch event on the metallb
+      # Application, so the application-controller refreshed and reconciled in a
+      # hot loop -- 98% of its log output, ~600 MiB/day, always ending in "No
+      # status changes". Speaker-owned status, never something Argo should track.
       resource.exclusions: |
+        ### Network resources created by the Kubernetes control plane and excluded to reduce the number of watched events and UI clutter
         - apiGroups:
-            - metallb.io
+          - ""   # YAML empty string -- a bare two-quote token would end the Nix literal
+          - discovery.k8s.io
           kinds:
-            - ServiceL2Status
-          clusters:
-            - "*"
+          - Endpoints
+          - EndpointSlice
+        ### Internal Kubernetes resources excluded reduce the number of watched events
+        - apiGroups:
+          - coordination.k8s.io
+          kinds:
+          - Lease
+        ### Internal Kubernetes Authz/Authn resources excluded reduce the number of watched events
+        - apiGroups:
+          - authentication.k8s.io
+          - authorization.k8s.io
+          kinds:
+          - SelfSubjectReview
+          - TokenReview
+          - LocalSubjectAccessReview
+          - SelfSubjectAccessReview
+          - SelfSubjectRulesReview
+          - SubjectAccessReview
+        ### Intermediate Certificate Request excluded reduce the number of watched events
+        - apiGroups:
+          - certificates.k8s.io
+          kinds:
+          - CertificateSigningRequest
+        - apiGroups:
+          - cert-manager.io
+          kinds:
+          - CertificateRequest
+        ### Cilium internal resources excluded reduce the number of watched events and UI Clutter
+        - apiGroups:
+          - cilium.io
+          kinds:
+          - CiliumIdentity
+          - CiliumEndpoint
+          - CiliumEndpointSlice
+        ### Kyverno intermediate and reporting resources excluded reduce the number of watched events and improve performance
+        - apiGroups:
+          - kyverno.io
+          - reports.kyverno.io
+          - wgpolicyk8s.io
+          kinds:
+          - PolicyReport
+          - ClusterPolicyReport
+          - EphemeralReport
+          - ClusterEphemeralReport
+          - AdmissionReport
+          - ClusterAdmissionReport
+          - BackgroundScanReport
+          - ClusterBackgroundScanReport
+          - UpdateRequest
+        ### MetalLB speaker-owned status, recreated every few seconds (ours)
+        - apiGroups:
+          - metallb.io
+          kinds:
+          - ServiceL2Status
   '';
 
   kustomization = pkgs.writeText "kustomization.yaml" ''
