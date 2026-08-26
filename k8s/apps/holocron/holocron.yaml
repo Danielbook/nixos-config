@@ -80,10 +80,7 @@ spec:
           ports:
             - containerPort: 8000
           resources:
-            requests:
-              memory: 2Gi
             limits:
-              memory: 4Gi
               nvidia.com/gpu: 1
           livenessProbe:
             httpGet:
