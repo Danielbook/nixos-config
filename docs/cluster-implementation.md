@@ -769,6 +769,23 @@ Nothing on jupiter is destroyed until everything is verified on the cluster.
       the old `docker.json`/`watchtower.json` Grafana dashboards (fed by the
       dropped telegraf) go historical-only — not rebuilt against
       cAdvisor/kube-state-metrics, out of scope unless asked.
+      **kube-prometheus-stack removed 2026-08-27** — it never actually ran.
+      Argo's client-side apply stuffs the whole manifest into the
+      `last-applied-configuration` annotation, and the chart's big CRDs blow
+      the 262144-byte annotation limit (`prometheuses`, `alertmanagers`,
+      `alertmanagerconfigs`, `prometheusagents`, `scrapeconfigs`,
+      `thanosrulers` all failed; the small ones — `servicemonitors`,
+      `podmonitors`, `prometheusrules`, `probes` — landed). No `prometheuses`
+      CRD → the operator never built a Prometheus StatefulSet → the
+      `kube-prometheus-stack-prometheus` Service sat with zero endpoints and
+      Grafana's Prometheus datasource pointed at nothing. That state survived
+      49 days unnoticed, which is the actual verdict: nobody queries cluster
+      metrics here. The exporters that did run (operator, kube-state-metrics,
+      4× node-exporter, ~80Mi total) were scraping into a void. influxdb
+      stays — it holds home-assistant's data and is the one time-series store
+      in real use. Reinstating = revert this commit **plus** add
+      `ServerSideApply=true` to the Application's `syncOptions`, without which
+      the CRDs fail the same way again.
       **influxdb** (image `influxdb:2.7`, pinned) + **grafana** (image
       `grafana/grafana-enterprise:10.2.3`, pinned) shipped at `replicas: 0`
       first (same restore-before-serve pattern as authentik/unifi), data
