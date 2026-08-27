@@ -60,7 +60,13 @@ kind: Service
 metadata:
   name: seerr
   namespace: seerr
+  annotations:
+    # dedicated LB IP so the guest WireGuard tunnel can be firewalled to
+    # exactly this app — traefik's 10.10.40.51 fronts every service, so an
+    # IP rule against it would grant guests the whole estate.
+    metallb.io/loadBalancerIPs: 10.10.40.55
 spec:
+  type: LoadBalancer  # in addition to the ingress, which keeps using the ClusterIP
   selector:
     app: seerr
   ports:
