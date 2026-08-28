@@ -79,6 +79,7 @@
       "zen"
       "ghostty"
       "claude"
+      "darktable"
       "discord"
       "docker-desktop"
       "figma"
