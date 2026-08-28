@@ -125,6 +125,28 @@ spec:
             initialDelaySeconds: 90
             periodSeconds: 30
             failureThreshold: 3
+        - name: flaresolverr
+          # Solves Cloudflare challenges for prowlarr's public indexers.
+          # Same pod = same netns, so prowlarr reaches it at
+          # http://localhost:8191 — no Service needed, and its browser traffic
+          # exits through gluetun's tunnel like everything else here.
+          image: ghcr.io/flaresolverr/flaresolverr:v3.5.0
+          env:
+            - name: LOG_LEVEL
+              value: warning
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 8191
+          resources:
+            limits:
+              memory: 1Gi # ponytail: headless Chrome leaks; capped rather than tuned
+          livenessProbe:
+            tcpSocket:
+              port: 8191
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 3
       volumes:
         - name: tun
           hostPath:
