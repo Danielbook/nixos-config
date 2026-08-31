@@ -229,13 +229,17 @@ in
     networking.firewall = lib.mkIf cfg.openFirewall {
       allowedTCPPorts = [
         10250
+        7946 # metallb speaker memberlist
       ]
       ++ lib.optionals isServer [
         6443
         2379
         2380
       ];
-      allowedUDPPorts = [ 8472 ]; # flannel vxlan
+      allowedUDPPorts = [
+        8472 # flannel vxlan
+        7946 # metallb speaker memberlist
+      ];
     };
   };
 }
