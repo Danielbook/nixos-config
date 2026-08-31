@@ -9,10 +9,10 @@ _: {
   };
 
   # Configure systemd memory limits for user services
-  systemd.user.extraConfig = ''
-    DefaultMemoryMax=8G
-    DefaultMemoryHigh=6G
-  '';
+  systemd.user.settings.Manager = {
+    DefaultMemoryMax = "8G";
+    DefaultMemoryHigh = "6G";
+  };
 
   # Docker memory limits
   virtualisation.docker = {
