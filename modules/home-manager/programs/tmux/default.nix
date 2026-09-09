@@ -19,6 +19,10 @@
       terminal = "screen-256color";
 
       extraConfig = ''
+        # Preserve modified keys (notably Shift+Enter and Ctrl+Enter) for apps in tmux.
+        set -g extended-keys on
+        set -g extended-keys-format csi-u
+
         # Automatically renumber windows when one is closed
         set -g renumber-windows on
 
