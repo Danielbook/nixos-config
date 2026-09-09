@@ -1,5 +1,11 @@
 # OpenClaw on 2017 MacBook Pro — Strategy Plan
 
+> **STALE — never implemented (last touched 2026-04-09).** OpenClaw appears
+> nowhere in this flake. The homelab it describes (`servarr` Docker VM,
+> `jupiter`) no longer exists — both dissolved into the k3s cluster; `dagobah`
+> is Apple Silicon, not Intel. Kept for the strategy notes only. Delete it if
+> the appliance idea is dead.
+
 ## Context
 
 Repurpose a 2017 Intel MacBook Pro as a dedicated OpenClaw appliance to monitor and automate the homelab:

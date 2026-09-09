@@ -10,6 +10,8 @@
 - **[Keybindings](docs/KEYBINDINGS.md)** - Complete keyboard shortcut reference
 - **[Neovim](docs/NEOVIM.md)** - LSP, Treesitter, Telescope, and Fugitive setup
 - **[Secrets](docs/SECRETS.md)** - sops-nix and Age encryption
+- **[Cluster](docs/CLUSTER.md)** - k3s homelab: hardware, decisions, DR runbook
+- **[WireGuard](docs/WIREGUARD.md)** - Remote access to the home network
 
 ## Repository Structure
 
@@ -17,17 +19,22 @@
 nixos-config
 ├── hosts/              # Machine-specific system configurations
 │   ├── coruscant/      # Primary workstation (NixOS + Hyprland)
-│   └── dagobah/        # Apple Silicon Mac (nix-darwin)
+│   ├── dagobah/        # Apple Silicon Mac (nix-darwin)
+│   ├── naboo/          # k3s control-plane (bootstrap)
+│   ├── endor/          # k3s control-plane
+│   ├── hoth/           # k3s control-plane
+│   └── tatooine/       # k3s GPU agent (GTX 1070)
 ├── home/               # User-specific Home Manager configs
 │   └── daniel/
 │       ├── coruscant/  # Host-specific HM overrides + Noctalia settings
-│       └── dagobah/    # macOS home config
+│       ├── dagobah/    # macOS home config
+│       └── <server>/   # Minimal home config per k3s node
 ├── modules/
 │   ├── nixos/          # NixOS system-level modules
 │   │   ├── common/     # Universal trunk (all hosts)
 │   │   ├── desktop/    # Desktop layer: common/ + hyprland/
 │   │   ├── graphics/   # Per-host GPU configuration
-│   │   └── services/   # Opt-in services (tlp, audio, usb-serial)
+│   │   └── services/   # Opt-in services (tlp, audio, usb-serial, k3s, argocd)
 │   ├── nix-darwin/     # macOS system-level modules
 │   │   └── common/     # macOS trunk (Homebrew, system defaults)
 │   └── home-manager/   # User-space modules
@@ -37,7 +44,10 @@ nixos-config
 │       ├── services/   # Individual service modules
 │       └── scripts/    # CLI scripts + desktop/ scripts
 ├── overlays/           # Nixpkgs overlays (vim plugins from source)
+├── k8s/                # Cluster workloads, GitOps-managed by Argo CD
 ├── docs/               # Documentation
+├── plans/              # Executable implementation plans (archive)
+├── CONTEXT.md          # Domain glossary
 ├── justfile            # Task runner for builds, formatting, and linting
 └── flake.nix           # Flake configuration and inputs
 ```
@@ -68,6 +78,7 @@ common (all hosts: nix settings, SSH, Docker, CLI tools)
 | **worktrunk** | Git worktree management CLI |
 | **nix-darwin** | macOS system management |
 | **walls** | Curated wallpaper collection |
+| **disko** | Declarative disk partitioning (k3s node installs via nixos-anywhere) |
 
 ## Highlights
 
@@ -91,6 +102,12 @@ common (all hosts: nix settings, SSH, Docker, CLI tools)
 ### CLI Tools
 atuin, bat, btop, carapace, dust, eza, fastfetch, fd, fzf, jq, lazydocker, lazygit, ripgrep, sesh, starship, television, yazi, zoxide, zsh
 
+### Homelab Cluster
+- **k3s HA** — 3 control-planes (naboo/endor/hoth, embedded etcd) + GPU agent (tatooine)
+- **Argo CD** GitOps over `k8s/`, secrets via ksops + sops/Age
+- **democratic-csi** against TrueNAS (iSCSI + NFS StorageClasses), MetalLB + Traefik
+- Source of truth is self-hosted **Forgejo**; GitHub/Codeberg are push mirrors
+
 ### Theming
 - **Catppuccin Macchiato** (lavender accent) across all applications
 - **Spicetify** Spotify theming integrated with Noctalia
@@ -113,14 +130,23 @@ just --list               # Show all available commands
 
 # Build
 just nixos-rebuild        # NixOS system rebuild (Linux)
+just nixos-rebuild-boot   # Build for next boot, no live activation
 just darwin-rebuild       # nix-darwin system rebuild (macOS)
 just home-manager-switch  # Home Manager switch
 just flake-check          # Validate flake configuration
 just flake-update         # Update all flake inputs
 just nix-gc               # Garbage collection
 
+# Cluster (remote deploy — headless k3s nodes)
+just deploy-naboo         # Control-plane 1
+just deploy-endor         # Control-plane 2
+just deploy-hoth          # Control-plane 3
+just deploy-cluster       # All three control-planes
+just deploy <host> <ip>   # Generic remote deploy
+
 # Code quality
 just format               # Format Nix files (nixfmt-rfc-style)
+just format-check         # Check formatting without modifying
 just lint                 # Run statix + deadnix
 just check-all            # Format + lint + flake check
 

@@ -11,9 +11,13 @@ Comprehensive keybinding reference for all tools in this configuration.
 |----------|--------|
 | `Super + Return` | 🖥️ Open terminal (Ghostty) |
 | `Super + E` | 📁 Open file manager (Nautilus) |
+| `Super + B` | 🌐 Open browser (Chrome) |
+| `Super + Y` | 🎵 YouTube Music (Chrome app) |
+| `Super + A` | 🤖 ChatGPT (Chrome app) |
+| `Super + Shift + G` | 💬 WhatsApp (Chrome app) |
 | `Super + Space` | 🗃️ Application launcher (Noctalia) |
 | `Super + N` | 📋 Toggle notification center (Noctalia) |
-| `Super + /` | 🔑 Show keybindings viewer |
+| `Super + /` | 🔑 Show keybindings viewer (Noctalia cheatsheet plugin) |
 
 ### 🪟 Window Management
 | Shortcut | Action |
@@ -22,8 +26,11 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `Ctrl + Alt + Q` | 🚪 Exit Hyprland |
 | `Super + F` | 📌 Toggle floating mode |
 | `Super + M` | 📺 Toggle fullscreen |
-| `Super + Return` | 🔄 Swap with master window |
+| `Super + Shift + Return` | 🔄 Swap with master window |
 | `Super + O` | 🔄 Cycle layout orientation |
+| `Ctrl + Alt + C` | 🎯 Center window |
+| `Super + Left mouse drag` | ✋ Move window |
+| `Super + Right mouse drag` | 📏 Resize window |
 
 ### 🧭 Navigation (Vim-style)
 | Shortcut | Action |
@@ -33,7 +40,6 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `Super + 1-9,0` | 🏠 Switch to workspace 1-10 |
 | `Super + Shift + 1-9,0` | 📦 Move window to workspace 1-10 |
 | `Super + Mouse scroll` | 🔄 Switch workspaces |
-| `Super + Space` | 🌐 Switch keyboard layout (US/SE) |
 
 ### 📸 Screenshots & Tools
 | Shortcut | Action |
@@ -44,6 +50,7 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `Super + Shift + C` | 🎨 Color picker (Hyprpicker) |
 | `Super + Shift + W` | 🖼️ Random wallpaper (Noctalia) |
 | `Alt + Shift + 2` | 👁️ OCR text recognition |
+| `Alt + Shift + V` | 📋 Clipboard history (fuzzel + cliphist) |
 
 ### 🖥️ Display Management
 | Shortcut | Action |
@@ -58,11 +65,14 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `XF86AudioLowerVolume` | 🔉 Decrease volume |
 | `XF86AudioMute` | 🔇 Toggle mute |
 | `XF86AudioMicMute` | 🎤 Toggle microphone mute |
+| `Shift + XF86AudioRaiseVolume` | 🎤 Increase mic volume |
+| `Shift + XF86AudioLowerVolume` | 🎤 Decrease mic volume |
 | `XF86MonBrightnessUp` | 💡 Increase brightness |
 | `XF86MonBrightnessDown` | 🌑 Decrease brightness |
 | `Shift + XF86MonBrightnessUp` | ⌨️ Increase keyboard backlight |
 | `Shift + XF86MonBrightnessDown` | ⌨️ Decrease keyboard backlight |
 | `Ctrl + Alt + L` | 🔒 Lock screen (Noctalia) |
+| Lid open/close | 💻 Enable/disable the internal display |
 
 ## 📝 Neovim
 

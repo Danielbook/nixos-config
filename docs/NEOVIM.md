@@ -9,6 +9,7 @@
 - **nvim-treesitter** - Advanced syntax highlighting and parsing
 - **nvim-cmp** - Autocompletion engine
 - **luasnip** - Snippet engine
+- **nvim-ts-autotag** - Auto close/rename HTML tags
 - **which-key-nvim** - Keybinding help and documentation
 
 ### AI Assistance
@@ -20,13 +21,16 @@
 - **telescope.nvim** - Fuzzy finder for files, buffers, grep
 - **neo-tree.nvim** - File explorer tree
 - **telescope-fzf-native** - FZF integration for Telescope
+- **telescope-ui-select** - Telescope as the `vim.ui.select` handler
+- **vim-tmux-navigator** - Seamless vim ↔ tmux pane navigation
+- **hardtime.nvim** + **precognition.nvim** - Motion-habit training and hints
 
 ### Git Integration
 - **vim-fugitive** - Complete Git workflow integration
 - **gitsigns.nvim** - Git signs in the gutter with hunk operations
 
 ### UI & Aesthetics
-- **catppuccin-nvim** - Beautiful pastel colorscheme
+- **base16-nvim** - Colorscheme driven by Noctalia's wallpaper-generated matugen palette
 - **lualine.nvim** - Fast and customizable statusline
 - **alpha-nvim** - Custom startup dashboard
 - **noice.nvim** - Better UI for messages, cmdline and popupmenu
@@ -37,7 +41,8 @@
 ### Utilities
 - **none-ls-nvim** - Formatters and linters integration
 - **undotree** - Undo history visualizer
-- **peek.nvim** - Markdown preview
+- **markdown-preview.nvim** - Browser-based markdown preview (mermaid, plantuml/dot)
+- **markview.nvim** - In-buffer markdown rendering
 - **vim-be-good** - Vim practice game
 
 ## ⌨️ Keybindings
@@ -201,7 +206,10 @@ The leader key is set to `<Space>`.
 
 ## 🎨 Theme
 
-The configuration uses **Catppuccin Mocha** theme with transparency enabled for a modern, aesthetically pleasing appearance.
+Colors come from **Noctalia** — it generates a matugen palette from the current
+wallpaper and writes `lua/matugen.lua`, which `base16-nvim` loads. If that file
+doesn't exist yet, Neovim warns and falls back to a default base16 theme
+(enable the nvim-base16 template in Noctalia).
 
 ## 🛠️ Language Servers
 
@@ -248,11 +256,18 @@ modules/home-manager/programs/neovim/
         ├── copilot-chat.lua         # Copilot Chat config
         ├── gitsigns.lua             # GitSigns config
         ├── formatting.lua           # Formatter config
-        ├── catppuccin.lua           # Theme config
+        ├── catppuccin.lua           # Theme config (base16 via Noctalia/matugen)
+        ├── diagnostics.lua          # Diagnostic display
+        ├── hardtime.lua             # Motion-habit training
+        ├── precognition.lua         # Motion hints
+        ├── ts-autotag.lua           # HTML tag auto-close
+        ├── markview.lua             # In-buffer markdown rendering
+        ├── markdown-preview.lua     # Browser markdown preview
         ├── lualine.lua              # Statusline config
         ├── alpha.lua                # Startup screen
         ├── noice.lua                # UI enhancements
         ├── notify.lua               # Notifications
+        ├── mini-modules.lua         # mini.nvim modules (icons, etc.)
         ├── mini-animate.lua         # Animations
         └── indent-blankline.lua     # Indent guides
 ```

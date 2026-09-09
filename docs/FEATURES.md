@@ -10,7 +10,7 @@
   - Media controls and system monitoring
   - Network, Bluetooth, and volume controls
 - **Hypridle**: Automatic screen dimming and locking
-- **Kanshi**: Dynamic display configuration
+- **hyprdynamicmonitors**: Dynamic monitor profiles (home/work/laptop templates)
 
 ## Graphics & Hardware
 - **NVIDIA Prime Sync**: Intel iGPU + NVIDIA dGPU on coruscant; HDMI routed through dGPU, open kernel modules
@@ -21,7 +21,7 @@
 - **Hyprshot**: Flexible screenshot tool with region and window capture
 - **Satty**: Modern screenshot annotation tool
 - **Screen Recording**: Integrated recording functionality
-- **OCR Support**: Text recognition from images with wl-ocr
+- **OCR Support**: `ocr` script — grim + slurp region capture into tesseract (eng+swe) → clipboard
 
 ## Tools & Utilities
 - **Cliphist**: Clipboard history manager
@@ -66,6 +66,12 @@
 - **Nix Flakes**: Reproducible package management
 - **Home Manager**: User environment configuration
 - **Flatpak**: Sandboxed application support
+
+## macOS (dagobah)
+- **Aerospace**: Tiling window manager
+- **Homebrew casks** managed declaratively via nix-darwin (incl. darktable)
+- **NFS photo mount**: autofs `/Users/daniel/mnt/photos` → TrueNAS media pool
+- **Touch ID sudo**
 
 ## Homelab Cluster
 - **k3s HA cluster**: 3 control-planes (naboo/endor/hoth, embedded etcd) + GPU
