@@ -53,8 +53,7 @@ All command-line tools used across this NixOS configuration, organized by catego
 |------|-------------|------|
 | claude-code | Anthropic's CLI for Claude | [github.com/anthropics/claude-code](https://github.com/anthropics/claude-code) |
 | codex | OpenAI's coding agent CLI | [github.com/openai/codex](https://github.com/openai/codex) |
-| opencode | Open-source AI coding agent | [github.com/opencode-ai/opencode](https://github.com/opencode-ai/opencode) |
-| pi | Minimal terminal coding harness, multi-provider | [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) |
+| pi | Minimal terminal coding harness, multi-provider | [github.com/earendil-works/pi](https://github.com/earendil-works/pi) |
 | github-copilot-cli | GitHub Copilot CLI | [github.com/github/copilot-cli](https://github.com/github/copilot-cli) |
 
 > **claude-code install method:** On Linux it's installed via the npm HM

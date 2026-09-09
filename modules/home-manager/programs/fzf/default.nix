@@ -8,6 +8,9 @@ in
     enable = true;
     enableZshIntegration = true;
 
+    # atuin owns Ctrl-R
+    historyWidget.zsh.command = "";
+
     defaultCommand = "find .";
     defaultOptions = [
       "--bind '?:toggle-preview'"
