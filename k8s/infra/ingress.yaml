@@ -22,6 +22,9 @@ spec:
           - name: headlamp
             namespace: headlamp
             port: 80
+          - name: argocd-server # own auth (SSO/admin login); mkRoute's .name is the Service name too
+            namespace: argocd
+            port: 80
           - name: jellyfin
             namespace: jellyfin
             port: 80

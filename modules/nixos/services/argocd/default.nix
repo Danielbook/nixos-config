@@ -174,6 +174,20 @@ let
           - ServiceL2Status
   '';
 
+  # argocd-server terminates TLS itself and 307-redirects :80 -> https://<host>/.
+  # Behind Traefik (which already terminates TLS at the websecure entrypoint and
+  # forwards plain HTTP) that redirect lands back on Traefik -> loop. Serving
+  # plain HTTP here is what upstream prescribes for a TLS-terminating proxy.
+  # Note: the argocd CLI speaks gRPC on the same port -- use `--grpc-web`.
+  argocdCmdParamsPatch = pkgs.writeText "argocd-cmd-params-cm-patch.yaml" ''
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: argocd-cmd-params-cm
+    data:
+      server.insecure: "true"
+  '';
+
   kustomization = pkgs.writeText "kustomization.yaml" ''
     apiVersion: kustomize.config.k8s.io/v1beta1
     kind: Kustomization
@@ -190,6 +204,10 @@ let
         target:
           kind: ConfigMap
           name: argocd-cm
+      - path: argocd-cmd-params-cm-patch.yaml
+        target:
+          kind: ConfigMap
+          name: argocd-cmd-params-cm
   '';
 
   # Render offline: all inputs copied into the build dir so kustomize's path
@@ -200,6 +218,7 @@ let
     cp ${namespace} build/namespace.yaml
     cp ${repoServerPatch} build/repo-server-patch.yaml
     cp ${argocdCmPatch} build/argocd-cm-patch.yaml
+    cp ${argocdCmdParamsPatch} build/argocd-cmd-params-cm-patch.yaml
     cp ${kustomization} build/kustomization.yaml
     kustomize build build > $out
   '';
