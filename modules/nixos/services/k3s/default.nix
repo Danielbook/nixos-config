@@ -216,6 +216,14 @@ in
     services.openiscsi = {
       enable = true;
       name = "iqn.2026-07.com.bookorjeman:${config.networking.hostName}";
+      # A switch reboot (2026-09-09, 209s of no link) outlives the 120s default,
+      # so the kernel errors the I/O, ext4 aborts its journal and every iSCSI PVC
+      # remounts read-only until the pod is scaled to 0. Block for 10 minutes
+      # instead: a pod that hangs through an outage beats one that corrupts its
+      # database. Only applies to sessions logged in after this lands.
+      extraConfig = ''
+        node.session.timeo.replacement_timeout = 600
+      '';
     };
     boot.supportedFilesystems = [ "nfs" ];
 
