@@ -27,7 +27,7 @@
     };
   };
 
-  services.gpg-agent = lib.mkIf pkgs.stdenv.isLinux {
+  services.gpg-agent = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
     defaultCacheTtl = 86400;
     enableSshSupport = false; # Disabled to use Bitwarden SSH agent

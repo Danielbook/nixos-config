@@ -31,13 +31,16 @@
   ];
 
   # Nicely reload system units when changing configs (Linux only)
-  systemd.user.startServices = lib.mkIf pkgs.stdenv.isLinux "sd-switch";
+  systemd.user.startServices = lib.mkIf pkgs.stdenv.hostPlatform.isLinux "sd-switch";
 
   # Home-Manager configuration for the user's home environment
   home = {
     username = userConfig.name;
     homeDirectory =
-      if pkgs.stdenv.isDarwin then "/Users/${userConfig.name}" else "/home/${userConfig.name}";
+      if pkgs.stdenv.hostPlatform.isDarwin then
+        "/Users/${userConfig.name}"
+      else
+        "/home/${userConfig.name}";
   };
 
   # Essential CLI packages
@@ -59,10 +62,9 @@
       television
       unzip
       uv
-      opencode
       playwright-mcp
     ])
-    ++ lib.optionals pkgs.stdenv.isLinux [
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
       pkgs.nh
     ];
 
@@ -73,9 +75,9 @@
     export npm_config_prefix="$HOME/.npm-global"
     PATH="${pkgs.nodejs_24}/bin:$PATH"
     $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/npm install -g \
-      ${lib.optionalString pkgs.stdenv.isLinux "@anthropic-ai/claude-code@latest"} \
+      ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux "@anthropic-ai/claude-code@latest"} \
       @openai/codex@latest \
-      @mariozechner/pi-coding-agent@latest \
+      @earendil-works/pi-coding-agent@latest \
       2>&1 | tail -5
   '';
 
@@ -283,6 +285,8 @@
 
   # Catpuccin flavor and accent
   catppuccin = {
+    enable = true;
+    autoEnable = false; # only the ports enabled explicitly per-program
     flavor = "macchiato";
     accent = "lavender";
   };

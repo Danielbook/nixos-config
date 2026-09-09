@@ -82,7 +82,7 @@ common (all hosts: nix settings, SSH, Docker, CLI tools)
 
 ### Development
 - **Neovim** with LSP, Treesitter, Telescope, Fugitive, GitHub Copilot ([docs](docs/NEOVIM.md))
-- **AI coding agents**: Claude Code, Codex, OpenCode
+- **AI coding agents**: Claude Code, Codex
 - **Git** with SSH commit signing and GitLab conditional includes
 - **Jujutsu** modern VCS alongside Git
 - **Tmux** with vim-aware navigation

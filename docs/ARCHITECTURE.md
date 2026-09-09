@@ -58,7 +58,7 @@ common (all hosts, all platforms)
 
 ### Platform Conditionals
 
-Shared home-manager modules use `pkgs.stdenv.isDarwin` / `pkgs.stdenv.isLinux` for the few platform-specific bits:
+Shared home-manager modules use `pkgs.stdenv.hostPlatform.isDarwin` / `pkgs.stdenv.hostPlatform.isLinux` for the few platform-specific bits:
 - `systemd.user.startServices` — Linux only
 - `home.homeDirectory` — `/home/` vs `/Users/`
 - `nh` package — Linux only (NixOS helper)

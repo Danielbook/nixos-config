@@ -101,7 +101,7 @@
         zstyle ':fzf-tab:complete:git-(checkout|diff|log|merge|rebase|reset|switch):*' fzf-preview \
           'git log --oneline --graph --color=always --date=short $word 2>/dev/null'
 
-        ${lib.optionalString pkgs.stdenv.isLinux ''
+        ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
           # Previews: systemctl
           zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null'
         ''}
