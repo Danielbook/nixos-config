@@ -36,7 +36,7 @@
 
 ## Development Tools
 - **Neovim**: Highly customized editor with LSP, Treesitter, Telescope, Neo-tree, Catppuccin theme
-- **Git**: Version control with delta pager
+- **Git**: Version control with delta pager; `git dft`/`dlog`/`dshow` give syntax-aware diffs via difftastic
 - **Development Languages**: Node.js, Python, Go, Rust support
 
 ## Navigation & Productivity

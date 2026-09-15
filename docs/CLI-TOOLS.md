@@ -60,8 +60,9 @@ All command-line tools used across this NixOS configuration, organized by catego
 > activation (`modules/home-manager/common/default.nix`). On macOS it uses
 > Claude Code's native self-updating installer (`claude install` →
 > `~/.local/bin/claude`), so it's omitted from the npm set there. `codex` and
-> `pi` stay on npm for both. User data (settings, skills, plugins, MCP) lives
-> in `~/.claude/` and is shared by either binary.
+> `pi` stay on npm for both. Claude Code user data (settings, skills, plugins,
+> MCP) lives in `~/.claude/` and is shared by either binary. Pi global
+> extensions are declaratively linked from `modules/home-manager/programs/pi/`.
 
 ## Development
 

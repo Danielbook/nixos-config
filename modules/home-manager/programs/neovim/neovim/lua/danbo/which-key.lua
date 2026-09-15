@@ -73,6 +73,13 @@ wk.add({
 	{ "<leader>gr", desc = "Git Read (checkout file)" },
 	{ "<leader>gw", desc = "Git Write (stage file)" },
 
+	-- Diff review (Diffview)
+	{ "<leader>gv", desc = "Diffview: working tree" },
+	{ "<leader>gV", desc = "Diffview: against base" },
+	{ "<leader>gq", desc = "Diffview: close" },
+	{ "<leader>gh", desc = "Diffview: file history", mode = { "n", "v" } },
+	{ "<leader>gH", desc = "Diffview: branch history" },
+
 	-- Git Hunks (GitSigns)
 	{ "<leader>h", group = "󰊢 Git Hunks" },
 	{ "<leader>hs", desc = "Stage Hunk", mode = { "n", "v" } },

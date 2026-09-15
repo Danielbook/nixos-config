@@ -20,6 +20,7 @@
     ../programs/jujutsu
     ../programs/lazygit
     ../programs/neovim
+    ../programs/pi
     ../programs/sesh
     ../programs/ssh
     ../programs/starship
