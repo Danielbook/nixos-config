@@ -50,6 +50,7 @@ in
       [
         alpha-nvim # Startup screen with custom dashboard
         base16-nvim # Base16 colorscheme (used with Noctalia)
+        catppuccin-nvim # Colorscheme fallback when Noctalia isn't present
         cmp-nvim-lsp # LSP completion source for nvim-cmp
         cmp-path # Path completion source for nvim-cmp
         cmp-buffer # Buffer completion source for nvim-cmp

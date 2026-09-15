@@ -1,5 +1,11 @@
--- Treesitter highlight and indent are built into Neovim 0.11+
--- They are enabled automatically when parsers are available
+-- Neovim only auto-starts treesitter for its own bundled parsers (c, lua, vim,
+-- markdown, query, vimdoc). Parsers from nvim-treesitter need starting by hand,
+-- or those filetypes fall back to the sparse regex syntax highlighting.
+vim.api.nvim_create_autocmd("FileType", {
+	callback = function(args)
+		pcall(vim.treesitter.start, args.buf)
+	end,
+})
 
 -- Textobjects configuration
 require("nvim-treesitter-textobjects").setup({

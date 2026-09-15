@@ -129,7 +129,7 @@
       tmux = {
         enable = true;
         extraConfig = ''
-          set -g @catppuccin_flavor "macchiato"
+          set -g @catppuccin_flavor "mocha"
           set -g @catppuccin_status_background "none"
 
           # Window styling with beautiful separators
