@@ -20,6 +20,8 @@ require("danbo.lualine")
 require("danbo.markview")
 require("danbo.markdown-preview")
 require("danbo.remap")
+-- After remap: mapleader is set there, and diffview registers <leader> maps.
+require("danbo.diffview")
 require("danbo.set")
 require("danbo.which-key")
 

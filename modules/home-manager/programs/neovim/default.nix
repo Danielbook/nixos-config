@@ -58,6 +58,7 @@ in
         copilot-lua # GitHub Copilot integration
         copilot-cmp # Copilot integration with nvim-cmp
         CopilotChat-nvim # Copilot chat for conversations with AI
+        diffview-nvim # Git diff/review UI (file panel, merge tool, file history)
         friendly-snippets # Collection of useful snippets
         gitsigns-nvim # Git signs in the gutter
         lualine-nvim # Fast and customizable statusline

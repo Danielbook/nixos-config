@@ -149,6 +149,15 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `[d` / `]d` | ⬅️➡️ Navigate diagnostics |
 | `<leader>bf` | 🎨 Format buffer |
 
+### 🔀 Git Review (Diffview)
+| Shortcut | Action |
+|----------|--------|
+| `<leader>gv` | 🔍 Diff the working tree |
+| `<leader>gV` | 🎯 Diff against a base rev (prompts, defaults to `origin/main...`) |
+| `<leader>gh` | 📜 File history (visual mode: history for the selected range) |
+| `<leader>gH` | 🌿 Branch history |
+| `<leader>gq` | ❌ Close Diffview |
+
 ### 📚 Utilities
 | Shortcut | Action |
 |----------|--------|

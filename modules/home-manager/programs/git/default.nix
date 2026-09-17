@@ -47,8 +47,17 @@
         ""
         "${pkgs.glab}/bin/glab auth git-credential"
       ];
+      # Syntax-aware diffs on demand. Not `diff.external` globally — that would
+      # replace delta everywhere and break `add -p`/machine-readable diffs.
+      alias = {
+        dft = "-c diff.external=${pkgs.difftastic}/bin/difft diff";
+        dlog = "-c diff.external=${pkgs.difftastic}/bin/difft log -p --ext-diff";
+        dshow = "-c diff.external=${pkgs.difftastic}/bin/difft show --ext-diff";
+      };
     };
   };
+
+  home.packages = [ pkgs.difftastic ];
 
   # Configure delta (git diff pager)
   programs.delta = {
