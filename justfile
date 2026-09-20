@@ -104,9 +104,12 @@ deploy-endor: (deploy "endor" "10.10.40.14")
 # Deploy hoth (k3s control-plane 3, F2)
 deploy-hoth: (deploy "hoth" "10.10.40.11")
 
-# Deploy ALL control-planes (required when a Nix-delivered k3s manifest changes,
-# or they drift/race)
-deploy-cluster: deploy-naboo deploy-endor deploy-hoth
+# Deploy tatooine (k3s GPU agent)
+deploy-tatooine: (deploy "tatooine" "10.10.40.15")
+
+# Deploy ALL cluster nodes — control-planes first (required when a Nix-delivered
+# k3s manifest changes, or they drift/race), then the GPU agent
+deploy-cluster: deploy-naboo deploy-endor deploy-hoth deploy-tatooine
 
 # =============================================================================
 # Development & Maintenance
