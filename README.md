@@ -141,7 +141,8 @@ just nix-gc               # Garbage collection
 just deploy-naboo         # Control-plane 1
 just deploy-endor         # Control-plane 2
 just deploy-hoth          # Control-plane 3
-just deploy-cluster       # All three control-planes
+just deploy-tatooine      # GPU agent
+just deploy-cluster       # All nodes: three control-planes, then tatooine
 just deploy <host> <ip>   # Generic remote deploy
 
 # Code quality

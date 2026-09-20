@@ -29,7 +29,8 @@ just home-manager-switch    # Home Manager switch
 just deploy-naboo           # Remote deploy k3s control-plane naboo (10.10.40.13)
 just deploy-endor           # Remote deploy k3s control-plane endor (10.10.40.14)
 just deploy-hoth            # Remote deploy k3s control-plane hoth (10.10.40.11)
-just deploy-cluster         # Deploy ALL three control-planes (required when a Nix-delivered k3s manifest changes)
+just deploy-tatooine        # Remote deploy k3s GPU agent tatooine (10.10.40.15)
+just deploy-cluster         # Deploy ALL cluster nodes: three control-planes, then tatooine (required when a Nix-delivered k3s manifest changes)
 just deploy <host> <ip>     # Generic remote deploy (build + activate on target)
 just flake-check            # Validate before building
 just flake-update           # Update all flake inputs
