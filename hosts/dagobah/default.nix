@@ -37,6 +37,10 @@
     /-			-static
     /-			auto_nfs
   '';
+  # macOS updates restore the stock file; let activation overwrite it.
+  environment.etc."auto_master".knownSha256Hashes = [
+    "b2aac03248e8f229c703561f5bb059f9be491e5db9f447692398d775a9fb12a5"
+  ];
 
   system.activationScripts.postActivation.text = ''
     /usr/sbin/automount -cv >/dev/null
