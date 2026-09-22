@@ -73,6 +73,7 @@
   homebrew = {
     enable = true;
     onActivation.cleanup = "zap";
+    taps = [ "music-assistant/tap" ];
     casks = [
       "bitwarden"
       "brave-browser"
@@ -93,6 +94,7 @@
       "obsidian"
       "microsoft-powerpoint"
       "microsoft-teams"
+      "music-assistant/tap/music-assistant" # desktop companion for the k3s music-assistant
       "spotify"
       "whatsapp"
     ];
