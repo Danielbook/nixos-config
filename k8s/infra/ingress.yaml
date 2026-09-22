@@ -118,6 +118,9 @@ spec:
           - name: homeassistant # HA has its own auth; mobile app breaks behind forward-auth
             namespace: homeassistant
             port: 8123
+          - name: music-assistant # own auth; HA integration + companion apps break behind forward-auth
+            namespace: homeassistant
+            port: 8095
           - name: esphome
             namespace: homeassistant
             port: 6052

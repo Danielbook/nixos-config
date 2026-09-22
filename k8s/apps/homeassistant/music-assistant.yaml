@@ -1,0 +1,104 @@
+# music-assistant — upstream only supports host networking (player discovery
+# via mDNS/SSDP, players pull audio back from the stream server on 8097), so
+# hostNetwork + pinned to naboo like homeassistant/matter-server. Ports
+# 8095/8097 opened in hosts/naboo/default.nix. Music library is the same
+# TrueNAS NFS export navidrome uses, read-only; a PV binds 1:1 to a PVC, hence
+# a second PV for the same path. Add it in the UI as a Filesystem provider
+# pointing at /media/music.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-music-ma
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 10.10.40.10
+    path: /mnt/pool1/data/media/music
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-music
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: ""
+  volumeName: nfs-music-ma
+  resources:
+    requests:
+      storage: 2Ti
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: music-assistant-data
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: music-assistant
+  namespace: homeassistant
+  labels:
+    app: music-assistant
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO PVC + fixed host ports
+  selector:
+    matchLabels:
+      app: music-assistant
+  template:
+    metadata:
+      labels:
+        app: music-assistant
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: naboo
+      containers:
+        - name: music-assistant
+          image: ghcr.io/music-assistant/server:2.10.4
+          ports:
+            - containerPort: 8095
+            - containerPort: 8097
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: music
+              mountPath: /media/music
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: music-assistant-data
+        - name: music
+          persistentVolumeClaim:
+            claimName: nfs-music
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: music-assistant
+  namespace: homeassistant
+spec:
+  selector:
+    app: music-assistant
+  ports:
+    - port: 8095
+      targetPort: 8095

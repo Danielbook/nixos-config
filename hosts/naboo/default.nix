@@ -55,6 +55,8 @@
   networking.firewall.allowedTCPPorts = [
     8123 # homeassistant
     21063 # homekit bridge (HAP)
+    8095 # music-assistant web/API
+    8097 # music-assistant stream server (players pull audio)
   ];
   networking.firewall.allowedUDPPorts = [ 5353 ]; # mDNS/Bonjour for HomeKit discovery
 
