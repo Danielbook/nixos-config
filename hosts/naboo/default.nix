@@ -59,6 +59,14 @@
     8097 # music-assistant stream server (players pull audio)
   ];
   networking.firewall.allowedUDPPorts = [ 5353 ]; # mDNS/Bonjour for HomeKit discovery
+  # music-assistant listens on random ports in the Linux ephemeral range
+  # (excludes NodePorts 30000-32767): AirPlay (RAOP) — the Denon (static
+  # 192.168.1.60) connects back to cliairplay's timing/control/event ports;
+  # Spotify Connect — LAN clients hit soloist's zeroconf HTTP port.
+  networking.firewall.extraCommands = ''
+    iptables -I nixos-fw -s 192.168.1.60 -p udp --dport 32768:60999 -j nixos-fw-accept
+    iptables -I nixos-fw -s 192.168.1.0/24 -p tcp --dport 32768:60999 -j nixos-fw-accept
+  '';
 
   system.stateVersion = "25.05";
 }
