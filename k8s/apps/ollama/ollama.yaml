@@ -48,6 +48,16 @@ spec:
       containers:
         - name: ollama
           image: ollama/ollama:0.31.2
+          # 8 GB shared with holocron whisper + jellyfin NVENC: one model
+          # (qwen2.5:7b, every consumer uses it), resident forever, one request
+          # at a time — callers queue instead of fighting over VRAM.
+          env:
+            - name: OLLAMA_NUM_PARALLEL
+              value: "1"
+            - name: OLLAMA_MAX_LOADED_MODELS
+              value: "1"
+            - name: OLLAMA_KEEP_ALIVE
+              value: "-1"
           ports:
             - containerPort: 11434
           resources:
