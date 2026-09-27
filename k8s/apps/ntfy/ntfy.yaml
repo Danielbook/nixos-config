@@ -1,0 +1,107 @@
+# ntfy — self-hosted push for info streams (topics: email, news, homelab,
+# security). See docs/ai-automations-plan.md Phase 1.
+#
+# Config is all NTFY_* env, no server.yml. Deny-all by default; users/tokens are
+# declarative (created on every start). The bcrypt hashes + publisher token are
+# the `ntfy-auth` Secret (NTFY_AUTH_USERS, NTFY_AUTH_TOKENS), authored as ksops
+# `k8s/ntfy/ntfy-auth.enc.yaml`. Access rules aren't secret, so they live here.
+#
+# iOS: upstream-base-url relays only a poll request via ntfy.sh (APNs); the app
+# then fetches the message body from us over LAN/WireGuard.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ntfy
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ntfy-data
+  namespace: ntfy
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ntfy
+  namespace: ntfy
+  labels:
+    app: ntfy
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single RWO PVC holding sqlite DBs
+  selector:
+    matchLabels:
+      app: ntfy
+  template:
+    metadata:
+      labels:
+        app: ntfy
+    spec:
+      containers:
+        - name: ntfy
+          image: binwiederhier/ntfy:v2.28.0
+          args: ["serve"]
+          env:
+            - name: TZ
+              value: Europe/Stockholm
+            - name: NTFY_BASE_URL
+              value: https://ntfy.local.bookorjeman.com
+            - name: NTFY_LISTEN_HTTP
+              value: ":8080"
+            - name: NTFY_BEHIND_PROXY
+              value: "true"
+            - name: NTFY_UPSTREAM_BASE_URL
+              value: https://ntfy.sh
+            - name: NTFY_CACHE_FILE
+              value: /var/lib/ntfy/cache.db
+            - name: NTFY_AUTH_FILE
+              value: /var/lib/ntfy/user.db
+            - name: NTFY_AUTH_DEFAULT_ACCESS
+              value: deny-all
+            - name: NTFY_ENABLE_LOGIN
+              value: "true"
+            # daniel is role admin (full access); publisher is write-only.
+            - name: NTFY_AUTH_ACCESS
+              value: publisher:email:wo,publisher:news:wo,publisher:homelab:wo,publisher:security:wo
+          envFrom:
+            - secretRef:
+                name: ntfy-auth
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/ntfy
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8080
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ntfy-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ntfy
+  namespace: ntfy
+spec:
+  selector:
+    app: ntfy
+  ports:
+    - port: 80
+      targetPort: 8080
