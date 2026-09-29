@@ -14,7 +14,7 @@ for review after each.
 | Ollama | `http://ollama.ollama.svc.cluster.local:11434`, model `qwen2.5:7b-instruct-q4_K_M` |
 | Postgres | per-app `postgres:16-alpine` on iscsi (authentik/fartlek pattern) |
 | Mail | websupport.se, IMAP `imap.websupport.se:993`, mailbox password (Dovecot; IDLE + custom keywords expected — verify) |
-| Code | one Forgejo repo `danielbook/homelab-ai`, one image, two entrypoints (`mail-triage`, `news-digest`), image pinned to git sha |
+| Code | one Forgejo repo `danielbook/c3po`, one image, two entrypoints (`mail-triage`, `news-digest`), image pinned to git sha; CI = rootless BuildKit (kaniko is archived) |
 | Phone | iPhone WireGuard on-demand in place → ntfy content fetch works off-LAN |
 | Watchdog | **skipped** (no healthchecks.io). Known gap: a full outage goes unnoticed |
 | Homepage | `services.yaml` is on the PVC (not git) — edit via `kubectl exec`; ntfy link tile, Miniflux `miniflux` widget |
@@ -53,7 +53,7 @@ only on an idle GPU. Watch `ollama ps` for reload churn if HA sends a different
 
 ## Phase 2 — mail-triage
 
-- `homelab-ai` repo: `imap-tools` + `httpx`, Dockerfile, Forgejo CI.
+- `c3po` repo: `imap-tools` + `httpx`, Dockerfile, Forgejo CI (rootless BuildKit).
 - IDLE (5 min timeout) → fallback poll; fetch `UID > last`, `mark_seen=False`;
   `last_uid` + `UIDVALIDITY` in a file on a 1Gi iscsi PVC.
 - Ollama: `format` = JSON schema (`category` enum from ConfigMap, `important`
