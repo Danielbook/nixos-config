@@ -1,0 +1,145 @@
+# mail-triage — classifies new mail in the websupport.se INBOX with the
+# in-cluster ollama (qwen2.5:7b) and logs one JSON line per decision. Code:
+# forgejo.local.bookorjeman.com/danielbook/c3po. Plan: docs/ai-automations-plan.md.
+#
+# Suggest-only: every action in config.json is false until the decision log
+# has been reviewed (`kubectl -n mail-triage logs deploy/mail-triage | jq`).
+# config.json + few-shot.json are tunable here without an image rebuild; the
+# few-shot mails are synthetic on purpose (this repo is mirrored publicly).
+#
+# `mail-triage-env` (IMAP_USER, IMAP_PASSWORD, NTFY_TOKEN) and `c3po-registry`
+# (pull auth) are ksops `k8s/mail-triage/mail-triage-secrets.enc.yaml`.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mail-triage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mail-triage-state
+  namespace: mail-triage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mail-triage-config
+  namespace: mail-triage
+data:
+  config.json: |
+    {
+      "categories": {
+        "needs_reply": "a real person (friend, family, neighbour, anyone personal) writes to the owner and asks something or expects an answer",
+        "bills": "an invoice or payment request the owner still has to pay (faktura, förfallodatum, påminnelse om betalning)",
+        "receipts": "confirmation of something already paid or ordered: receipts, order confirmations, subscription charges",
+        "school_family": "school, preschool, children's activities, parent communication (skola, förskola, vårdnadshavare)",
+        "newsletters": "newsletters, digests, marketing and offers sent to many people",
+        "notifications": "automated messages from a service: deliveries, appointment reminders, account and security alerts",
+        "work": "the owner's job: colleagues, clients, projects",
+        "other": "personal-but-not-actionable mail that fits nothing above",
+        "unsure": "none of the other categories clearly fits"
+      },
+      "actions": {"move": false, "flag_colours": false, "notify": false},
+      "flag_colours": {"needs_reply": "red", "bills": "orange", "school_family": "purple", "work": "blue"},
+      "quiet_hours": "22:00-07:00"
+    }
+  few-shot.json: |
+    [
+      {"from": "Anna Lindqvist <anna.lindqvist@example.se>", "subject": "Middag på lördag?",
+       "body": "Hej! Vi tänkte bjuda in er på middag på lördag kl 18. Passar det? Säg till senast torsdag så jag vet hur mycket mat jag ska handla. Kram Anna",
+       "answer": {"category": "needs_reply", "important": true, "summary": "Anna bjuder på middag lördag 18, vill ha svar senast torsdag"}},
+      {"from": "Ellevio <noreply@ellevio.se>", "subject": "Din faktura för augusti",
+       "body": "Hej, din faktura på 1 243 kr för perioden 2026-08-01 – 2026-08-31 är nu tillgänglig. Förfallodatum 2026-09-30. Betala via autogiro eller bankgiro 5555-1234.",
+       "answer": {"category": "bills", "important": true, "summary": "Ellevio-faktura 1 243 kr, förfaller 30 sep"}},
+      {"from": "Apotek Hjärtat <order@apotekhjartat.se>", "subject": "Orderbekräftelse #481516",
+       "body": "Tack för din beställning! Ordernummer 481516. Totalt 349 kr, betalt med kort. Beräknad leverans 2–4 arbetsdagar.",
+       "answer": {"category": "receipts", "important": false, "summary": "Apotek Hjärtat order 349 kr, leverans 2–4 dagar"}},
+      {"from": "Skolplattformen <noreply@skola.example.se>", "subject": "Utvecklingssamtal vecka 42",
+       "body": "Hej vårdnadshavare! Nu är det dags att boka tid för utvecklingssamtal vecka 42. Boka senast fredag i Skolplattformen. Mvh Klass 3B",
+       "answer": {"category": "school_family", "important": true, "summary": "Boka utvecklingssamtal v42 senast fredag"}},
+      {"from": "selfh.st <newsletter@selfh.st>", "subject": "This Week in Self-Hosted (26 September 2026)",
+       "body": "This week: new releases from Immich, Jellyfin and Home Assistant, a deep dive on reverse proxies, and the usual roundup of new projects...",
+       "answer": {"category": "newsletters", "important": false, "summary": "Veckans self-hosted-nyheter: Immich, Jellyfin, HA-releaser"}},
+      {"from": "GitHub <noreply@github.com>", "subject": "[GitHub] A new SSH key was added to your account",
+       "body": "The following SSH key was added to your account: ed25519 laptop-2026. If you believe this key was added in error, remove it and review your account security.",
+       "answer": {"category": "notifications", "important": true, "summary": "New SSH key added to GitHub account — verify it was you"}},
+      {"from": "PostNord <noreply@postnord.se>", "subject": "Ditt paket är på väg",
+       "body": "Ditt paket med kolli-ID 00370726201234567 har lämnat terminalen och levereras till ditt ombud imorgon.",
+       "answer": {"category": "notifications", "important": false, "summary": "PostNord-paket levereras till ombud imorgon"}},
+      {"from": "Erik Sandberg <erik.sandberg@acme-consulting.example>", "subject": "Re: Sprintplanering",
+       "body": "Hej, kan du kika på PR:en för betalflödet innan planeringen på måndag? Behöver din input på API-designen. /Erik",
+       "answer": {"category": "work", "important": true, "summary": "Erik vill ha review av betalflödes-PR före måndag"}}
+    ]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-triage
+  namespace: mail-triage
+  labels:
+    app: mail-triage
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single RWO state PVC; two instances would double-process
+  selector:
+    matchLabels:
+      app: mail-triage
+  template:
+    metadata:
+      labels:
+        app: mail-triage
+    spec:
+      imagePullSecrets:
+        - name: c3po-registry
+      securityContext:
+        fsGroup: 1000 # image runs as uid 1000; state.json lives on the PVC
+      containers:
+        - name: mail-triage
+          image: forgejo.local.bookorjeman.com/danielbook/c3po:32f29bd138c8d882b3ec7bae989b0465b2a6c556 # pin to git sha from CI build; bump to deploy
+          command: ["python", "mail_triage.py"]
+          env:
+            - name: TZ
+              value: Europe/Stockholm # quiet hours are local time
+            - name: IMAP_HOST
+              value: imap.websupport.se
+            - name: IMAP_FOLDER
+              value: INBOX
+            - name: OLLAMA_URL
+              value: http://ollama.ollama.svc.cluster.local:11434
+            - name: OLLAMA_MODEL
+              value: qwen2.5:7b-instruct-q4_K_M
+            - name: NTFY_URL
+              value: http://ntfy.ntfy.svc.cluster.local
+            - name: NTFY_TOPIC
+              value: email
+            # only read on the very first start (no state.json yet): classify
+            # the newest 20 mails so there is a log to review immediately
+            - name: BACKFILL
+              value: "20"
+          envFrom:
+            - secretRef:
+                name: mail-triage-env
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: state
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+      volumes:
+        - name: config
+          configMap:
+            name: mail-triage-config
+        - name: state
+          persistentVolumeClaim:
+            claimName: mail-triage-state
