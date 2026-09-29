@@ -28,6 +28,12 @@ data:
       labels:
         - docker:docker://node:22-bookworm
         - ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-22.04
+    # Rootless BuildKit (c3po's CI) needs user namespaces, which docker's
+    # default seccomp/apparmor profiles block. Jobs stay non-root and
+    # unprivileged. Not picked up live: `kubectl -n forgejo rollout restart
+    # deploy/forgejo-runner` after changing this.
+    container:
+      options: --security-opt seccomp=unconfined --security-opt apparmor=unconfined
 ---
 apiVersion: apps/v1
 kind: Deployment
