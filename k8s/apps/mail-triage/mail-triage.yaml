@@ -39,43 +39,128 @@ data:
         "needs_reply": "a real person (friend, family, neighbour, anyone personal) writes to the owner and asks something or expects an answer",
         "bills": "an invoice or payment request the owner still has to pay (faktura, förfallodatum, påminnelse om betalning)",
         "receipts": "confirmation of something already paid or ordered: receipts, order confirmations, subscription charges",
-        "school_family": "school, preschool, children's activities, parent communication (skola, förskola, vårdnadshavare)",
-        "newsletters": "newsletters, digests, marketing and offers sent to many people",
+        "school_family": "school, preschool and the kids' activities: sports teams and clubs (kallelse, träning, match, föreningsutskick), church and community groups the family takes part in, parent communication (skola, förskola, vårdnadshavare)",
+        "newsletters": "newsletters, digests and marketing sent to many people — including shops, brands and services sending offers or product news, even when addressed personally by name",
         "notifications": "automated messages from a service: deliveries, appointment reminders, account and security alerts",
         "work": "the owner's job: colleagues, clients, projects",
-        "other": "personal-but-not-actionable mail that fits nothing above",
+        "other": "mail from a real person that needs no answer and fits nothing above. Automated or noreply senders are never 'other'",
         "unsure": "none of the other categories clearly fits"
       },
-      "actions": {"move": false, "flag_colours": false, "notify": false},
-      "flag_colours": {"needs_reply": "red", "bills": "orange", "school_family": "purple", "work": "blue"},
+      "actions": {
+        "move": false,
+        "flag_colours": false,
+        "notify": false
+      },
+      "flag_colours": {
+        "needs_reply": "red",
+        "bills": "orange",
+        "school_family": "purple",
+        "work": "blue"
+      },
       "quiet_hours": "22:00-07:00"
     }
   few-shot.json: |
     [
-      {"from": "Anna Lindqvist <anna.lindqvist@example.se>", "subject": "Middag på lördag?",
-       "body": "Hej! Vi tänkte bjuda in er på middag på lördag kl 18. Passar det? Säg till senast torsdag så jag vet hur mycket mat jag ska handla. Kram Anna",
-       "answer": {"category": "needs_reply", "important": true, "summary": "Anna bjuder på middag lördag 18, vill ha svar senast torsdag"}},
-      {"from": "Ellevio <noreply@ellevio.se>", "subject": "Din faktura för augusti",
-       "body": "Hej, din faktura på 1 243 kr för perioden 2026-08-01 – 2026-08-31 är nu tillgänglig. Förfallodatum 2026-09-30. Betala via autogiro eller bankgiro 5555-1234.",
-       "answer": {"category": "bills", "important": true, "summary": "Ellevio-faktura 1 243 kr, förfaller 30 sep"}},
-      {"from": "Apotek Hjärtat <order@apotekhjartat.se>", "subject": "Orderbekräftelse #481516",
-       "body": "Tack för din beställning! Ordernummer 481516. Totalt 349 kr, betalt med kort. Beräknad leverans 2–4 arbetsdagar.",
-       "answer": {"category": "receipts", "important": false, "summary": "Apotek Hjärtat order 349 kr, leverans 2–4 dagar"}},
-      {"from": "Skolplattformen <noreply@skola.example.se>", "subject": "Utvecklingssamtal vecka 42",
-       "body": "Hej vårdnadshavare! Nu är det dags att boka tid för utvecklingssamtal vecka 42. Boka senast fredag i Skolplattformen. Mvh Klass 3B",
-       "answer": {"category": "school_family", "important": true, "summary": "Boka utvecklingssamtal v42 senast fredag"}},
-      {"from": "selfh.st <newsletter@selfh.st>", "subject": "This Week in Self-Hosted (26 September 2026)",
-       "body": "This week: new releases from Immich, Jellyfin and Home Assistant, a deep dive on reverse proxies, and the usual roundup of new projects...",
-       "answer": {"category": "newsletters", "important": false, "summary": "Veckans self-hosted-nyheter: Immich, Jellyfin, HA-releaser"}},
-      {"from": "GitHub <noreply@github.com>", "subject": "[GitHub] A new SSH key was added to your account",
-       "body": "The following SSH key was added to your account: ed25519 laptop-2026. If you believe this key was added in error, remove it and review your account security.",
-       "answer": {"category": "notifications", "important": true, "summary": "New SSH key added to GitHub account — verify it was you"}},
-      {"from": "PostNord <noreply@postnord.se>", "subject": "Ditt paket är på väg",
-       "body": "Ditt paket med kolli-ID 00370726201234567 har lämnat terminalen och levereras till ditt ombud imorgon.",
-       "answer": {"category": "notifications", "important": false, "summary": "PostNord-paket levereras till ombud imorgon"}},
-      {"from": "Erik Sandberg <erik.sandberg@acme-consulting.example>", "subject": "Re: Sprintplanering",
-       "body": "Hej, kan du kika på PR:en för betalflödet innan planeringen på måndag? Behöver din input på API-designen. /Erik",
-       "answer": {"category": "work", "important": true, "summary": "Erik vill ha review av betalflödes-PR före måndag"}}
+      {
+        "from": "Anna Lindqvist <anna.lindqvist@example.se>",
+        "subject": "Middag på lördag?",
+        "body": "Hej! Vi tänkte bjuda in er på middag på lördag kl 18. Passar det? Säg till senast torsdag så jag vet hur mycket mat jag ska handla. Kram Anna",
+        "answer": {
+          "category": "needs_reply",
+          "important": true,
+          "summary": "Anna bjuder på middag lördag 18, vill ha svar senast torsdag"
+        }
+      },
+      {
+        "from": "Ellevio <noreply@ellevio.se>",
+        "subject": "Din faktura för augusti",
+        "body": "Hej, din faktura på 1 243 kr för perioden 2026-08-01 – 2026-08-31 är nu tillgänglig. Förfallodatum 2026-09-30. Betala via autogiro eller bankgiro 5555-1234.",
+        "answer": {
+          "category": "bills",
+          "important": true,
+          "summary": "Ellevio-faktura 1 243 kr, förfaller 30 sep"
+        }
+      },
+      {
+        "from": "Skolplattformen <noreply@skola.example.se>",
+        "subject": "Utvecklingssamtal vecka 42",
+        "body": "Hej vårdnadshavare! Nu är det dags att boka tid för utvecklingssamtal vecka 42. Boka senast fredag i Skolplattformen. Mvh Klass 3B",
+        "answer": {
+          "category": "school_family",
+          "important": true,
+          "summary": "Boka utvecklingssamtal v42 senast fredag"
+        }
+      },
+      {
+        "from": "selfh.st <newsletter@selfh.st>",
+        "subject": "This Week in Self-Hosted (26 September 2026)",
+        "body": "This week: new releases from Immich, Jellyfin and Home Assistant, a deep dive on reverse proxies, and the usual roundup of new projects...",
+        "answer": {
+          "category": "newsletters",
+          "important": false,
+          "summary": "Veckans self-hosted-nyheter: Immich, Jellyfin, HA-releaser"
+        }
+      },
+      {
+        "from": "GitHub <noreply@github.com>",
+        "subject": "[GitHub] A new SSH key was added to your account",
+        "body": "The following SSH key was added to your account: ed25519 laptop-2026. If you believe this key was added in error, remove it and review your account security.",
+        "answer": {
+          "category": "notifications",
+          "important": true,
+          "summary": "New SSH key added to GitHub account — verify it was you"
+        }
+      },
+      {
+        "from": "Erik Sandberg <erik.sandberg@acme-consulting.example>",
+        "subject": "Re: Sprintplanering",
+        "body": "Hej, kan du kika på PR:en för betalflödet innan planeringen på måndag? Behöver din input på API-designen. /Erik",
+        "answer": {
+          "category": "work",
+          "important": true,
+          "summary": "Erik vill ha review av betalflödes-PR före måndag"
+        }
+      },
+      {
+        "from": "Sportbutiken <news@sportbutiken.example.se>",
+        "subject": "Daniel, nya skridskor har landat ⛸️",
+        "body": "Hej Daniel! Säsongen är här och vi har fyllt på med nya skridskor och klubbor. Just nu fri frakt över 499 kr. Handla nu!",
+        "answer": {
+          "category": "newsletters",
+          "important": false,
+          "summary": "Sportbutiken: nya skridskor, fri frakt över 499 kr"
+        }
+      },
+      {
+        "from": "Föreningsutskick <no_reply@foreningsutskick.example.se>",
+        "subject": "Nyhet från Motala FF: Säsongsavslutning P-2013",
+        "body": "Hej alla spelare och föräldrar! Säsongsavslutningen för P-2013 blir söndag 19 oktober kl 15 i klubbstugan. Vi bjuder på fika.",
+        "answer": {
+          "category": "school_family",
+          "important": false,
+          "summary": "Säsongsavslutning P-2013 sön 19 okt kl 15 i klubbstugan"
+        }
+      },
+      {
+        "from": "svenskalag.se <noreply@svenskalag.example.se>",
+        "subject": "Kallelse till match, lör 10 okt.",
+        "body": "Du har blivit kallad till match mot Linköping lördag 10 oktober. Samling 09:15 vid konstgräset. Svara på kallelsen i appen.",
+        "answer": {
+          "category": "school_family",
+          "important": false,
+          "summary": "Kallelse till match lör 10 okt, samling 09:15"
+        }
+      },
+      {
+        "from": "Nordnet <noreply@nordnet.example.se>",
+        "subject": "Du har ett nytt meddelande",
+        "body": "Du har fått ett nytt meddelande i din inkorg hos Nordnet. Logga in för att läsa det.",
+        "answer": {
+          "category": "notifications",
+          "important": false,
+          "summary": "Nytt meddelande i Nordnet-inkorgen"
+        }
+      }
     ]
 ---
 apiVersion: apps/v1
@@ -103,7 +188,7 @@ spec:
         fsGroup: 1000 # image runs as uid 1000; state.json lives on the PVC
       containers:
         - name: mail-triage
-          image: forgejo.local.bookorjeman.com/danielbook/c3po:32f29bd138c8d882b3ec7bae989b0465b2a6c556 # pin to git sha from CI build; bump to deploy
+          image: forgejo.local.bookorjeman.com/danielbook/c3po:dadc71889ead14ed8b6cf9413aa755241a11c2ba # pin to git sha from CI build; bump to deploy
           command: ["python", "mail_triage.py"]
           env:
             - name: TZ
