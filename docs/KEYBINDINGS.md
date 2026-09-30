@@ -173,43 +173,45 @@ Comprehensive keybinding reference for all tools in this configuration.
 
 ## 📟 Tmux
 
-**Prefix Key:** `Ctrl + Q`
+**Prefix Key:** `Ctrl + A`
 
 ### 🪟 Window & Session Management
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl + Q` then `c` | ➕ Create new window |
-| `Ctrl + Q` then `r` | ✏️ Rename current window |
-| `Ctrl + Q` then `R` | 🔄 Reload tmux config |
-| `Ctrl + Q` then `d` | 🚪 Detach from session |
-| `Ctrl + Q` then `n` | ➡️ Next window |
-| `Ctrl + Q` then `p` | ⬅️ Previous window |
-| `Ctrl + Q` then `1-9` | 🔢 Switch to window number |
+| `Ctrl + A` then `c` | ➕ Create new window |
+| `Ctrl + A` then `r` | ✏️ Rename current window |
+| `Ctrl + A` then `R` | 🔄 Reload tmux config |
+| `Ctrl + A` then `t` | 🏷️ Rename current pane (title) |
+| `Ctrl + A` then `d` | 🚪 Detach from session |
+| `Ctrl + A` then `n` | ➡️ Next window |
+| `Ctrl + A` then `p` | ⬅️ Previous window |
+| `Ctrl + A` then `1-9` | 🔢 Switch to window number |
 
 ### 🔄 Pane Management
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl + Q` then `v` | ↔️ Split pane vertically |
-| `Ctrl + Q` then `s` | ↕️ Split pane horizontally |
+| `Ctrl + A` then `v` | ↔️ Split pane vertically |
+| `Ctrl + A` then `s` | ↕️ Split pane horizontally |
 | `Ctrl + h/j/k/l` | 🧭 Navigate panes (vim-aware) |
 | `Shift + ←→↑↓` | 📏 Resize panes |
-| `Ctrl + Q` then `x` | ❌ Close current pane |
-| `Ctrl + Q` then `z` | 🔍 Zoom/unzoom pane |
+| `Ctrl + A` then `g` | 🖥️ 3 columns, golden-ratio center (28/44/28) |
+| `Ctrl + A` then `x` | ❌ Close current pane |
+| `Ctrl + A` then `z` | 🔍 Zoom/unzoom pane |
 
 ### 🔧 Utilities
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl + Q` then `Ctrl + L` | 🧹 Clear screen |
-| `Ctrl + F` | 📁 Open project selector |
+| `Ctrl + A` then `Ctrl + L` | 🧹 Clear screen |
+| `Ctrl + A` then `f` | 📁 Open sesh session picker |
 | Mouse scroll | 📜 Scroll through history |
 
 ### 📋 Copy Mode (Vi-style)
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl + Q` then `[` | 📋 Enter copy mode |
+| `Ctrl + A` then `[` | 📋 Enter copy mode |
 | `Space` | 📍 Start selection (in copy mode) |
 | `Enter` | 📄 Copy selection (in copy mode) |
-| `Ctrl + Q` then `]` | 📥 Paste |
+| `Ctrl + A` then `]` | 📥 Paste |
 | `v` | 📍 Visual select (in copy mode) |
 | `y` | 📄 Yank selection (in copy mode) |
 
@@ -230,7 +232,7 @@ Comprehensive keybinding reference for all tools in this configuration.
 ## 💡 Tips
 
 - **Vim-style navigation**: Most tools use h/j/k/l for left/down/up/right
-- **Consistent modifiers**: Super for Hyprland, Ctrl+Q for Tmux, Space for Neovim
+- **Consistent modifiers**: Super for Hyprland, Ctrl+A for Tmux, Space for Neovim
 - **Mouse support**: Tmux and Hyprland support mouse interactions
 - **Clipboard integration**: All tools share the system clipboard
 - **Context-aware**: Tmux detects Neovim and adjusts pane navigation accordingly

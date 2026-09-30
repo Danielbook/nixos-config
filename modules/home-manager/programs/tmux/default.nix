@@ -42,6 +42,9 @@
         bind -n S-Left resize-pane -L 8
         bind -n S-Right resize-pane -R 8
 
+        # Wide-screen 3-column golden layout: center = side * phi, sides = 1/(2+phi) ~ 28% (prefix + g)
+        bind g select-layout even-horizontal \; resize-pane -t '{left}' -x 28% \; resize-pane -t '{right}' -x 28%
+
         # Rename window with prefix + r
         bind r command-prompt -I "#W" "rename-window '%%'"
 
