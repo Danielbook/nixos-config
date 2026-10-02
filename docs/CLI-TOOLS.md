@@ -62,7 +62,37 @@ All command-line tools used across this NixOS configuration, organized by catego
 > `~/.local/bin/claude`), so it's omitted from the npm set there. `codex` and
 > `pi` stay on npm for both. Claude Code user data (settings, skills, plugins,
 > MCP) lives in `~/.claude/` and is shared by either binary. Pi global
-> extensions are declaratively linked from `modules/home-manager/programs/pi/`.
+> setup is managed by `modules/home-manager/programs/pi/`: Pi @latest, pinned
+> packages (Ponytail, web search, subagents, ask-user-question), three custom
+> extensions and built-in MCP with Playwright.
+
+### Pi configuration
+
+- `modules/home-manager/programs/pi/default.nix` owns package pins, startup
+  preferences and the Playwright server. `pi-mcp-adapter` is not loaded.
+- Activation installs latest Pi, merges managed keys into writable
+  `~/.pi/agent/settings.json` and `mcp.json`, then reconciles packages with
+  `pi update --extensions --no-approve`. Unmanaged settings and other MCP
+  servers are preserved. Changes to managed keys through Pi are reset at the
+  next activation; edit Nix to persist them.
+- Skills are not Nix-managed: Pi discovers `~/.agents/skills` natively, the
+  same directory the `skills` CLI installs into for Claude Code.
+- Auth, sessions, model catalogs and package caches remain local. Never copy
+  credentials into these Nix files: the Nix store is readable by other users.
+- macOS Playwright retains the writable browser cache and uses Chrome;
+  Linux uses Nix's bundled Chromium. Browser downloads are runtime state.
+- Pins control selected package versions/refs; npm transitive dependencies
+  still resolve at activation time. This is not a fully offline, Nix-locked
+  dependency closure.
+
+Validate the config merge without touching live settings:
+
+```bash
+node --test modules/home-manager/programs/pi/apply-config.test.mjs
+```
+
+Apply through `just home-manager-switch`, then restart Pi. New snapshot files
+must be tracked in Git before the normal Git-flake rebuild sees them.
 
 ## Development
 

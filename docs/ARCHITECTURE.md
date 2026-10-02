@@ -200,6 +200,15 @@ All overlays are applied automatically via `builtins.attrValues outputs.overlays
 
 Noctalia config lives in `home/daniel/coruscant/noctalia/` — files are **copied** (not symlinked) on activation so the GUI can edit them. `just noctalia-sync` copies runtime changes back to the repo (runs automatically before `just home-manager-switch`).
 
+## Pi Config
+
+`modules/home-manager/programs/pi/` links custom extensions through
+`home.file`. Its activation merges Nix-owned settings and
+MCP definitions into writable JSON, then reconciles pinned packages. Unknown
+settings and unmanaged servers survive activation; managed keys are reapplied.
+Auth, sessions and caches stay outside the Nix store. See
+[CLI Tools](CLI-TOOLS.md#pi-configuration) for pins, updates and validation.
+
 ## k3s Cluster Config Map
 
 Cluster config splits across two layers: **NixOS provisions the nodes**, **Argo CD (GitOps) provisions the workloads**. Strategy/decisions live in `docs/CLUSTER.md`; stage-by-stage build history in `docs/cluster-implementation.md`.
