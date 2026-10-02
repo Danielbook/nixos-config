@@ -69,7 +69,7 @@
       pkgs.nh
     ];
 
-  # Install latest codex and pi via npm (nixpkgs lags behind). claude-code is
+  # Install latest codex via npm (nixpkgs lags behind). claude-code is
   # npm-installed on Linux but uses the native installer on darwin (`claude
   # install` → ~/.local/bin), so it's omitted from the npm set there.
   home.activation.installNpmCLITools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -78,7 +78,6 @@
     $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/npm install -g \
       ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux "@anthropic-ai/claude-code@latest"} \
       @openai/codex@latest \
-      @earendil-works/pi-coding-agent@latest \
       2>&1 | tail -5
   '';
 
