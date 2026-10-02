@@ -109,6 +109,7 @@ wk.add({
 
 	-- Diagnostics/Debug
 	{ "<leader>d", group = "󰒭 Diagnostics" },
+	{ "<leader>dd", desc = "Document Diagnostics" },
 	{ "<leader>ds", desc = "Document Symbols" },
 
 	-- Rename/Refactor

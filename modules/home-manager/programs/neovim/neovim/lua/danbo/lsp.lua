@@ -37,18 +37,6 @@ local function on_attach(client, bufnr)
 			end,
 		})
 	end
-
-	-- CodeLens disabled for performance (was causing slowness in vtsls)
-	-- if client.supports_method("textDocument/codeLens") then
-	-- 	vim.lsp.codelens.refresh()
-	-- 	local group = vim.api.nvim_create_augroup("LspCodeLens", { clear = false })
-	-- 	vim.api.nvim_clear_autocmds({ group = group, buffer = bufnr })
-	-- 	vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-	-- 		group = group,
-	-- 		buffer = bufnr,
-	-- 		callback = vim.lsp.codelens.refresh,
-	-- 	})
-	-- end
 end
 
 -- Configure and enable LSP servers using vim.lsp.config (Neovim 0.11+)
@@ -144,16 +132,6 @@ local servers = {
 					functionTypeParameters = true,
 					parameterNames = true,
 					rangeVariableTypes = true,
-				},
-				codelenses = {
-					gc_details = false,
-					generate = true,
-					regenerate_cgo = true,
-					run_govulncheck = true,
-					test = true,
-					tidy = true,
-					upgrade_dependency = true,
-					vendor = true,
 				},
 			},
 		},
