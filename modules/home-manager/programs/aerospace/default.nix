@@ -14,6 +14,20 @@ lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     launchd.enable = true;
     settings = {
       start-at-login = true;
+      config-version = 2;
+      # v1 inferred these from the alt-N bindings; v2 needs them explicit.
+      persistent-workspaces = [
+        "1"
+        "2"
+        "3"
+        "4"
+        "5"
+        "6"
+        "7"
+        "8"
+        "9"
+        "10"
+      ];
 
       # Tiling defaults
       default-root-container-layout = "tiles";
@@ -78,7 +92,12 @@ lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
         alt-w = "close";
         alt-f = "layout floating tiling";
         alt-m = "fullscreen";
-        alt-o = "layout tiles horizontal vertical";
+        # Flatten first so the flip applies to the whole workspace (like
+        # Hyprland's orientationcycle), not just the focused window's sub-container.
+        alt-o = [
+          "flatten-workspace-tree"
+          "layout tiles horizontal vertical"
+        ];
         alt-shift-enter = "layout tiles horizontal vertical"; # approx of swapwithmaster
 
         # --- Focus (Hyprland: mod+hjkl) ---
