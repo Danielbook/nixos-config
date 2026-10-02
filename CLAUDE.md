@@ -78,6 +78,12 @@ Uses **sops-nix** with **Age encryption**. Never commit unencrypted secrets. See
 When making changes, update the relevant docs:
 - **Hosts, flake inputs, structure** → This file
 - **Keybindings** → `docs/KEYBINDINGS.md`
+
+### Adding keybindings
+
+Before binding a key, check it doesn't collide with the tool's built-in defaults *and* the repo config. Never trust `docs/KEYBINDINGS.md` alone — it has drifted before. Check the live source:
+- **tmux**: `tmux -L t -f /dev/null new -d \; list-keys -T prefix; tmux -L t kill-server` (defaults) + `modules/home-manager/programs/tmux/default.nix`
+- **Others**: the tool's default keymap docs + its module in `modules/`
 - **Neovim** → `docs/NEOVIM.md`
 - **Secrets** → `docs/SECRETS.md`
 - **Features** → `docs/FEATURES.md`
