@@ -123,9 +123,10 @@ The leader key is set to `<Space>`.
 
 | Keybind | Action |
 |---------|--------|
+| `<leader>dd` | Document Diagnostics (Telescope list) |
 | `<leader>ds` | Document Symbols |
-| `[d` | Previous Diagnostic |
-| `]d` | Next Diagnostic |
+| `[d` | Previous Diagnostic (with float) |
+| `]d` | Next Diagnostic (with float) |
 
 ### Rename/Refactor (`<leader>r`)
 
