@@ -64,6 +64,7 @@
       unzip
       uv
       playwright-mcp
+      codebase-memory-mcp
     ])
     ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
       pkgs.nh
