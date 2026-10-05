@@ -38,7 +38,8 @@
 - **Neovim**: Highly customized editor with LSP, Treesitter, Telescope, Neo-tree, Catppuccin theme
 - **Git**: Version control with delta pager; `git dft`/`dlog`/`dshow` give syntax-aware diffs via difftastic
 - **Development Languages**: Node.js, Python, Go, Rust support
-- **Pi**: Latest CLI, pinned packages, custom extensions, built-in Playwright MCP;
+- **Pi**: Latest CLI, pinned packages, custom extensions, built-in Playwright and
+  codebase-memory MCP (also registered for Claude Code);
   Nix-owned setup with local auth/session state
   ([configuration](CLI-TOOLS.md#pi-configuration))
 

@@ -278,6 +278,18 @@
       fi
     '';
 
+  # User-scope MCP servers live in ~/.claude.json, which Claude Code rewrites at
+  # runtime — merge only our key so imperatively added servers survive.
+  home.activation.registerClaudeMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    cfg="$HOME/.claude.json"
+    tmp=$(mktemp "$cfg.XXXXXX")
+    { cat "$cfg" 2>/dev/null || echo '{}'; } \
+      | ${lib.getExe pkgs.jq} --arg cmd ${lib.getExe pkgs.codebase-memory-mcp} \
+        '.mcpServers["codebase-memory-mcp"] = {type: "stdio", command: $cmd, args: []}' > "$tmp"
+    $DRY_RUN_CMD mv "$tmp" "$cfg"
+    rm -f "$tmp"
+  '';
+
   # Caveman plugin default intensity (plugin itself installed imperatively)
   xdg.configFile."caveman/config.json".text = builtins.toJSON {
     defaultMode = "ultra";
