@@ -38,6 +38,7 @@ let
           (if pkgs.stdenv.hostPlatform.isDarwin then "chrome" else "chromium")
         ];
       };
+      mcpServers.codebase-memory-mcp.command = lib.getExe pkgs.codebase-memory-mcp;
     }
   );
 in

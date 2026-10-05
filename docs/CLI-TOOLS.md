@@ -69,7 +69,8 @@ All command-line tools used across this NixOS configuration, organized by catego
 ### Pi configuration
 
 - `modules/home-manager/programs/pi/default.nix` owns package pins, startup
-  preferences and the Playwright server. `pi-mcp-adapter` is not loaded.
+  preferences and the Playwright and codebase-memory-mcp servers.
+  `pi-mcp-adapter` is not loaded.
 - Activation installs latest Pi, merges managed keys into writable
   `~/.pi/agent/settings.json` and `mcp.json`, then reconciles packages with
   `pi update --extensions --no-approve`. Unmanaged settings and other MCP
@@ -79,6 +80,15 @@ All command-line tools used across this NixOS configuration, organized by catego
   same directory the `skills` CLI installs into for Claude Code.
 - Auth, sessions, model catalogs and package caches remain local. Never copy
   credentials into these Nix files: the Nix store is readable by other users.
+
+### codebase-memory-mcp
+
+Code knowledge-graph MCP server (nixpkgs build), registered for both Pi (above)
+and Claude Code (`registerClaudeMcp` activation merges just its key into
+`~/.claude.json`). Both use the same store binary, so they share one daemon and
+the per-machine graph in `~/.cache/codebase-memory-mcp/`; nothing is written to
+repos unless `index_repository` runs with `persistence: true`. Index a repo once
+with "index this project"; the watcher keeps git repos fresh after that.
 - macOS Playwright retains the writable browser cache and uses Chrome;
   Linux uses Nix's bundled Chromium. Browser downloads are runtime state.
 - Pins control selected package versions/refs; npm transitive dependencies
