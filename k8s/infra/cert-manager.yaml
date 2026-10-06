@@ -1,0 +1,35 @@
+# cert-manager — re-added (B4 was dropped) so the wildcard cert lives in a
+# Secret instead of Traefik's acme.json on an RWO PVC; that file is what pins
+# Traefik to one replica. Issuer + Certificate live in k8s/traefik (the Issuer
+# is namespaced so it reuses Traefik's existing Cloudflare token Secret).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: v1.21.2 # bump deliberately
+    helm:
+      valuesObject:
+        crds:
+          enabled: true
+        extraArgs:
+          # Self-check the DNS-01 TXT record against public resolvers, not
+          # OPNsense Unbound (per-app local overrides) — same reason Traefik's
+          # resolver pins 1.1.1.1.
+          - --dns01-recursive-nameservers-only
+          - --dns01-recursive-nameservers=1.1.1.1:53,1.0.0.1:53
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # CRDs are large; SSA avoids last-applied bloat

@@ -1,0 +1,35 @@
+# Wildcard cert issued by cert-manager into a Secret, so Traefik can drop its
+# acme.json PVC and run >1 replica. Namespaced Issuer on purpose: it reads the
+# existing cloudflare-api-token Secret in this namespace. Switch to a
+# ClusterIssuer only when another namespace needs its own cert.
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt
+  namespace: traefik
+spec:
+  acme:
+    email: daniel@bookorjeman.se
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: token
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-local
+  namespace: traefik
+spec:
+  secretName: wildcard-local-tls
+  dnsNames:
+    - local.bookorjeman.com
+    - "*.local.bookorjeman.com"
+  issuerRef:
+    name: letsencrypt
+    kind: Issuer
