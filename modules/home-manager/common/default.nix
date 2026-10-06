@@ -291,6 +291,13 @@
     rm -f "$tmp"
   '';
 
+  # One global instruction file, linked to each agent's expected path.
+  home.file = {
+    ".claude/CLAUDE.md".source = ./agent-instructions.md;
+    ".codex/AGENTS.md".source = ./agent-instructions.md;
+    ".pi/agent/AGENTS.md".source = ./agent-instructions.md;
+  };
+
   # Caveman plugin default intensity (plugin itself installed imperatively)
   xdg.configFile."caveman/config.json".text = builtins.toJSON {
     defaultMode = "ultra";
