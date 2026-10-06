@@ -11,7 +11,7 @@
 > [ADR 0002](./adr/0002-node-provisioning-host-keys.md). For where each config
 > file actually lives (Nix modules, `k8s/` manifests, secrets), see
 > [ARCHITECTURE.md → k3s Cluster Config Map](./ARCHITECTURE.md#k3s-cluster-config-map).
-> Last update: 2026-09-09.
+> Last update: 2026-10-06.
 
 ## Goal
 
@@ -57,7 +57,7 @@ Notes:
 | Network | Whole cluster (4 nodes + `scarif` + MetalLB + VIP) in the **`.40` services VLAN** (`10.10.40.x`); `.30` Proxmox VLAN decommissioned | Service IPs stay where DNS/Traefik point; storage intra-VLAN. k3s CIDRs (`10.42/16`,`10.43/16`) don't clash. |
 | LB IPs | **MetalLB** (L2) pool in `.40`; kube-vip for the API VIP | Stable LAN IPs for ingress + device-facing services. |
 | Access / TLS | **LAN-only**, services on `*.local.bookorjeman.com`; remote via **WireGuard on OPNsense**; wildcard cert via **cert-manager + Cloudflare DNS-01** | Valid certs, no open ports. DNS is **one OPNsense Unbound host override per app** → Traefik — a single `*` override crashed DNS network-wide (2026-07); revisit via a dedicated subdomain zone (see [improvements.md](./improvements.md)). |
-| Ingress | **Traefik self-managed in Argo** (`--disable` bundled), the **whole-homelab front door** — also proxies external UIs (`router`/OPNsense, `truenas`, `n4`, `unifi`, `slzb`, …) behind authentik | Brings the existing extensive `/srv/traefik/dynamic` setup under GitOps. |
+| Ingress | **Traefik self-managed in Argo** (`--disable` bundled), the **whole-homelab front door** — also proxies external UIs (`router`/OPNsense, `truenas`, `n4`, `unifi`, `slzb`, …) behind authentik. **Stateless, 2 replicas spread one per node**; the wildcard cert is a cert-manager Secret | Brings the existing extensive `/srv/traefik/dynamic` setup under GitOps. No PVC, so one node failing (or a TrueNAS blip) doesn't take the front door down. |
 | Secrets | **SOPS + age**, Argo decrypts via **ksops**, using a **dedicated cluster age key** (+ `daniel` for recovery) | Least privilege — master key never enters the cluster. See [ADR 0001](./adr/0001-cluster-secrets-age-key.md). |
 | Cutover | **Gradual** (done): migrated onto `naboo`+`endor`+`tatooine`, kept `jupiter` as a live hot-fallback, wiped it **last** → rejoined as `hoth`, the 3rd control-plane | A working rollback stayed online the whole time. |
 | Power | **Line-interactive, pure-sine UPS** (e.g. APC Smart-UPS 1500) + **NUT** graceful shutdown. Protects the whole stack: cluster + `scarif` + UniFi US-48 switch + APs + cameras (when added) + OPNsense | No UPS today — main exposure is a whole-house outage dropping all 3 etcd nodes uncleanly. Pure sine for the NAS's active-PFC PSU (Silverstone SX500). Measured switch draw ~60W; total stack ~250–330W ≈ 30% of a 1500VA UPS → ~15–20 min runtime. |

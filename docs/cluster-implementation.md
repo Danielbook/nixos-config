@@ -169,6 +169,11 @@ manifests and drift/race otherwise.
       (single-instance, proven), and cluster-Traefik reuses that resolver at Stage
       E3. Re-add only for Traefik HA (>1 replica races on local `acme.json`) or
       non-Traefik TLS consumers.
+      **Re-added (2026-10-06) for Traefik HA:** cert-manager v1.21.2
+      (`k8s/infra/cert-manager.yaml`) issues the wildcard into Secret
+      `wildcard-local-tls` via a namespaced `Issuer` in `traefik` that reuses
+      the existing Cloudflare token (`k8s/traefik/wildcard-cert.yaml`). Traefik
+      dropped its `acme.json` PVC and now runs 2 replicas spread one per node.
 - [x] **B5.** Argo CD **v3.4.4** + **ksops v4.5.1** — auto-deployed via
       `services.k3s.manifests` (`modules/nixos/services/argocd`): pinned upstream
       `install.yaml` + a **build-time kustomize overlay** (renders one manifest:
