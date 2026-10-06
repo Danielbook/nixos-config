@@ -44,6 +44,9 @@ spec:
             namespace: linkding
             port: 80
             auth: true
+          - name: vaultwarden # own auth; Bitwarden clients break behind forward-auth
+            namespace: vaultwarden
+            port: 80
           - name: open-webui
             namespace: ollama
             port: 8080

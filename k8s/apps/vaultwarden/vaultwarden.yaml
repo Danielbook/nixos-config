@@ -1,0 +1,89 @@
+# vaultwarden — Bitwarden-compatible password manager. LAN/WireGuard-only like
+# everything else on *.local.bookorjeman.com. No authentik forward-auth: the
+# Bitwarden browser extension / mobile / desktop clients can't do the redirect.
+# Admin panel is disabled (no ADMIN_TOKEN set). Signups limited to the
+# whitelisted domain — set SIGNUPS_DOMAINS_WHITELIST to "" before any public exposure.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vaultwarden
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vaultwarden-data
+  namespace: vaultwarden
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+  labels:
+    app: vaultwarden
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vaultwarden
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+    spec:
+      containers:
+        - name: vaultwarden
+          image: vaultwarden/server:1.37.4
+          env:
+            - name: DOMAIN
+              value: https://vaultwarden.local.bookorjeman.com
+            - name: SIGNUPS_ALLOWED
+              value: "false"
+            - name: SIGNUPS_DOMAINS_WHITELIST
+              value: bookorjeman.se
+            - name: INVITATIONS_ALLOWED
+              value: "false"
+            - name: SHOW_PASSWORD_HINT
+              value: "false"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          startupProbe:
+            httpGet:
+              path: /alive
+              port: 80
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: 80
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vaultwarden-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  selector:
+    app: vaultwarden
+  ports:
+    - port: 80
+      targetPort: 80
