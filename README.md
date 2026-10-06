@@ -47,7 +47,7 @@ nixos-config
 ├── k8s/                # Cluster workloads, GitOps-managed by Argo CD
 ├── docs/               # Documentation
 ├── plans/              # Executable implementation plans (archive)
-├── CONTEXT.md          # Domain glossary
+├── GLOSSARY.md         # Domain glossary
 ├── justfile            # Task runner for builds, formatting, and linting
 └── flake.nix           # Flake configuration and inputs
 ```
