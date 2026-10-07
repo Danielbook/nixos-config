@@ -69,7 +69,8 @@ All command-line tools used across this NixOS configuration, organized by catego
 ### Pi configuration
 
 - `modules/home-manager/programs/pi/default.nix` owns package pins, startup
-  preferences and the Playwright and codebase-memory-mcp servers.
+  preferences and the Playwright, codebase-memory-mcp and Figma (remote OAuth;
+  sign in once with `pi mcp login figma`) servers.
   `pi-mcp-adapter` is not loaded.
 - Activation installs latest Pi, merges managed keys into writable
   `~/.pi/agent/settings.json` and `mcp.json`, then reconciles packages with
@@ -89,6 +90,12 @@ and Claude Code (`registerClaudeMcp` activation merges just its key into
 the per-machine graph in `~/.cache/codebase-memory-mcp/`; nothing is written to
 repos unless `index_repository` runs with `persistence: true`. Index a repo once
 with "index this project"; the watcher keeps git repos fresh after that.
+`wt` worktrees are separate paths, so the user wt config
+(`~/.config/worktrunk/config.toml`, from `modules/home-manager/common`) indexes
+each new worktree in a `post-start` hook and deletes its graph in `post-remove`.
+In Pi the query tools (`search_graph`, `trace_path`, `get_code_snippet`,
+`query_graph`, `search_code`, `get_architecture`) have `direct` exposure; Pi's
+default `codemode` hides them and they went unused.
 - macOS Playwright retains the writable browser cache and uses Chrome;
   Linux uses Nix's bundled Chromium. Browser downloads are runtime state.
 - Pins control selected package versions/refs; npm transitive dependencies

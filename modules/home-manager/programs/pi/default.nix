@@ -38,7 +38,23 @@ let
           (if pkgs.stdenv.hostPlatform.isDarwin then "chrome" else "chromium")
         ];
       };
-      mcpServers.codebase-memory-mcp.command = lib.getExe pkgs.codebase-memory-mcp;
+      # Default codemode exposure hides the tools, so Pi never reached for them.
+      mcpServers.codebase-memory-mcp = {
+        command = lib.getExe pkgs.codebase-memory-mcp;
+        toolExposure = {
+          search_graph = "direct";
+          trace_path = "direct";
+          get_code_snippet = "direct";
+          query_graph = "direct";
+          search_code = "direct";
+          get_architecture = "direct";
+        };
+      };
+      # Figma allowlists OAuth clients by name; Pi's own name is rejected.
+      mcpServers.figma = {
+        url = "https://mcp.figma.com/mcp";
+        oauth.clientName = "Claude Code";
+      };
     }
   );
 in

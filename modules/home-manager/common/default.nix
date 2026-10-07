@@ -291,6 +291,25 @@
     rm -f "$tmp"
   '';
 
+  # Each wt worktree is a separate path, so index it on create and drop its
+  # graph on remove. Project names are the path with `/` mapped to `-`.
+  xdg.configFile."worktrunk/config.toml".text =
+    let
+      cbm = pkgs.writeShellScript "cbm-worktree" ''
+        jq=${lib.getExe pkgs.jq}
+        case "$1" in
+          index) tool=index_repository arg=$($jq -nc --arg p "$2" '{repo_path: $p}') ;;
+          delete) tool=delete_project arg=$($jq -nc --arg p "$2" '{project: ($p | ltrimstr("/") | gsub("/"; "-"))}') ;;
+          *) exit 2 ;;
+        esac
+        exec ${lib.getExe pkgs.codebase-memory-mcp} cli "$tool" "$arg"
+      '';
+    in
+    ''
+      post-start = "${cbm} index {{ worktree_path }}"
+      post-remove = "${cbm} delete {{ worktree_path }}"
+    '';
+
   # One global instruction file, linked to each agent's expected path.
   home.file = {
     ".claude/CLAUDE.md".source = ./agent-instructions.md;
