@@ -1,6 +1,6 @@
 # Daniel's Nix Configuration
 
-> Declarative, flake-based NixOS configuration with a dendritic (multi-host-ready) architecture. A shared trunk branches into host-type-specific layers: desktop hosts grow compositor branches, servers stay lean on the trunk.
+> Declarative, flake-based NixOS configuration with a layered, multi-host modular architecture. A shared common layer is extended by host-type-specific layers: desktop hosts add compositor layers, servers stay on the common layer.
 
 ## Quick Links
 
@@ -52,7 +52,7 @@ nixos-config
 └── flake.nix           # Flake configuration and inputs
 ```
 
-### Dendritic Module Layers
+### Module Layers
 
 ```
 common (all hosts: nix settings, SSH, Docker, CLI tools)
