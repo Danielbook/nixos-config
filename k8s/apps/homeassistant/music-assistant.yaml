@@ -46,7 +46,7 @@ spec:
   storageClassName: iscsi
   resources:
     requests:
-      storage: 2Gi
+      storage: 10Gi # 2Gi filled up (library.db + spotify cache)
 ---
 apiVersion: apps/v1
 kind: Deployment
