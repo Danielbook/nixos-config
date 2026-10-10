@@ -13,9 +13,9 @@ let
       extensions = [ "+builtin:mcp" ];
       packages = [
         "git:github.com/DietrichGebert/ponytail@e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156"
-        "npm:pi-web-search@1.6.0"
-        "npm:pi-subagents@0.74.0"
-        "npm:@juicesharp/rpiv-ask-user-question@2.12.0"
+        "npm:pi-web-search"
+        "npm:pi-subagents"
+        "npm:@juicesharp/rpiv-ask-user-question"
       ];
     }
   );
