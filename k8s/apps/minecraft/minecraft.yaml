@@ -64,6 +64,20 @@ spec:
               value: "true"
             - name: TZ
               value: Europe/Stockholm
+            # Survival + PVP (both defaults). Gamerules keep_inventory=true and
+            # players_sleeping_percentage=1 live in the world, set via rcon.
+            - name: DIFFICULTY
+              value: easy
+            - name: SPAWN_PROTECTION
+              value: "0" # let non-ops build at spawn
+            - name: MOTD
+              value: Familjen Böök
+            # SEED only applies when LEVEL's folder doesn't exist yet — a new
+            # seed needs a new LEVEL name (or the old folder deleted).
+            - name: LEVEL
+              value: survival
+            - name: SEED
+              value: "826365176"
           ports:
             - containerPort: 25565
               protocol: TCP
@@ -162,8 +176,7 @@ metadata:
   namespace: minecraft
   annotations:
     # Own IP: consoles always dial :19132, which Geyser already holds on .56.
-    # Unbound overrides geo.hivebedrock.network, hivebedrock.network,
-    # play.inpvp.net, mco.lbsg.net, play.galaxite.net, play.enchanted.gg → here.
+    # Unbound overrides geo.hivebedrock.network, play.inpvp.net, mco.lbsg.net, play.galaxite.net, play.enchanted.gg → here.
     metallb.io/loadBalancerIPs: 10.10.40.57
 spec:
   type: LoadBalancer
