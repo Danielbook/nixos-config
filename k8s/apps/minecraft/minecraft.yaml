@@ -56,6 +56,10 @@ spec:
               value: |
                 https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot
                 https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
+            # Java clients auto-update days before Paper ships a stable build
+            # (e.g. 26.3 client vs 26.2 server); ViaVersion lets them join.
+            - name: MODRINTH_PROJECTS
+              value: viaversion
             - name: MEMORY
               value: 3G
             - name: ENABLE_WHITELIST
