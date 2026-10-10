@@ -48,6 +48,7 @@ let
           query_graph = "direct";
           search_code = "direct";
           get_architecture = "direct";
+          index_status = "direct";
         };
       };
       # Figma allowlists OAuth clients by name; Pi's own name is rejected.

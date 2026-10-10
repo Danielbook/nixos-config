@@ -94,8 +94,10 @@ with "index this project"; the watcher keeps git repos fresh after that.
 (`~/.config/worktrunk/config.toml`, from `modules/home-manager/common`) indexes
 each new worktree in a `post-start` hook and deletes its graph in `post-remove`.
 In Pi the query tools (`search_graph`, `trace_path`, `get_code_snippet`,
-`query_graph`, `search_code`, `get_architecture`) have `direct` exposure; Pi's
-default `codemode` hides them and they went unused.
+`query_graph`, `search_code`, `get_architecture`, `index_status`) have `direct`
+exposure; Pi's default `codemode` hides them and they went unused. Direct
+exposure alone was not enough: the shared instruction file has to make the
+graph the first step and spell out the path-derived project name.
 - macOS Playwright retains the writable browser cache and uses Chrome;
   Linux uses Nix's bundled Chromium. Browser downloads are runtime state.
 - Pins control selected package versions/refs; npm transitive dependencies
