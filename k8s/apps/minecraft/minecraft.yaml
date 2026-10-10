@@ -1,0 +1,174 @@
+# minecraft — family server, home-LAN only (no port forward). Paper + Geyser
+# + Floodgate so Java (PC/Mac, TCP 25565) and Bedrock (Xbox, UDP 19132) share
+# one world; Floodgate lets Xbox accounts in without a Java account.
+# Whitelist enforced — add players with rcon:
+#   kubectl -n minecraft exec deploy/minecraft -- rcon-cli whitelist add <java name>
+#   kubectl -n minecraft exec deploy/minecraft -- rcon-cli fwhitelist add <xbox gamertag>
+# Xbox can't add a server by IP, so bedrock-connect (below) is a server list
+# reached via OPNsense Unbound overrides of the featured-server hostnames.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-data
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft
+  namespace: minecraft
+  labels:
+    app: minecraft
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO iscsi PVC — RollingUpdate deadlocks on Multi-Attach
+  selector:
+    matchLabels:
+      app: minecraft
+  template:
+    metadata:
+      labels:
+        app: minecraft
+    spec:
+      terminationGracePeriodSeconds: 120 # let the server save the world on SIGTERM
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:2026.9.2-java25
+          env:
+            - name: EULA
+              value: "TRUE"
+            - name: TYPE
+              value: PAPER
+            # ponytail: VERSION/plugins float to latest on each restart so
+            # Geyser keeps up with auto-updating Xbox clients; pin VERSION if
+            # an update ever breaks the world.
+            - name: VERSION
+              value: LATEST
+            - name: PLUGINS
+              value: |
+                https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot
+                https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
+            - name: MEMORY
+              value: 3G
+            - name: ENABLE_WHITELIST
+              value: "true"
+            - name: ENFORCE_WHITELIST
+              value: "true"
+            - name: TZ
+              value: Europe/Stockholm
+          ports:
+            - containerPort: 25565
+              protocol: TCP
+            - containerPort: 19132
+              protocol: UDP
+          resources:
+            requests:
+              memory: 3Gi
+            limits:
+              memory: 4Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minecraft-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft
+  namespace: minecraft
+  annotations:
+    metallb.io/loadBalancerIPs: 10.10.40.56 # raw TCP/UDP, can't ride Traefik
+spec:
+  type: LoadBalancer
+  selector:
+    app: minecraft
+  ports:
+    - name: java
+      port: 25565
+      protocol: TCP
+    - name: bedrock
+      port: 19132
+      protocol: UDP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bedrock-connect
+  namespace: minecraft
+data:
+  custom_servers.json: |
+    [
+      {
+        "name": "Home",
+        "iconUrl": "https://i.imgur.com/3BmFZRE.png",
+        "address": "10.10.40.56",
+        "port": 19132
+      }
+    ]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bedrock-connect
+  namespace: minecraft
+  labels:
+    app: bedrock-connect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bedrock-connect
+  template:
+    metadata:
+      labels:
+        app: bedrock-connect
+    spec:
+      containers:
+        - name: bedrock-connect
+          image: pugmatt/bedrock-connect:1.71.0
+          env:
+            - name: BC_CUSTOM_SERVERS
+              value: /config/custom_servers.json
+            - name: BC_USER_SERVERS # kids get the home server only
+              value: "false"
+            - name: BC_FEATURED_SERVERS
+              value: "false"
+          ports:
+            - containerPort: 19132
+              protocol: UDP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          configMap:
+            name: bedrock-connect
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bedrock-connect
+  namespace: minecraft
+  annotations:
+    # Own IP: consoles always dial :19132, which Geyser already holds on .56.
+    # Unbound overrides geo.hivebedrock.network, hivebedrock.network,
+    # play.inpvp.net, mco.lbsg.net, play.galaxite.net, play.enchanted.gg → here.
+    metallb.io/loadBalancerIPs: 10.10.40.57
+spec:
+  type: LoadBalancer
+  selector:
+    app: bedrock-connect
+  ports:
+    - port: 19132
+      protocol: UDP
