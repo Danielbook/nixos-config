@@ -49,18 +49,6 @@
   # Boot configuration
   boot = {
     kernelPackages = pkgs.linuxPackages;
-    kernelParams = [
-      # s2idle, not deep S3: deep S3 entry-hangs on this Optimus laptop after a few
-      # suspend cycles (ACPI D-Notifier 0x11, open nvidia driver can't handle the
-      # dGPU power-state handshake). s2idle = what Windows Modern Standby uses here.
-      "mem_sleep_default=s2idle"
-
-      # Network driver stability parameters
-      "r8152.enable_aldps=0"
-      "pci=pcie_bus_perf"
-      "iwlwifi.power_save=0"
-      "iwlwifi.uapsd_disable=1"
-    ];
     loader.efi.canTouchEfiVariables = true;
     loader.systemd-boot = {
       enable = true;
@@ -126,7 +114,6 @@
     extraGroups = [
       "networkmanager"
       "wheel"
-      "docker"
     ];
     isNormalUser = true;
     shell = pkgs.zsh;
@@ -144,48 +131,16 @@
 
   # Essential system packages
   environment.systemPackages = with pkgs; [
-    fuse3
-    glib
     killall
     ethtool
-    usbutils
-    sops
-    just
-    bitwarden-cli
-    wireguard-tools
-    openssl
-    unixtools.xxd
-    kubectl
   ];
-
-  # PATH configuration
-  environment.localBinInPath = true;
 
   # Enable firmware for better hardware support
   hardware.enableRedistributableFirmware = true;
 
-  # Docker
-  virtualisation.docker = {
-    enable = true;
-    rootless = {
-      enable = true;
-      setSocketVariable = true;
-    };
-  };
-
-  # Allow user-level mounting
-  programs.fuse.userAllowOther = true;
-
   # Zsh
   programs.zsh.enable = true;
   environment.pathsToLink = [ "/share/zsh" ];
-
-  # nix-ld: run dynamically linked executables built for generic Linux
-  # (e.g. the native `claude` binary from the @anthropic-ai/claude-code npm package)
-  programs.nix-ld.enable = true;
-
-  # Additional services
-  services.locate.enable = true;
 
   # OpenSSH daemon
   services.openssh = {

@@ -24,6 +24,19 @@
   # Set hostname
   networking.hostName = hostname;
 
+  boot.kernelParams = [
+    # s2idle, not deep S3: deep S3 entry-hangs on this Optimus laptop after a few
+    # suspend cycles (ACPI D-Notifier 0x11, open nvidia driver can't handle the
+    # dGPU power-state handshake). s2idle = what Windows Modern Standby uses here.
+    "mem_sleep_default=s2idle"
+
+    # Network driver stability parameters
+    "r8152.enable_aldps=0"
+    "pci=pcie_bus_perf"
+    "iwlwifi.power_save=0"
+    "iwlwifi.uapsd_disable=1"
+  ];
+
   # System-level secrets (sops-nix). Decrypted at boot using the host SSH key,
   # so no Bitwarden/interactive unlock is needed during activation. The secrets
   # file is encrypted to both the host key and daniel's personal age key (see

@@ -15,7 +15,7 @@ Declarative, flake-based Nix configuration with a layered, multi-host modular ar
 | `tatooine` | NixOS (headless) | k3s GPU agent node (`10.10.40.15`, GTX 1070) |
 | `hoth` | NixOS (headless) | k3s 3rd control-plane node (`10.10.40.11`, bare metal — formerly "jupiter", a Docker/Proxmox box, wiped in Stage F2) |
 
-Modules are layered: `common` (universal for all hosts) and `desktop/common` (shared by desktop hosts). Adding a new host requires a host config, home config, and flake entry — servers skip desktop imports, desktops compose from the desktop layer.
+Modules are layered: `common` (universal for all hosts — keep it to what a headless k3s node needs) and `desktop/common` (shared by desktop hosts). Adding a new host requires a host config and flake entry; desktops and dagobah also get a home config. Servers skip desktop imports and have no home config (`just deploy` only activates the system).
 
 ## Build Commands
 

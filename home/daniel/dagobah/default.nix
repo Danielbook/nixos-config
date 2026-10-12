@@ -60,6 +60,7 @@
     pkgs.k9s # Terminal UI for the k3s cluster (kubeconfig at ~/.kube/config)
     pkgs.tea # Gitea/Forgejo CLI
     pkgs.jira-cli-go # Jira CLI
+    pkgs.python3
   ];
 
   # Catpuccin flavor and accent

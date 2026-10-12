@@ -192,32 +192,6 @@
             catppuccin.homeModules.catppuccin
           ];
         };
-
-        # Headless k3s node — CLI tooling only. catppuccin is required by the
-        # shared home `common` layer (tmux/starship/etc. theming).
-        "daniel@naboo" = mkHomeConfiguration "x86_64-linux" "daniel" "naboo" {
-          extraModules = [
-            catppuccin.homeModules.catppuccin
-          ];
-        };
-
-        "daniel@endor" = mkHomeConfiguration "x86_64-linux" "daniel" "endor" {
-          extraModules = [
-            catppuccin.homeModules.catppuccin
-          ];
-        };
-
-        "daniel@tatooine" = mkHomeConfiguration "x86_64-linux" "daniel" "tatooine" {
-          extraModules = [
-            catppuccin.homeModules.catppuccin
-          ];
-        };
-
-        "daniel@hoth" = mkHomeConfiguration "x86_64-linux" "daniel" "hoth" {
-          extraModules = [
-            catppuccin.homeModules.catppuccin
-          ];
-        };
       };
 
       overlays = import ./overlays { };

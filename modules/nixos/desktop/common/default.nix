@@ -202,6 +202,7 @@ in
     "fuse"
     "audio"
     "bluetooth"
+    "docker"
   ];
 
   # User avatar (AccountsService for display managers)
@@ -223,7 +224,39 @@ in
   environment.systemPackages = with pkgs; [
     mesa
     socat # Hyprland IPC
+    fuse3
+    glib
+    usbutils
+    sops
+    just
+    bitwarden-cli
+    wireguard-tools
+    openssl
+    unixtools.xxd
+    kubectl
   ];
+
+  # PATH configuration
+  environment.localBinInPath = true;
+
+  # Docker
+  virtualisation.docker = {
+    enable = true;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
+  };
+
+  # Allow user-level mounting
+  programs.fuse.userAllowOther = true;
+
+  # nix-ld: run dynamically linked executables built for generic Linux
+  # (e.g. the native `claude` binary from the @anthropic-ai/claude-code npm package)
+  programs.nix-ld.enable = true;
+
+  # Additional services
+  services.locate.enable = true;
 
   # System fonts
   fonts.packages = with pkgs; [

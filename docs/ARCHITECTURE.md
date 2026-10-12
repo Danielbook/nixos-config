@@ -10,7 +10,7 @@
 | `mkDarwinConfiguration` | `inputs`, `outputs`, `hostname`, `userConfig`, `darwinModules` | `darwinModules = "${self}/modules/nix-darwin"` |
 | `mkHomeConfiguration` | `inputs`, `outputs`, `userConfig`, `nhModules` | `nhModules = "${self}/modules/home-manager"` |
 
-`mkHomeConfiguration` accepts an `extraModules` parameter for host-specific flake modules (e.g., catppuccin, spicetify, noctalia). Servers skip the *desktop* flake modules (spicetify, noctalia, hyprdynamicmonitors) but still pass `catppuccin.homeModules.catppuccin` — the shared home `common` layer themes tmux/starship/etc. through it, so every home config needs it.
+`mkHomeConfiguration` accepts an `extraModules` parameter for host-specific flake modules (e.g., catppuccin, spicetify, noctalia). Every home config passes `catppuccin.homeModules.catppuccin` — the shared home `common` layer themes tmux/starship/etc. through it. Servers have no home config at all (see Module Layers).
 
 `userConfig` is an attrset: `{ name, fullName, email, avatar }` — modules use it for git config, user creation, etc.
 
@@ -55,6 +55,13 @@ common (all hosts, all platforms)
 ├── (macOS hosts import common + individual GUI programs)
 └── (server hosts skip desktop entirely)
 ```
+
+Keep `modules/nixos/common` to what a headless k3s node needs (Nix settings,
+locale, user, SSH, firewall, NetworkManager, zsh). Anything only used from a
+machine you sit at — Docker, nix-ld, dev/ops CLIs like `sops`/`just`/`kubectl`,
+laptop kernel params — goes in `desktop/common` or the host file. Servers get no
+home-manager config: `just deploy` only activates the system, so a server home
+would never be applied. On a node, use `sudo k3s kubectl` instead of `kubectl`.
 
 ### Platform Conditionals
 
@@ -148,29 +155,16 @@ homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "aarch64-darwin" "d
 }
 ```
 
-2. Create `home/<username>/<hostname>/default.nix`:
-```nix
-{ nhModules, inputs, ... }: {
-  imports = [
-    "${nhModules}/common"
-    inputs.sops-nix.homeManagerModules.sops
-  ];
-  programs.home-manager.enable = true;
-  home.stateVersion = "25.05";
-}
-```
-
-3. Add to `flake.nix`:
+2. Add to `flake.nix` (no home config — servers don't get one):
 ```nix
 nixosConfigurations.<hostname> = mkNixosConfiguration "<hostname>" "daniel";
-homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "x86_64-linux" "daniel" "<hostname>" {
-  extraModules = [ catppuccin.homeModules.catppuccin ];  # required by the shared home common layer
-};
 ```
 
 ### Desktop (workstation/HTPC)
 
-Same as server, but import `desktop/common` + a compositor module, and pass desktop flake modules:
+Same as server, but import `desktop/common` + a compositor module, and add a
+home config (`home/<username>/<hostname>/default.nix` importing `"${nhModules}/common"`)
+with desktop flake modules:
 
 ```nix
 # hosts/<hostname>/default.nix
