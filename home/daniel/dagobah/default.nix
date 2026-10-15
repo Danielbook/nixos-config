@@ -61,7 +61,13 @@
     pkgs.tea # Gitea/Forgejo CLI
     pkgs.jira-cli-go # Jira CLI
     pkgs.python3
+    pkgs.docker # client only on darwin, bundles compose + buildx plugins
+    pkgs.docker-credential-helpers # osxkeychain credsStore, replaces Desktop's `desktop` helper
   ];
+
+  # Docker Desktop replacement. Runs the default profile as a launchd agent and
+  # switches the docker context to `colima` on start.
+  services.colima.enable = true;
 
   # Catpuccin flavor and accent
   catppuccin = {

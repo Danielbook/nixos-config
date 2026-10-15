@@ -85,7 +85,6 @@
       "claude"
       "darktable"
       "discord"
-      "docker-desktop"
       "figma"
       "home-assistant"
       "keepingyouawake"
