@@ -1,0 +1,46 @@
+# One Application per app directory k8s/apps/<app>/. The Application name and
+# the destination namespace are both <app>. To add an app, add its directory.
+#
+# An app that needs a different Application (Helm chart, other namespace,
+# extra syncOptions, ignoreDifferences) keeps a hand-written Application in
+# k8s/infra. Add an exclude entry for its directory below.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+        revision: main
+        directories:
+          - path: k8s/apps/*
+          # Its Application uses the default namespace. See k8s/infra/media-nfs-pv.yaml.
+          - path: k8s/apps/media-nfs-pv
+            exclude: true
+  syncPolicy:
+    # Do not add the resources-finalizer to generated Applications. Then the
+    # delete of an Application keeps its resources in the cluster, like the
+    # hand-written Applications.
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: "{{.path.basename}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+        targetRevision: main
+        path: "{{.path.path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{.path.basename}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
