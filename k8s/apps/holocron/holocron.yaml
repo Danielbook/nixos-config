@@ -8,7 +8,7 @@
 # large-v3 at int8 is ≈ 3 GB VRAM.
 #
 # The `holocron-env` (STT_TOKEN) / `holocron-registry` (registry pull auth)
-# Secrets are authored as ksops `k8s/holocron/holocron-secrets.enc.yaml`.
+# Secrets are authored as ksops `k8s/apps/holocron/holocron-secrets.enc.yaml`.
 apiVersion: v1
 kind: Namespace
 metadata:

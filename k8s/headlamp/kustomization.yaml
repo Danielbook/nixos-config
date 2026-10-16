@@ -1,5 +1,5 @@
 # Headlamp OIDC env Secret (authentik OAuth client), decrypted in-cluster by
-# ksops (same pipeline as k8s/authentik, k8s/monitoring, k8s/unifi).
+# ksops (same pipeline as k8s/apps/authentik, k8s/apps/monitoring, k8s/apps/unifi).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 generators:

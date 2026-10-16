@@ -1,0 +1,9 @@
+# Argo CD renders only the files in this list. Add each new manifest here.
+# The ksops generator decrypts the *.enc.yaml Secrets in-cluster (ADR-0001).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ollama.yaml
+  - open-webui.yaml
+generators:
+  - secret-generator.yaml

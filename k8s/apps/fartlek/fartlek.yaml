@@ -7,7 +7,7 @@
 #
 # The `fartlek-env` / `fartlek-postgres-env` / `fartlek-registry` Secrets
 # (DB creds, Anthropic + Strava API keys, registry pull auth) are authored as
-# ksops `k8s/fartlek/fartlek-secrets.enc.yaml`.
+# ksops `k8s/apps/fartlek/fartlek-secrets.enc.yaml`.
 apiVersion: v1
 kind: Namespace
 metadata:

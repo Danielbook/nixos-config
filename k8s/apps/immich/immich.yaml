@@ -10,7 +10,7 @@
 #
 # The `immich-postgres-env` / `immich-server-env` Secrets (DB creds,
 # REDIS_HOSTNAME=immich-redis, DB_HOSTNAME=immich-postgres) are authored as
-# ksops `k8s/immich/immich-secrets.enc.yaml` (fresh generated DB password —
+# ksops `k8s/apps/immich/immich-secrets.enc.yaml` (fresh generated DB password —
 # doesn't need to match the old container's, the pg_dump restore just needs
 # to land in a DB this password can reach).
 apiVersion: v1

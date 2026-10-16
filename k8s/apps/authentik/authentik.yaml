@@ -25,7 +25,7 @@
 #
 # The `authentik-env` Secret (DB creds, AUTHENTIK_SECRET_KEY carried over
 # verbatim from jupiter's secret_key.txt, email creds) is authored as ksops
-# `k8s/authentik/authentik-env.enc.yaml`.
+# `k8s/apps/authentik/authentik-env.enc.yaml`.
 apiVersion: v1
 kind: Namespace
 metadata:

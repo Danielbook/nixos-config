@@ -1,6 +1,6 @@
 # mosquitto — Stage F1c. Source: eclipse-mosquitto:2 on jupiter, resolved
 # 2.1.2. Auth required since issue #7: password_file from the mosquitto-creds
-# ksops Secret (k8s/homeassistant/mosquitto-creds.enc.yaml), anonymous
+# ksops Secret (k8s/apps/homeassistant/mosquitto-creds.enc.yaml), anonymous
 # refused. Service is LoadBalancer on a dedicated MetalLB IP (raw TCP, can't
 # ride Traefik's Host-header routing — same reasoning as unifi's .52).
 apiVersion: v1

@@ -1,7 +1,7 @@
 # grafana — Stage F1. Source was jupiter's grafana-stack docker-compose
 # (grafana/grafana-enterprise:10.2.3, ran as user "1000:1000"). Admin password +
 # authentik OAuth client come from the ksops-decrypted grafana-env Secret
-# (k8s/monitoring); everything else below is plain (non-secret) config, copied
+# (k8s/apps/monitoring); everything else below is plain (non-secret) config, copied
 # verbatim from jupiter's compose env. Data + 8 dashboard JSONs restored
 # 2026-07-08 (42.6M tar-streamed from jupiter's ./grafana + ./provisioning/
 # dashboards, already owned 1000:1000, no chown needed) — bumped to replicas 1.

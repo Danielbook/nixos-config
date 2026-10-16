@@ -8,7 +8,7 @@
 # few-shot mails are synthetic on purpose (this repo is mirrored publicly).
 #
 # `mail-triage-env` (IMAP_USER, IMAP_PASSWORD, NTFY_TOKEN) and `c3po-registry`
-# (pull auth) are ksops `k8s/mail-triage/mail-triage-secrets.enc.yaml`.
+# (pull auth) are ksops `k8s/apps/mail-triage/mail-triage-secrets.enc.yaml`.
 apiVersion: v1
 kind: Namespace
 metadata:
