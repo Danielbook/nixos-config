@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  nhModules,
   ...
 }:
 let
@@ -20,43 +21,20 @@ let
       ];
     }
   );
-  playwrightCommand =
-    if pkgs.stdenv.hostPlatform.isDarwin then
-      pkgs.writeShellScript "playwright-mcp-writable" ''
-        export PLAYWRIGHT_BROWSERS_PATH="$HOME/.cache/playwright-mcp"
-        # Bypass the outer Nix wrapper, which forces a read-only browser cache.
-        exec ${pkgs.playwright-mcp}/bin/.playwright-mcp-wrapped "$@"
-      ''
-    else
-      lib.getExe pkgs.playwright-mcp;
+  # Pi adapter for the shared registry. Extras under `pi` merge into the server.
+  piServers = lib.filterAttrs (_: s: lib.elem "pi" s.agents) (
+    import "${nhModules}/common/mcp-servers.nix" { inherit lib pkgs; }
+  );
   mcp = pkgs.writeText "pi-mcp.json" (
     builtins.toJSON {
-      mcpServers.playwright = {
-        command = "${playwrightCommand}";
-        args = [
-          "--headless"
-          "--browser"
-          (if pkgs.stdenv.hostPlatform.isDarwin then "chrome" else "chromium")
-        ];
-      };
-      # Default codemode exposure hides the tools, so Pi never reached for them.
-      mcpServers.codebase-memory-mcp = {
-        command = lib.getExe pkgs.codebase-memory-mcp;
-        toolExposure = {
-          search_graph = "direct";
-          trace_path = "direct";
-          get_code_snippet = "direct";
-          query_graph = "direct";
-          search_code = "direct";
-          get_architecture = "direct";
-          index_status = "direct";
-        };
-      };
-      # Figma allowlists OAuth clients by name; Pi's own name is rejected.
-      mcpServers.figma = {
-        url = "https://mcp.figma.com/mcp";
-        oauth.clientName = "Claude Code";
-      };
+      mcpServers = lib.mapAttrs (
+        _: s:
+        removeAttrs s [
+          "agents"
+          "pi"
+        ]
+        // s.pi or { }
+      ) piServers;
     }
   );
 in

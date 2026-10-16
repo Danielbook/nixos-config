@@ -68,10 +68,9 @@ All command-line tools used across this NixOS configuration, organized by catego
 
 ### Pi configuration
 
-- `modules/home-manager/programs/pi/default.nix` owns package pins, startup
-  preferences and the Playwright, codebase-memory-mcp and Figma (remote OAuth;
-  sign in once with `pi mcp login figma`) servers.
-  `pi-mcp-adapter` is not loaded.
+- `modules/home-manager/programs/pi/default.nix` owns package pins and startup
+  preferences. It renders the Pi MCP servers from the shared registry (see
+  [MCP servers](#mcp-servers)). `pi-mcp-adapter` is not loaded.
 - Activation installs latest Pi, merges managed keys into writable
   `~/.pi/agent/settings.json` and `mcp.json`, then reconciles packages with
   `pi update --extensions --no-approve`. Unmanaged settings and other MCP
@@ -82,11 +81,30 @@ All command-line tools used across this NixOS configuration, organized by catego
 - Auth, sessions, model catalogs and package caches remain local. Never copy
   credentials into these Nix files: the Nix store is readable by other users.
 
+### MCP servers
+
+`modules/home-manager/common/mcp-servers.nix` defines each MCP server once. To
+add a server, add an entry to that file. An entry sets `command` and `args`
+(stdio) or `url` (remote HTTP). `agents` lists the agents that get the server:
+`"pi"`, `"claude"` or both. Keys under `pi`, for example `toolExposure` and
+`oauth.clientName`, go only into the Pi config.
+
+Two adapters render the registry:
+
+- Pi: `programs/pi/default.nix` writes `pi-mcp.json`. Activation merges it into
+  `~/.pi/agent/mcp.json`.
+- Claude Code: the `registerClaudeMcp` activation in `common/default.nix`
+  merges the servers into `mcpServers` in `~/.claude.json`. A `url` server gets
+  `type: "http"`, and other servers get `type: "stdio"`.
+
+Both merges replace only the managed keys. Servers that you add by hand stay.
+Remote OAuth servers (Figma, Miro) need one sign-in per agent: `pi mcp login
+<name>` in Pi, `/mcp` in Claude Code. Codex has no adapter.
+
 ### codebase-memory-mcp
 
-Code knowledge-graph MCP server (nixpkgs build), registered for both Pi (above)
-and Claude Code (`registerClaudeMcp` activation merges just its key into
-`~/.claude.json`). Both use the same store binary, so they share one daemon and
+Code knowledge-graph MCP server (nixpkgs build), registered for both Pi and
+Claude Code through the [MCP registry](#mcp-servers). Both use the same store binary, so they share one daemon and
 the per-machine graph in `~/.cache/codebase-memory-mcp/`; nothing is written to
 repos unless `index_repository` runs with `persistence: true`. Index a repo once
 with "index this project"; the watcher keeps git repos fresh after that.

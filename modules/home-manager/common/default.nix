@@ -281,16 +281,37 @@
     '';
 
   # User-scope MCP servers live in ~/.claude.json, which Claude Code rewrites at
-  # runtime — merge only our key so imperatively added servers survive.
-  home.activation.registerClaudeMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    cfg="$HOME/.claude.json"
-    tmp=$(mktemp "$cfg.XXXXXX")
-    { cat "$cfg" 2>/dev/null || echo '{}'; } \
-      | ${lib.getExe pkgs.jq} --arg cmd ${lib.getExe pkgs.codebase-memory-mcp} \
-        '.mcpServers["codebase-memory-mcp"] = {type: "stdio", command: $cmd, args: []}' > "$tmp"
-    $DRY_RUN_CMD mv "$tmp" "$cfg"
-    rm -f "$tmp"
-  '';
+  # runtime — merge only our keys so imperatively added servers survive.
+  home.activation.registerClaudeMcp =
+    let
+      # Claude Code adapter for the shared registry in ./mcp-servers.nix.
+      claudeServers = lib.filterAttrs (_: s: lib.elem "claude" s.agents) (
+        import ./mcp-servers.nix { inherit lib pkgs; }
+      );
+      servers = lib.mapAttrs (
+        _: s:
+        if s ? url then
+          {
+            type = "http";
+            inherit (s) url;
+          }
+        else
+          {
+            type = "stdio";
+            inherit (s) command;
+            args = s.args or [ ];
+          }
+      ) claudeServers;
+    in
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      cfg="$HOME/.claude.json"
+      tmp=$(mktemp "$cfg.XXXXXX")
+      { cat "$cfg" 2>/dev/null || echo '{}'; } \
+        | ${lib.getExe pkgs.jq} --argjson servers ${lib.escapeShellArg (builtins.toJSON servers)} \
+          '.mcpServers += $servers' > "$tmp"
+      $DRY_RUN_CMD mv "$tmp" "$cfg"
+      rm -f "$tmp"
+    '';
 
   # Each wt worktree is a separate path, so index it on create and drop its
   # graph on remove. Project names are the path with `/` mapped to `-`.
