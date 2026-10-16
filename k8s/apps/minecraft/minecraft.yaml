@@ -58,8 +58,12 @@ spec:
                 https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
             # Java clients auto-update days before Paper ships a stable build
             # (e.g. 26.3 client vs 26.2 server); ViaVersion lets them join.
+            # veinminer also fells trees. Its settings live in /data/plugins,
+            # set once via rcon (`veinminer settings mustSneak true`, presets).
             - name: MODRINTH_PROJECTS
-              value: viaversion
+              value: |
+                viaversion
+                veinminer
             - name: MEMORY
               value: 3G
             - name: ENABLE_WHITELIST
