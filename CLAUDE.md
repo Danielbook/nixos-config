@@ -50,8 +50,15 @@ See `docs/ARCHITECTURE.md` for detailed module patterns, specialArgs, and import
 
 k3s workloads are GitOps-managed by **Argo CD** (bootstrapped in Nix via
 `modules/nixos/services/argocd`, auto-deployed on the control-planes). The
-Nix-delivered root app-of-apps tracks `k8s/infra`; add child `Application`
-manifests there. Secrets are **sops-encrypted as `k8s/**/*.enc.yaml`** (`.sops.yaml`
+Nix-delivered root app-of-apps tracks `k8s/infra`.
+
+To add an app, add an **app directory** `k8s/apps/<app>/`. The `apps`
+ApplicationSet (`k8s/infra/apps.yaml`) makes its Application, with name and
+namespace `<app>`. Only an app that needs a different Application (Helm
+chart, other namespace) gets a hand-written one in `k8s/infra`. Steps in
+`docs/CLUSTER.md`.
+
+Secrets are **sops-encrypted as `k8s/**/*.enc.yaml`** (`.sops.yaml`
 rule → cluster + daniel keys) and decrypted in-cluster by **ksops** using a
 dedicated cluster age key (never the personal key — see `docs/adr/0001`).
 Full stage history in `docs/cluster-implementation.md`.

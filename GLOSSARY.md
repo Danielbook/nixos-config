@@ -41,3 +41,12 @@ downloaders pod + sonarr/radarr/lidarr/bazarr/bindery floats, sharing one NFS
 downloads PVC) — see ADR-0005.
 _Avoid_: creating one of these by default; it's a deliberate exception, not
 the norm.
+
+**App directory**:
+The directory `k8s/apps/<app>/` that holds all that Argo CD deploys for one
+app: its manifests and its sops-encrypted `*.enc.yaml` Secrets. An app with
+secrets also has a `kustomization.yaml` with the ksops generator. The `apps`
+ApplicationSet makes one Application per app directory, with the name and
+namespace `<app>`.
+_Avoid_: a separate `k8s/<app>/` secret tree with its own `<app>-secret`
+Application (the old split, removed in 2026-10).

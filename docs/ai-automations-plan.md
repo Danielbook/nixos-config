@@ -7,7 +7,7 @@ for review after each.
 
 | Topic | Decision |
 |---|---|
-| Deploy | Argo app-of-apps: `k8s/infra/<app>.yaml` + `k8s/apps/<app>/` (+ `k8s/<app>/` ksops + `k8s/infra/<app>-secret.yaml` when secrets) |
+| Deploy | App directory `k8s/apps/<app>/` (the `apps` ApplicationSet makes the Application). Secrets go in the same directory: ksops `secret-generator.yaml` + `kustomization.yaml`. See `docs/CLUSTER.md` |
 | Secrets | sops/age `*.enc.yaml`, ksops in-cluster |
 | Hosts | `<name>.local.bookorjeman.com`, one line in `k8s/infra/ingress.yaml`, wildcard cert (cert-manager). One OPNsense Unbound override per host (never `*`) |
 | Storage | sqlite/state on `iscsi` RWO PVCs |

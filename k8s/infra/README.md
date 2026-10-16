@@ -1,14 +1,19 @@
 # k8s/infra — Argo CD app-of-apps root
 
 The Nix-delivered `root` Application (see `modules/nixos/services/argocd`) watches
-this directory (recurse) and applies every child `Application` manifest here.
+this directory (recurse) and applies every manifest here.
 
-Empty for now — the B5 smoke test that proved the ksops pipeline lived here and
-was torn down. Stage E populates this with the real infra apps (traefik,
-democratic-csi, nvidia-plugin, and metallb once adopted out of the Nix module).
+- `apps.yaml`: the `apps` ApplicationSet. It makes one Application per app
+  directory `k8s/apps/<app>/`, with name and namespace `<app>`.
+- All other files: hand-written Applications for apps that the template does
+  not fit (Helm charts, multi-source, other namespaces, extra syncOptions).
+  Their secret Applications (`headlamp-secret`, `traefik-secret`,
+  `truenas-secret`) are also here.
 
-Argo's directory generator only reads `*.yaml`/`*.yml`/`*.json`, so this README
-is ignored — it exists to keep the path present (git drops empty dirs).
+To add an app, see `docs/CLUSTER.md` (Add an app).
+
+Argo's directory source only reads `*.yaml`/`*.yml`/`*.json`, so Argo ignores
+this README.
 
 Secrets: encrypt as `*.enc.yaml` (sops → cluster + daniel keys, `.sops.yaml`
-rule); the repo-server ksops plugin decrypts them in-cluster.
+rule). The repo-server ksops plugin decrypts them in-cluster.

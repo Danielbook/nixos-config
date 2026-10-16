@@ -212,9 +212,9 @@ Cluster config splits across two layers: **NixOS provisions the nodes**, **Argo 
 | Node role module | `modules/nixos/services/k3s/` | Role-parameterized k3s node (`homelab.k3s`: server-init/server/agent) + kube-vip |
 | Argo CD bootstrap | `modules/nixos/services/argocd/` | Nix-delivered Argo CD install + root app-of-apps pointed at `k8s/infra` |
 | Per-host config | `hosts/naboo/`, `hosts/endor/`, `hosts/tatooine/`, `hosts/hoth/` | Sets `homelab.k3s` role/options per node; host-level secrets (`secrets.yaml`, pre-generated `ssh_host_ed25519_key.sops`) |
-| App-of-apps root | `k8s/infra/` | Child Argo CD `Application` manifests (one per workload) that Argo's directory generator applies — see `k8s/infra/README.md` |
-| Per-app manifests | `k8s/<app>/` (e.g. `k8s/traefik/`, `k8s/authentik/`, `k8s/ollama/`) | Kustomize dirs — `kustomization.yaml`, `secret-generator.yaml`, sops-encrypted `*-env.enc.yaml` |
-| Raw Kubernetes manifests | `k8s/apps/<app>/` | Deployment/Service/etc. YAML referenced by the matching `k8s/infra/<app>.yaml` Application |
+| App-of-apps root | `k8s/infra/` | The `apps` ApplicationSet (`apps.yaml`) plus hand-written `Application` manifests for Helm, multi-source and other special apps. See `k8s/infra/README.md` |
+| App directories | `k8s/apps/<app>/` | All manifests of one app. An app with secrets adds `kustomization.yaml`, `secret-generator.yaml` (ksops) and sops-encrypted `*.enc.yaml`. The `apps` ApplicationSet makes one Application per directory, name and namespace `<app>` |
+| Secrets of non-app workloads | `k8s/headlamp/`, `k8s/traefik/`, `k8s/truenas/` | ksops Kustomize dirs for Helm workloads, each with its own `<name>-secret` Application in `k8s/infra/` |
 | Helm charts | `k8s/charts/` | Vendored/local charts (e.g. `k8s/charts/ingress` for Traefik) |
 | One-off migration Jobs | `k8s/migration/` | Data migration Jobs run during cutover (Stage F), not part of steady-state GitOps |
 | Cluster secrets policy | `.sops.yaml` | Age recipients (daniel + per-host + dedicated `cluster` key) and `path_regex` rules deciding which keys encrypt which paths |

@@ -11,7 +11,7 @@
 > [ADR 0002](./adr/0002-node-provisioning-host-keys.md). For where each config
 > file actually lives (Nix modules, `k8s/` manifests, secrets), see
 > [ARCHITECTURE.md → k3s Cluster Config Map](./ARCHITECTURE.md#k3s-cluster-config-map).
-> Last update: 2026-10-06.
+> Last update: 2026-10-16.
 
 ## Goal
 
@@ -140,6 +140,103 @@ Today's real usage ≈ **11G** ⇒ **~3.5× headroom** out of the gate.
 - **No offsite backup yet** — plan restic/replication for immich photos (the
   irreplaceable data) as a follow-up. Vaultwarden was dropped for paid Bitwarden.
 
+## Add an app
+
+Each app lives in one **app directory**, `k8s/apps/<app>/`. The `apps`
+ApplicationSet (`k8s/infra/apps.yaml`) makes one Application per directory.
+The Application name and the destination namespace are both `<app>`.
+
+1. Make `k8s/apps/<app>/` with the manifests of the app.
+2. If the app has secrets, add the sops-encrypted `*.enc.yaml` files, a ksops
+   `secret-generator.yaml` and a `kustomization.yaml`. Copy them from an
+   existing app, for example `k8s/apps/ntfy/`. Keep the
+   `config.kubernetes.io/function` annotation in the generator. Without it,
+   kustomize does not run ksops.
+3. If the app has a web UI, add one route line in `k8s/infra/ingress.yaml`.
+
+With a `kustomization.yaml`, Argo renders only the files in its `resources`
+list. Add each new manifest file to that list. If you remove a file from the
+list, Argo prunes its resources.
+
+An app that needs a different Application (Helm chart, multi-source, other
+namespace, extra syncOptions, ignoreDifferences) keeps a hand-written
+Application in `k8s/infra/`. If such an app also has a directory under
+`k8s/apps/`, add an `exclude` entry for it in `apps.yaml`. Today only
+`media-nfs-pv` needs this, because its namespace is `default`.
+
+No Application has the `resources-finalizer`. `preserveResourcesOnDeletion`
+in `apps.yaml` keeps it off the generated Applications. Thus, when an
+Application disappears, its resources stay in the cluster. This also applies
+when you delete, rename or exclude an app directory. Delete the orphaned
+resources with `kubectl` if you do not need them.
+
+### Cutover to app directories (2026-10, two merges)
+
+This runbook moved the cluster from `<app>` + `<app>-secret` Applications to
+the `apps` ApplicationSet. Push the two parts to `main` one at a time.
+
+**Merge 1: secrets into app directories.** Commit `refactor(k8s): move each
+app's ksops secrets into its app directory`.
+
+1. Make sure that all Applications are Synced and Healthy, and that none has a
+   finalizer:
+   `kubectl -n argocd get applications -o custom-columns=NAME:.metadata.name,FIN:.metadata.finalizers,SYNC:.status.sync.status,HEALTH:.status.health.status`
+2. Push only this commit to `main`.
+3. The root app prunes the 16 `<app>-secret` Applications. They have no
+   finalizer, so their Secrets stay. The next sync of `<app>` adopts them.
+4. Watch each `<app>` for Synced and Healthy. A ComparisonError means that
+   kustomize or ksops failed. In that case, Argo prunes nothing and the old
+   Secrets stay.
+5. Make sure that the tracking-id of each Secret starts with `<app>:`:
+   `kubectl get secrets -A -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,APP:.metadata.annotations.argocd\.argoproj\.io/tracking-id`
+6. Rollback: prefer a fix forward. A revert makes `<app>` prune the Secrets
+   that it adopted, until `<app>-secret` applies them again. Running pods keep
+   their environment, but a pod that starts in that gap fails.
+
+**Merge 2: the ApplicationSet.** Commit `refactor(k8s): generate app
+Applications from one ApplicationSet` and the docs commit after it.
+
+How the controllers interact (Argo CD v3.4.4, `createOrUpdateInCluster` in
+`applicationset/controllers/applicationset_controller.go`):
+
+- The ApplicationSet controller creates or updates each Application by name.
+  If an Application of that name exists and has no controller owner, the
+  controller adopts it. It sets an owner reference to the ApplicationSet and
+  writes the spec, labels and annotations again. This step removes the
+  `root` tracking-id annotation.
+- In the same sync, the root app prunes the deleted hand-written
+  Applications. Both orders are safe:
+  - Root deletes first. The Application has no finalizer, so its resources
+    stay. The ApplicationSet then makes it again with the same name, and the
+    new Application finds its resources by the same tracking-id.
+  - The ApplicationSet adopts first. The adoption removes the root
+    tracking-id, so root does not count the Application as its own and does
+    not prune it. If
+    root planned the prune before, it deletes the Application, and the
+    ApplicationSet makes it again.
+- Do not add the ApplicationSet while the hand-written Application files
+  still exist. Then root and the ApplicationSet write the annotations in a
+  loop.
+
+Steps:
+
+1. Make sure again that no Application has a finalizer (command in merge 1).
+2. Push the remaining commits to `main`.
+3. Watch the ApplicationSet: `kubectl -n argocd get applicationset apps -o yaml`.
+   The `ErrorOccurred` condition must be `False`.
+4. Watch the Applications:
+   `kubectl -n argocd get applications -o custom-columns=NAME:.metadata.name,OWNER:.metadata.ownerReferences[0].name,FIN:.metadata.finalizers,SYNC:.status.sync.status,HEALTH:.status.health.status`.
+   Expect 23 Applications with owner `apps`, no finalizer, Synced and
+   Healthy. An Application can be absent for up to about 3 minutes (the git
+   generator poll interval) before the ApplicationSet makes it again.
+5. The workload specs do not change, so no pod must restart:
+   `kubectl get pods -A | grep -v -e Running -e Completed`.
+6. Rollback: to stop the churn first, run
+   `kubectl -n argocd delete applicationset apps --cascade=orphan`. Then
+   revert the ApplicationSet commit. Without the orphan delete, the revert
+   makes Kubernetes delete the owned Applications, and root makes them again.
+   In both cases the resources stay, because no Application has a finalizer.
+
 ## Disaster recovery: full cluster rebuild
 
 Forgejo runs **on** the cluster, and Argo syncs the cluster **from** Forgejo —
@@ -148,11 +245,13 @@ trusting it at 3am):
 
 1. Clone this repo from a mirror: `https://github.com/Danielbook/nixos-config.git`
    (or `https://codeberg.org/Danielbook/nixos-config.git`).
-2. Rebuild the nodes: `just deploy-cluster` (+ agents). Argo comes up but every
-   app — including the `forgejo` child app — points at Forgejo, which isn't
-   running yet, so nothing syncs. Do **not** flip `repoURL`s to a mirror; that
-   splits history and touches ~36 files. Instead:
-3. Manually bootstrap Forgejo from the local clone: render its manifests
+2. Rebuild the nodes: `just deploy-cluster` (+ agents). Argo starts, but every
+   app points at Forgejo, which does not run yet, so nothing syncs. The `apps`
+   ApplicationSet cannot list `k8s/apps/` either, so the `forgejo` Application
+   does not exist yet. Do **not** change the `repoURL`s to a mirror. That
+   splits history and changes every Application file. Instead:
+3. Manually bootstrap Forgejo from the local clone: render its manifests with
+   `kustomize build --enable-alpha-plugins --enable-exec k8s/apps/forgejo`
    (ksops secrets decrypt with the personal `daniel` age key — the recovery
    key per [ADR 0001](./adr/0001-cluster-secrets-age-key.md)) and
    `kubectl apply` them. Forgejo's data survives on the TrueNAS PVC, so it
