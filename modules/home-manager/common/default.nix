@@ -49,6 +49,7 @@
     (with pkgs; [
       bash
       bruno
+      bun
       dig
       dust
       eza
