@@ -16,6 +16,7 @@ let
         "npm:pi-web-search"
         "npm:pi-subagents"
         "npm:@juicesharp/rpiv-ask-user-question"
+        "npm:agent-simple-english"
       ];
     }
   );
