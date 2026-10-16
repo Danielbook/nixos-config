@@ -98,6 +98,12 @@ spec:
               mountPath: /certs
         - name: dind
           image: docker:29.6.1-dind
+          # Pod network MTU is 1450; docker's 1500 default blackholes large
+          # packets (TLS to github.com resets). --mtu covers docker0, the
+          # network opt covers the per-job networks the runner creates.
+          args:
+            - --mtu=1450
+            - --default-network-opt=bridge=com.docker.network.driver.mtu=1450
           securityContext:
             privileged: true
           env:
