@@ -4,7 +4,9 @@
 # stays (HomeKit Bridge mDNS/UDP 5353 needs LAN visibility — see
 # docs/cluster-implementation.md Stage F1c for why this isn't cargo-culted).
 # Pinned to naboo — the Arduino garage-door controller is physically attached
-# there. privileged + hostPath CharDevice for the Arduino, same as jupiter
+# there. The node firewall ports are in
+# modules/nixos/services/k3s/host-network-apps.nix. Keep its node in step with
+# the nodeSelector. privileged + hostPath CharDevice for the Arduino, same as jupiter
 # (no device-plugin infra for one device — ponytail: upgrade path is
 # generic-device-plugin or ser2net per Stage E2 if a second USB device shows
 # up). configuration.yaml needs an `http:` block added post-restore (jupiter

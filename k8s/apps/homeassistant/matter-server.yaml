@@ -2,7 +2,8 @@
 # on jupiter, resolved 8.1.0. hostNetwork is a hard requirement (mDNS +
 # IPv6 link-local multicast for Matter commissioning cannot traverse the
 # flannel overlay — see docs/cluster-implementation.md Stage F1c for sources).
-# Pinned to naboo, co-located with homeassistant. `args:` not `command:`
+# Pinned to naboo, co-located with homeassistant. The host-network app list is
+# in modules/nixos/services/k3s/host-network-apps.nix. `args:` not `command:`
 # (k8s command: replaces ENTRYPOINT — F1 loki lesson). --primary-interface
 # changes ens18 (jupiter's NIC) -> eno2 (naboo's). apparmor=unconfined from
 # jupiter's compose is a no-op on NixOS k3s, dropped.

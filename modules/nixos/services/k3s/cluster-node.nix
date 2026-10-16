@@ -19,6 +19,7 @@ in
     inputs.sops-nix.nixosModules.sops
     "${nixosModules}/common"
     "${nixosModules}/services/k3s"
+    ./host-network-apps.nix
   ]
   ++ lib.optional (node.role != "agent") ./control-plane.nix;
 

@@ -1,7 +1,8 @@
 # music-assistant — upstream only supports host networking (player discovery
 # via mDNS/SSDP, players pull audio back from the stream server on 8097), so
-# hostNetwork + pinned to naboo like homeassistant/matter-server. Ports
-# 8095/8097 opened in hosts/naboo/default.nix. Music library is the same
+# hostNetwork + pinned to naboo like homeassistant/matter-server. The node
+# firewall ports (8095/8097 and the AirPlay/Spotify ephemeral range) are in
+# modules/nixos/services/k3s/host-network-apps.nix. Music library is the same
 # TrueNAS NFS export navidrome uses, read-only; a PV binds 1:1 to a PVC, hence
 # a second PV for the same path. Add it in the UI as a Filesystem provider
 # pointing at /media/music.
