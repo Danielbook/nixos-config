@@ -12,6 +12,9 @@ flake := ".#" + hostname
 home_target := ".#daniel@" + hostname
 experimental := "--extra-experimental-features \"nix-command flakes\""
 
+# k3s cluster node inventory: name, IP and role per node
+cluster_nodes := "modules/nixos/services/k3s/nodes.nix"
+
 # =============================================================================
 # Help and Information
 # =============================================================================
@@ -95,21 +98,31 @@ deploy host ip:
         --target-host daniel@{{ip}} --build-host daniel@{{ip}} --sudo
     @echo "✅ {{host}} deployed."
 
+# Deploy a k3s cluster node by name, with its IP from the node inventory
+deploy-node host: (deploy host shell('nix eval --raw -f "$1" "$2.ip"', cluster_nodes, host))
+
 # Deploy naboo (k3s control-plane 1)
-deploy-naboo: (deploy "naboo" "10.10.40.13")
+deploy-naboo: (deploy-node "naboo")
 
 # Deploy endor (k3s control-plane 2)
-deploy-endor: (deploy "endor" "10.10.40.14")
+deploy-endor: (deploy-node "endor")
 
 # Deploy hoth (k3s control-plane 3, F2)
-deploy-hoth: (deploy "hoth" "10.10.40.11")
+deploy-hoth: (deploy-node "hoth")
 
 # Deploy tatooine (k3s GPU agent)
-deploy-tatooine: (deploy "tatooine" "10.10.40.15")
+deploy-tatooine: (deploy-node "tatooine")
 
-# Deploy ALL cluster nodes — control-planes first (required when a Nix-delivered
-# k3s manifest changes, or they drift/race), then the GPU agent
-deploy-cluster: deploy-naboo deploy-endor deploy-hoth deploy-tatooine
+# Deploy ALL cluster nodes in role order from the inventory: server-init, then
+# server, then agent (alphabetical within a role). Control-planes must go first
+# when a Nix-delivered k3s manifest changes, or they drift/race.
+deploy-cluster:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    nodes=$(nix eval --raw -f {{cluster_nodes}} --apply 'nodes: toString (builtins.concatMap (role: builtins.filter (n: nodes.${n}.role == role) (builtins.attrNames nodes)) [ "server-init" "server" "agent" ])')
+    for host in $nodes; do
+        {{just_executable()}} deploy-node "$host"
+    done
 
 # =============================================================================
 # Development & Maintenance

@@ -15,7 +15,9 @@ Declarative, flake-based Nix configuration with a layered, multi-host modular ar
 | `tatooine` | NixOS (headless) | k3s GPU agent node (`10.10.40.15`, GTX 1070) |
 | `hoth` | NixOS (headless) | k3s 3rd control-plane node (`10.10.40.11`, bare metal — formerly "jupiter", a Docker/Proxmox box, wiped in Stage F2) |
 
-Modules are layered: `common` (universal for all hosts — keep it to what a headless k3s node needs) and `desktop/common` (shared by desktop hosts). Adding a new host requires a host config and flake entry; desktops and dagobah also get a home config. Servers skip desktop imports and have no home config (`just deploy` only activates the system).
+The k3s node inventory `modules/nixos/services/k3s/nodes.nix` is the single source of truth for cluster node IPs and roles. The table copies them only for reference.
+
+Modules are layered: `common` (universal for all hosts — keep it to what a headless k3s node needs) and `desktop/common` (shared by desktop hosts). A new host needs a host config and a flake entry. Desktops and dagobah also get a home config. A new k3s node needs an entry in `nodes.nix` and a host dir with hardware, disko and an import of `services/k3s/cluster-node.nix`. flake.nix and the justfile read the node from the inventory. Servers skip desktop imports and have no home config (`just deploy` only activates the system).
 
 ## Build Commands
 
@@ -30,7 +32,8 @@ just deploy-naboo           # Remote deploy k3s control-plane naboo (10.10.40.13
 just deploy-endor           # Remote deploy k3s control-plane endor (10.10.40.14)
 just deploy-hoth            # Remote deploy k3s control-plane hoth (10.10.40.11)
 just deploy-tatooine        # Remote deploy k3s GPU agent tatooine (10.10.40.15)
-just deploy-cluster         # Deploy ALL cluster nodes: three control-planes, then tatooine (required when a Nix-delivered k3s manifest changes)
+just deploy-cluster         # Deploy ALL cluster nodes in role order from nodes.nix: control-planes, then agents (required when a Nix-delivered k3s manifest changes)
+just deploy-node <host>     # Remote deploy a cluster node, IP from nodes.nix
 just deploy <host> <ip>     # Generic remote deploy (build + activate on target)
 just flake-check            # Validate before building
 just flake-update           # Update all flake inputs

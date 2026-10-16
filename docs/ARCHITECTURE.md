@@ -160,6 +160,32 @@ homeConfigurations."daniel@<hostname>" = mkHomeConfiguration "aarch64-darwin" "d
 nixosConfigurations.<hostname> = mkNixosConfiguration "<hostname>" "daniel";
 ```
 
+### k3s cluster node
+
+1. Add the node to `modules/nixos/services/k3s/nodes.nix` with its `ip` and
+   `role` (`server-init`, `server` or `agent`). `flake.nix` makes the
+   `nixosConfiguration` from this entry. Do not add a separate flake entry.
+
+2. Create `hosts/<hostname>/` with `hardware-configuration.nix`, `disko.nix`
+   and a `default.nix`:
+```nix
+{ nixosModules, ... }: {
+  imports = [
+    ./hardware-configuration.nix
+    ./disko.nix
+    "${nixosModules}/services/k3s/cluster-node.nix"
+  ];
+  system.stateVersion = "25.05";
+}
+```
+
+3. Pre-generate the host key and add the node to `.sops.yaml` by hand
+   (ADR-0002). See the Stage-B runbook in `docs/cluster-implementation.md`.
+
+`just deploy-node <hostname>` and `just deploy-cluster` read the IP and the
+role order from the inventory. Add a `deploy-<hostname>` alias to the
+justfile if you want one.
+
 ### Desktop (workstation/HTPC)
 
 Same as server, but import `desktop/common` + a compositor module, and add a
@@ -211,7 +237,9 @@ Cluster config splits across two layers: **NixOS provisions the nodes**, **Argo 
 |-------|------|---------|
 | Node role module | `modules/nixos/services/k3s/` | Role-parameterized k3s node (`homelab.k3s`: server-init/server/agent) + kube-vip |
 | Argo CD bootstrap | `modules/nixos/services/argocd/` | Nix-delivered Argo CD install + root app-of-apps pointed at `k8s/infra` |
-| Per-host config | `hosts/naboo/`, `hosts/endor/`, `hosts/tatooine/`, `hosts/hoth/` | Sets `homelab.k3s` role/options per node; host-level secrets (`secrets.yaml`, pre-generated `ssh_host_ed25519_key.sops`) |
+| Node inventory | `modules/nixos/services/k3s/nodes.nix` | Single source of truth for the name, IP and role of each node. `flake.nix` makes one `nixosConfiguration` per entry. The justfile reads IPs and the `deploy-cluster` order from it |
+| Shared node config | `modules/nixos/services/k3s/cluster-node.nix`, `control-plane.nix` | `cluster-node.nix`: every node (common, k3s, disko, sops, `homelab.k3s` role and `nodeIp` from the inventory). `control-plane.nix`: server roles only (metallb, Argo CD) |
+| Per-host config | `hosts/naboo/`, `hosts/endor/`, `hosts/tatooine/`, `hosts/hoth/` | Hardware, disko and node-specific settings (e.g. the GPU taint on tatooine). Host-level secrets (`secrets.yaml`, pre-generated `ssh_host_ed25519_key.sops`) |
 | App-of-apps root | `k8s/infra/` | The `apps` ApplicationSet (`apps.yaml`) plus hand-written `Application` manifests for Helm, multi-source and other special apps. See `k8s/infra/README.md` |
 | App directories | `k8s/apps/<app>/` | All manifests of one app. An app with secrets adds `kustomization.yaml`, `secret-generator.yaml` (ksops) and sops-encrypted `*.enc.yaml`. The `apps` ApplicationSet makes one Application per directory, name and namespace `<app>` |
 | Secrets of non-app workloads | `k8s/headlamp/`, `k8s/traefik/`, `k8s/truenas/` | ksops Kustomize dirs for Helm workloads, each with its own `<name>-secret` Application in `k8s/infra/` |
