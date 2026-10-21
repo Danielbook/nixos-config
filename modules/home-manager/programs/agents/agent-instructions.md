@@ -2,7 +2,7 @@
 
 ## Git
 
-When asked to implement a feature in a worktree and `wt` is available, create it with `wt switch -c <branch>`. In Claude Code, use `wt` in place of the built-in worktree isolation (`EnterWorktree`, `isolation: "worktree"`) — it makes `.claude/worktrees/agent-*` dirs that never get cleaned up.
+For every implementation request, create a new Git worktree with `wt switch -c <branch>` before edits. Execute all implementation commands in that worktree. If `wt` is unavailable, stop and ask the user. In Claude Code, use `wt` instead of built-in worktree isolation (`EnterWorktree`, `isolation: "worktree"`).
 
 Never add a `Co-Authored-By` trailer to a commit message, drafted or executed. Commits are attributed to me alone. End the body at the last real paragraph.
 
