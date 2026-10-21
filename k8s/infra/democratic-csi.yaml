@@ -1,0 +1,96 @@
+# democratic-csi — TrueNAS storage via the pure-API drivers (no SSH). One
+# Application, three sources:
+#   - k8s/truenas: the ksops Secrets `truenas-iscsi-config` and
+#     `truenas-nfs-config`. Each holds a FULL driver config (incl. the TrueNAS
+#     apiKey). The chart's existingConfigSecret is the only way to keep the
+#     apiKey out of git. Layout is commented in the enc.yaml.
+#   - iSCSI release: zvols on the `ssd` pool. StorageClass `iscsi` is the
+#     cluster DEFAULT (RWO — DBs/app data).
+#   - NFS release: RWX datasets on `pool1`. StorageClass `nfs` (media/shared).
+# releaseName keeps the names of the two former Applications, so the rendered
+# resources stay the same. Node prereqs (iscsid, nfs) are in the Nix k3s module.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: democratic-csi
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+      targetRevision: main
+      path: k8s/truenas
+    - repoURL: https://democratic-csi.github.io/charts
+      chart: democratic-csi
+      targetRevision: 0.15.1 # bump deliberately, together with the NFS source
+      helm:
+        releaseName: democratic-csi-iscsi
+        valuesObject:
+          csiDriver:
+            name: org.democratic-csi.iscsi
+          storageClasses:
+            - name: iscsi
+              defaultClass: true # RWO default. The nfs SC covers RWX.
+              reclaimPolicy: Delete
+              volumeBindingMode: Immediate
+              allowVolumeExpansion: true
+              parameters:
+                fsType: ext4
+          driver:
+            existingConfigSecret: truenas-iscsi-config
+            config:
+              # Chart templates read the driver name. The real config (with
+              # the apiKey) comes from the Secret above.
+              driver: freenas-api-iscsi
+          controller:
+            externalSnapshotter:
+              # k3s ships no snapshot-controller/CRDs. Snapshots are TrueNAS-side
+              # (Stage C4). Enable + add the snapshot-controller chart if CSI
+              # snapshots are ever needed (e.g. Velero).
+              enabled: false
+          node:
+            tolerations:
+              # tatooine's GPU taint would otherwise exclude it from the node
+              # daemonset, leaving it unable to attach iscsi/nfs PVCs (Stage D3).
+              - key: nvidia.com/gpu
+                operator: Equal
+                value: present
+                effect: NoSchedule
+    - repoURL: https://democratic-csi.github.io/charts
+      chart: democratic-csi
+      targetRevision: 0.15.1 # bump deliberately, together with the iSCSI source
+      helm:
+        releaseName: democratic-csi-nfs
+        valuesObject:
+          csiDriver:
+            name: org.democratic-csi.nfs
+          storageClasses:
+            - name: nfs
+              defaultClass: false
+              reclaimPolicy: Delete
+              volumeBindingMode: Immediate
+              allowVolumeExpansion: true
+              parameters: {}
+          driver:
+            existingConfigSecret: truenas-nfs-config
+            config:
+              driver: freenas-api-nfs
+          controller:
+            externalSnapshotter:
+              enabled: false # see the iSCSI source
+          node:
+            tolerations:
+              # see the iSCSI source
+              - key: nvidia.com/gpu
+                operator: Equal
+                value: present
+                effect: NoSchedule
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: democratic-csi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
