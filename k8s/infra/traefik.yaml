@@ -3,6 +3,8 @@
 # inflation). Shared-once config lives here: the wildcard cert on the websecure
 # entrypoint (per-route `tls: {}` inherits it) + http→https redirect. Per-app
 # routes/middlewares live in the `ingress` app (k8s/charts/ingress).
+# Multi-source: k8s/traefik (the ksops Cloudflare token Secret and the
+# cert-manager Issuer + wildcard Certificate) + the chart.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -10,77 +12,80 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://traefik.github.io/charts
-    chart: traefik
-    targetRevision: 41.0.1 # Traefik v3.7.5 — bump deliberately
-    helm:
-      valuesObject:
-        # Stateless: the wildcard cert comes from a cert-manager Secret (see
-        # tlsStore below), so no acme.json PVC pins Traefik to one replica/node.
-        deployment:
-          replicas: 2
-        podDisruptionBudget:
-          enabled: true
-          minAvailable: 1
-        # One replica per node, so a single node failure never takes out the
-        # front door. Honor taints: otherwise the tainted GPU node (and an
-        # unreachable node) count as empty domains and block rollouts.
-        topologySpreadConstraints:
-          - maxSkew: 1
-            topologyKey: kubernetes.io/hostname
-            whenUnsatisfiable: DoNotSchedule
-            nodeTaintsPolicy: Honor
-            labelSelector:
-              matchLabels:
-                app.kubernetes.io/name: traefik
-                app.kubernetes.io/instance: traefik-traefik
-        ports:
-          web:
-            http:
-              redirections:
-                entryPoint:
-                  to: websecure # http→https natively (replaces jupiter's redirect middleware)
-                  scheme: https
-                  permanent: true
-          websecure:
-            http:
-              tls:
-                enabled: true
-                # No per-entrypoint certResolver/domains on purpose: that triggers
-                # on-demand per-HOST issuance (rate-limit risk). The wildcard
-                # comes from the TLSStore below as the default cert.
-        service:
-          annotations:
-            metallb.io/loadBalancerIPs: 10.10.40.51 # stable IP for the DNS record
-        providers:
-          kubernetesCRD:
+  sources:
+    - repoURL: https://forgejo.local.bookorjeman.com/danielbook/nixos-config.git
+      targetRevision: main
+      path: k8s/traefik
+    - repoURL: https://traefik.github.io/charts
+      chart: traefik
+      targetRevision: 41.0.1 # Traefik v3.7.5 — bump deliberately
+      helm:
+        valuesObject:
+          # Stateless: the wildcard cert comes from a cert-manager Secret (see
+          # tlsStore below), so no acme.json PVC pins Traefik to one replica/node.
+          deployment:
+            replicas: 2
+          podDisruptionBudget:
             enabled: true
-            # mkRoute renders IngressRoutes in the traefik ns pointing at Services
-            # in each app's own ns (whoami→default, …) — blocked without this.
-            allowCrossNamespace: true
-          kubernetesIngress:
-            enabled: false
-        # File provider (Stage E4): external/non-cluster targets (router, truenas,
-        # n4, slzb, …) can't use a Service+Endpoints backend — Argo CD excludes
-        # Endpoints/EndpointSlice from management by default, so that resource
-        # would never get created. The `ingress` chart (k8s/charts/ingress)
-        # renders a ConfigMap of per-route dynamic-config files instead, same
-        # mechanism jupiter's own Traefik used for these.
-        volumes:
-          - name: external-routes
-            mountPath: /etc/traefik/dynamic
-            type: configMap
-        additionalArguments:
-          - "--providers.file.directory=/etc/traefik/dynamic"
-          - "--providers.file.watch=true"
-        # Wildcard cert issued by cert-manager (k8s/traefik/wildcard-cert.yaml)
-        # and served as the default cert for every TLS route (IngressRoute
-        # tls: {} inherits it).
-        tlsStore:
-          default:
-            defaultCertificate:
-              secretName: wildcard-local-tls
+            minAvailable: 1
+          # One replica per node, so a single node failure never takes out the
+          # front door. Honor taints: otherwise the tainted GPU node (and an
+          # unreachable node) count as empty domains and block rollouts.
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              nodeTaintsPolicy: Honor
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: traefik
+                  app.kubernetes.io/instance: traefik-traefik
+          ports:
+            web:
+              http:
+                redirections:
+                  entryPoint:
+                    to: websecure # http→https natively (replaces jupiter's redirect middleware)
+                    scheme: https
+                    permanent: true
+            websecure:
+              http:
+                tls:
+                  enabled: true
+                  # No per-entrypoint certResolver/domains on purpose: that triggers
+                  # on-demand per-HOST issuance (rate-limit risk). The wildcard
+                  # comes from the TLSStore below as the default cert.
+          service:
+            annotations:
+              metallb.io/loadBalancerIPs: 10.10.40.51 # stable IP for the DNS record
+          providers:
+            kubernetesCRD:
+              enabled: true
+              # mkRoute renders IngressRoutes in the traefik ns pointing at Services
+              # in each app's own ns (whoami→default, …) — blocked without this.
+              allowCrossNamespace: true
+            kubernetesIngress:
+              enabled: false
+          # File provider (Stage E4): external/non-cluster targets (router, truenas,
+          # n4, slzb, …) can't use a Service+Endpoints backend — Argo CD excludes
+          # Endpoints/EndpointSlice from management by default, so that resource
+          # would never get created. The `ingress` chart (k8s/charts/ingress)
+          # renders a ConfigMap of per-route dynamic-config files instead, same
+          # mechanism jupiter's own Traefik used for these.
+          volumes:
+            - name: external-routes
+              mountPath: /etc/traefik/dynamic
+              type: configMap
+          additionalArguments:
+            - "--providers.file.directory=/etc/traefik/dynamic"
+            - "--providers.file.watch=true"
+          # Wildcard cert issued by cert-manager (k8s/traefik/wildcard-cert.yaml)
+          # and served as the default cert for every TLS route (IngressRoute
+          # tls: {} inherits it).
+          tlsStore:
+            default:
+              defaultCertificate:
+                secretName: wildcard-local-tls
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik
