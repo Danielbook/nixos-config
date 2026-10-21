@@ -242,7 +242,7 @@ Cluster config splits across two layers: **NixOS provisions the nodes**, **Argo 
 | Per-host config | `hosts/naboo/`, `hosts/endor/`, `hosts/tatooine/`, `hosts/hoth/` | Hardware, disko and node-specific settings (e.g. the GPU taint on tatooine). Host-level secrets (`secrets.yaml`, pre-generated `ssh_host_ed25519_key.sops`) |
 | App-of-apps root | `k8s/infra/` | The `apps` ApplicationSet (`apps.yaml`) plus hand-written `Application` manifests for Helm, multi-source and other special apps. See `k8s/infra/README.md` |
 | App directories | `k8s/apps/<app>/` | All manifests of one app. An app with secrets adds `kustomization.yaml`, `secret-generator.yaml` (ksops) and sops-encrypted `*.enc.yaml`. The `apps` ApplicationSet makes one Application per directory, name and namespace `<app>` |
-| Secrets of non-app workloads | `k8s/headlamp/`, `k8s/traefik/`, `k8s/truenas/` | ksops Kustomize dirs for Helm workloads, each with its own `<name>-secret` Application in `k8s/infra/` |
+| Chart Application sources | `k8s/headlamp/`, `k8s/traefik/`, `k8s/truenas/`, `k8s/nvidia/`, `k8s/metallb/` | Kustomize dirs (ksops Secrets, extra manifests) for the hand-written Applications in `k8s/infra/`. Each dir is a source of its Application, not an Application of its own |
 | Helm charts | `k8s/charts/` | Vendored/local charts (e.g. `k8s/charts/ingress` for Traefik) |
 | Cluster secrets policy | `.sops.yaml` | Age recipients (daniel + per-host + dedicated `cluster` key) and `path_regex` rules deciding which keys encrypt which paths |
 | ADRs | `docs/adr/` | e.g. `0001-cluster-secrets-age-key.md` (ksops uses a dedicated cluster key, never daniel's personal key), `0002-node-provisioning-host-keys.md` |

@@ -5,10 +5,10 @@ this directory (recurse) and applies every manifest here.
 
 - `apps.yaml`: the `apps` ApplicationSet. It makes one Application per app
   directory `k8s/apps/<app>/`, with name and namespace `<app>`.
-- All other files: hand-written Applications for apps that the template does
-  not fit (Helm charts, multi-source, other namespaces, extra syncOptions).
-  Their secret Applications (`headlamp-secret`, `traefik-secret`,
-  `truenas-secret`) are also here.
+- All other files: hand-written Chart Applications for apps that the template
+  does not fit (Helm charts, other namespaces, extra syncOptions). An app with
+  ksops Secrets adds its dir `k8s/<name>/` as a second source (for example
+  `traefik.yaml`, `headlamp.yaml` and `democratic-csi.yaml`).
 
 To add an app, see `docs/CLUSTER.md` (Add an app).
 

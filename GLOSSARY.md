@@ -92,3 +92,11 @@ ApplicationSet makes one Application per app directory, with the name and
 namespace `<app>`.
 _Avoid_: a separate `k8s/<app>/` secret tree with its own `<app>-secret`
 Application (the old split, removed in 2026-10).
+
+**Chart Application**:
+A hand-written Application in `k8s/infra` for a workload that the `apps`
+ApplicationSet does not fit, typically one from an upstream Helm chart. Its
+ksops Secrets and extra manifests live in a directory `k8s/<name>/`, which is a
+second source of the same Application.
+_Avoid_: a separate `<name>-secret` Application for those Secrets (the old
+split, removed in 2026-10).
