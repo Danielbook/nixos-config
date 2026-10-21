@@ -25,6 +25,7 @@ data:
   config.yml: |
     runner:
       file: /data/.runner
+      capacity: 6
       labels:
         - docker:docker://node:22-bookworm
         - ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-22.04
@@ -55,7 +56,18 @@ spec:
         app: forgejo-runner
     spec:
       securityContext:
-        fsGroup: 1000 # runner image runs uid 1000; PVC otherwise root-owned
+        fsGroup: 1000 # runner image runs uid 1000. PVC otherwise root-owned
+      # hoth has spare CPU and memory. endor and naboo are busy, and tatooine
+      # is tainted for GPU work. Preferred, so CI can move if hoth is down.
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [hoth]
       initContainers:
         - name: register
           image: code.forgejo.org/forgejo/runner:12
@@ -109,10 +121,15 @@ spec:
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs
+          # All job containers run in this cgroup. The limits keep CPU and
+          # memory free for the etcd member on hoth.
           resources:
             requests:
               memory: 128Mi
               cpu: 25m
+            limits:
+              memory: 10Gi
+              cpu: "6"
           volumeMounts:
             - name: docker-certs
               mountPath: /certs
