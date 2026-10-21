@@ -245,7 +245,6 @@ Cluster config splits across two layers: **NixOS provisions the nodes**, **Argo 
 | App directories | `k8s/apps/<app>/` | All manifests of one app. An app with secrets adds `kustomization.yaml`, `secret-generator.yaml` (ksops) and sops-encrypted `*.enc.yaml`. The `apps` ApplicationSet makes one Application per directory, name and namespace `<app>` |
 | Secrets of non-app workloads | `k8s/headlamp/`, `k8s/traefik/`, `k8s/truenas/` | ksops Kustomize dirs for Helm workloads, each with its own `<name>-secret` Application in `k8s/infra/` |
 | Helm charts | `k8s/charts/` | Vendored/local charts (e.g. `k8s/charts/ingress` for Traefik) |
-| One-off migration Jobs | `k8s/migration/` | Data migration Jobs run during cutover (Stage F), not part of steady-state GitOps |
 | Cluster secrets policy | `.sops.yaml` | Age recipients (daniel + per-host + dedicated `cluster` key) and `path_regex` rules deciding which keys encrypt which paths |
 | ADRs | `docs/adr/` | e.g. `0001-cluster-secrets-age-key.md` (ksops uses a dedicated cluster key, never daniel's personal key), `0002-node-provisioning-host-keys.md` |
 
