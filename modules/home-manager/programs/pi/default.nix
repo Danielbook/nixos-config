@@ -16,6 +16,7 @@ let
         "git:github.com/DietrichGebert/ponytail@e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156"
         "npm:pi-web-search"
         "npm:pi-subagents"
+        "npm:pi-claude-bridge"
         "npm:@juicesharp/rpiv-ask-user-question"
         "npm:agent-simple-english"
       ];

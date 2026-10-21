@@ -91,7 +91,6 @@ Shared home-manager modules use `pkgs.stdenv.hostPlatform.isDarwin` / `pkgs.stde
 | `services/audio-lowlatency/` | Per-host | PipeWire pro-audio tuning |
 | `services/usb-serial/` | Per-host | USB serial device support |
 | `services/k3s/` | Cluster | Role-parameterized k3s node (`homelab.k3s`: server-init/server/agent) + kube-vip |
-| `services/metallb/` | Cluster | MetalLB L2 service LoadBalancer (`homelab.metallb`): pinned upstream native manifest + `lan-pool` (10.10.40.50–.60) via k3s auto-deploy manifests. Disabled everywhere — adopted into GitOps (Argo `metallb` app, `k8s/infra/metallb.yaml`); do not re-enable |
 | `services/nvidia-headless/` | Per-host | Headless NVIDIA for the k3s GPU agent (tatooine): legacy_580 driver (Pascal), nvidia-container-toolkit CDI + k3s containerd `nvidia` runtime override |
 
 ### Home-Manager Modules (`modules/home-manager/`)
@@ -238,7 +237,7 @@ Cluster config splits across two layers: **NixOS provisions the nodes**, **Argo 
 | Node role module | `modules/nixos/services/k3s/` | Role-parameterized k3s node (`homelab.k3s`: server-init/server/agent) + kube-vip |
 | Argo CD bootstrap | `modules/nixos/services/argocd/` | Nix-delivered Argo CD install + root app-of-apps pointed at `k8s/infra` |
 | Node inventory | `modules/nixos/services/k3s/nodes.nix` | Single source of truth for the name, IP and role of each node. `flake.nix` makes one `nixosConfiguration` per entry. The justfile reads IPs and the `deploy-cluster` order from it |
-| Shared node config | `modules/nixos/services/k3s/cluster-node.nix`, `control-plane.nix` | `cluster-node.nix`: every node (common, k3s, disko, sops, `homelab.k3s` role and `nodeIp` from the inventory). `control-plane.nix`: server roles only (metallb, Argo CD) |
+| Shared node config | `modules/nixos/services/k3s/cluster-node.nix` | Every node: common, k3s, disko, sops, and the `homelab.k3s` role and `nodeIp` from the inventory. It enables Argo CD on control-plane roles only |
 | Host-network app ports | `modules/nixos/services/k3s/host-network-apps.nix` | One list of the `hostNetwork` apps with their node, ports and extra iptables rules. It opens the firewall on the matching node. Keep each `node` equal to the nodeSelector in the k8s manifest |
 | Per-host config | `hosts/naboo/`, `hosts/endor/`, `hosts/tatooine/`, `hosts/hoth/` | Hardware, disko and node-specific settings (e.g. the GPU taint on tatooine). Host-level secrets (`secrets.yaml`, pre-generated `ssh_host_ed25519_key.sops`) |
 | App-of-apps root | `k8s/infra/` | The `apps` ApplicationSet (`apps.yaml`) plus hand-written `Application` manifests for Helm, multi-source and other special apps. See `k8s/infra/README.md` |

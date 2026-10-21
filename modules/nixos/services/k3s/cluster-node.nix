@@ -1,8 +1,7 @@
 # Shared config for every k3s cluster node in nodes.nix. The host file adds
 # only hardware, disko and node-specific settings.
 #
-# Role and node IP come from the inventory. Control-plane roles also import
-# control-plane.nix.
+# Role and node IP come from the inventory. Control-plane roles also run Argo CD.
 {
   hostname,
   inputs,
@@ -19,9 +18,9 @@ in
     inputs.sops-nix.nixosModules.sops
     "${nixosModules}/common"
     "${nixosModules}/services/k3s"
+    "${nixosModules}/services/argocd"
     ./host-network-apps.nix
-  ]
-  ++ lib.optional (node.role != "agent") ./control-plane.nix;
+  ];
 
   networking.hostName = hostname;
 
@@ -39,4 +38,9 @@ in
     inherit (node) role;
     nodeIp = node.ip; # pin the real IP, see ADR-0006
   };
+
+  # Argo CD + ksops GitOps controller (see services/argocd). Only control-plane
+  # nodes run the k3s addon-manifest controller. The root app tracks k8s/infra.
+  # One-time: seed the `sops-age` secret out-of-band (ADR 0001).
+  homelab.argocd.enable = node.role != "agent";
 }

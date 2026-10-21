@@ -41,6 +41,11 @@ in
       index_status = "direct";
     };
   };
+  testiny = {
+    agents = [ "pi" ];
+    url = "https://app.testiny.io/api/v1/mcp-server";
+    headers.Authorization = "Bearer \${TESTINY_API_KEY}";
+  };
   # Figma allowlists OAuth clients by name. It rejects the name of Pi.
   figma = {
     agents = [ "pi" ];
