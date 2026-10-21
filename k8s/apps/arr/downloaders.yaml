@@ -30,6 +30,17 @@ spec:
       containers:
         - name: gluetun
           image: qmcgaw/gluetun:v3.41.1@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab
+          # gluetun sets the shared pod resolv.conf to 127.0.0.1, and a container
+          # restart keeps that change. At start, gluetun reads resolv.conf for
+          # its local DNS, finds itself and loops on *.cluster.local queries.
+          # Put CoreDNS back first. cat, not sed -i: resolv.conf is a bind mount.
+          command:
+            - sh
+            - -c
+            - |
+              r=$(sed 's/^nameserver 127\.0\.0\.1$/nameserver 10.43.0.10/' /etc/resolv.conf)
+              echo "$r" > /etc/resolv.conf
+              exec /gluetun-entrypoint
           securityContext:
             capabilities:
               add: ["NET_ADMIN"]
@@ -43,7 +54,7 @@ spec:
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: "10.42.0.0/16,10.43.0.0/16" # k3s pod + service CIDR — exempt
               # in-cluster traffic from the kill-switch so prowlarr can reach
-              # sonarr/radarr/lidarr; real internet egress still forced through
+              # sonarr/radarr/lidarr. Real internet egress still forced through
               # the WireGuard tunnel.
           envFrom:
             - secretRef:
