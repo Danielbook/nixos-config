@@ -38,6 +38,12 @@
       flake = false;
     };
 
+    # Cloudflare security-audit agent skill
+    security-audit-skill = {
+      url = "github:cloudflare/security-audit-skill";
+      flake = false;
+    };
+
     # Dynamic monitor configuration for Hyprland
     hyprdynamicmonitors = {
       url = "github:fiffeek/hyprdynamicmonitors";

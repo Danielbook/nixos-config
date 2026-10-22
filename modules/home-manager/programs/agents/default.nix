@@ -1,7 +1,12 @@
 # Coding agents: Claude Code, Codex and Pi. Shared data: mcp-servers.nix (the
 # MCP registry), policy.nix (the agent policy) and agent-instructions.md. Each
 # adapter renders them in the format of its agent.
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   imports = [
     ./claude.nix
@@ -43,6 +48,13 @@
       post-start = "${cbm} index {{ worktree_path }}"
       post-remove = "${cbm} delete {{ worktree_path }}"
     '';
+
+  # Codex, Pi and the other agents read ~/.agents/skills. Claude Code reads
+  # ~/.claude/skills. The other skills there are installed with `npx skills`.
+  home.file.".agents/skills/security-audit".source =
+    "${inputs.security-audit-skill}/skills/security-audit";
+  home.file.".claude/skills/security-audit".source =
+    "${inputs.security-audit-skill}/skills/security-audit";
 
   # Caveman plugin default intensity (plugin itself installed imperatively)
   xdg.configFile."caveman/config.json".text = builtins.toJSON {
