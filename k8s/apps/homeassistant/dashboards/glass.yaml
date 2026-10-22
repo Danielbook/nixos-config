@@ -119,7 +119,12 @@ views:
               - {entity: light.kitchen_bench, name: Bänk}
               - {entity: light.kitchen_ceiling, name: Tak}
               - {entity: light.kitchen_table, name: Matbord}
-              - {entity: light.kitchen_window_group, name: Fönster}
+              - entity: light.kitchen_window_group
+                name: Fönster
+                members:
+                  - {entity: light.kitchen_window_1, name: Fönster 1}
+                  - {entity: light.kitchen_window, name: Fönster 2}
+                  - {entity: light.kitchen_window_3, name: Fönster 3}
               - {entity: light.kitchen_display_cabinet, name: Vitrinskåp}
             sensors:
               - {entity: binary_sensor.presence_kitchen, name: Närvaro kök}
@@ -144,7 +149,12 @@ views:
             temp: sensor.hallway_motion_sensor_temperature
             sleep: [switch.adaptive_lighting_sleep_mode_ceiling_lights]
             lights:
-              - {entity: light.hallway_ceiling_group, name: Tak}
+              - entity: light.hallway_ceiling_group
+                name: Tak
+                members:
+                  - {entity: light.hallway_ceiling_1, name: Tak 1}
+                  - {entity: light.hallway_ceiling, name: Tak 2}
+                  - {entity: light.hallway_ceiling_3, name: Tak 3}
             sensors:
               - {entity: binary_sensor.hallway_door_contact, name: Ytterdörr}
               - {entity: binary_sensor.hallway_motion_sensor_occupancy, name: Rörelse}
@@ -201,7 +211,12 @@ views:
             temp: sensor.bathroom_motion_sensor_temperature
             sleep: [switch.adaptive_lighting_sleep_mode_ceiling_lights]
             lights:
-              - {entity: light.bathroom_ceiling_group, name: Tak}
+              - entity: light.bathroom_ceiling_group
+                name: Tak
+                members:
+                  - {entity: light.bathroom_ceiling_1, name: Tak 1}
+                  - {entity: light.bathroom_ceiling, name: Tak 2}
+                  - {entity: light.bathroom_ceiling_3, name: Tak 3}
             sensors:
               - {entity: binary_sensor.bathroom_motion_sensor_occupancy, name: Rörelse}
               - {entity: sensor.bathroom_motion_sensor_temperature, name: Temperatur}

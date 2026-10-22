@@ -13,6 +13,9 @@ const WEATHER_ICONS = {
   windy: "mdi:weather-windy", "windy-variant": "mdi:weather-windy-variant", exceptional: "mdi:alert-circle-outline",
 };
 
+// Tesla "T" from Simple Icons (CC0).
+const TESLA_LOGO = html`<svg class="logo" viewBox="0 0 24 24" aria-label="Tesla" role="img"><path d="M12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438-.146-1.439-1.154-1.79-4.354-1.79L12 24 8.619 5.034c-3.18 0-4.188.354-4.335 1.792 0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34L12 5.362l-.004.002H12v-.002zm0-3.899c3.415-.03 7.326.528 11.328 2.28.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0 8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46v.003z"/></svg>`;
+
 const num = (v, d = 0) => (isNaN(parseFloat(v)) ? "–" : parseFloat(v).toFixed(d).replace(".", ","));
 const slug = (r) => r.id ?? r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 // Config lists accept "entity.id" or {entity, name, ...}.
@@ -257,7 +260,7 @@ class HomePanel extends LitElement {
     const watts = consumers.map((c) => parseFloat(this._s(c.entity).state) || 0);
     const maxW = Math.max(1, ...watts);
     return html`
-      <div class="wrap">
+      <div class="wrap page">
         <header class="room-head">
           <button class="back" aria-label="Tillbaka" @click=${() => this._closeRoom()}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
           <span class="ico on"><ha-icon icon="mdi:flash"></ha-icon></span>
@@ -322,10 +325,10 @@ class HomePanel extends LitElement {
     const now = this._now.getTime();
     return html`
       <div class="chart">
-        ${p.map((x) => {
+        ${p.map((x, i) => {
           const cur = new Date(x.start).getTime() <= now && now < new Date(x.end).getTime();
           const past = new Date(x.end).getTime() <= now;
-          return html`<span class="${cur ? "cur" : past ? "past" : ""}" style="height:${Math.max(4, (x.price / max) * 100)}%"></span>`;
+          return html`<span class="${cur ? "cur" : past ? "past" : ""}" style="height:${Math.max(4, (x.price / max) * 100)}%;--n:${i}"></span>`;
         })}
       </div>
       <div class="axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
@@ -488,7 +491,7 @@ class HomePanel extends LitElement {
     const on = this._s(r.light)?.state === "on";
     const cam = this._s(r.camera);
     return html`
-      <div class="wrap">
+      <div class="wrap page">
         <header class="room-head">
           <button class="back" aria-label="Tillbaka" @click=${() => this._closeRoom()}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
           <span class="ico ${on ? "on" : ""}"><ha-icon .icon=${r.icon}></ha-icon></span>
@@ -595,7 +598,7 @@ class HomePanel extends LitElement {
         <button class="ev" @click=${() => this._moreInfo(ch.status)}>
           <b class="temp">${num(kw, 1)}<sup>kW</sup></b>
           <div class="dim">${num(this._s(ch.session)?.state, 1)} kWh denna laddning</div>
-          <div class="bar"><span style="width:${Math.min(100, (kw / (ch.max_kw ?? 11)) * 100)}%"></span></div>
+          <div class="bar ${kw > 0 ? "charging" : ""}"><span style="width:${Math.min(100, (kw / (ch.max_kw ?? 11)) * 100)}%"></span></div>
         </button>
         ${this._statButtons(ch.stats ?? [])}
         ${details && ch.details ? this._statButtons(ch.details) : nothing}
@@ -619,7 +622,7 @@ class HomePanel extends LitElement {
         <button class="ev" @click=${() => this._moreInfo(c.battery)}>
           <div class="car-top">
             <b class="temp">${num(pct)}<sup>%</sup></b>
-            <ha-icon class="car-ico" icon="mdi:car-side"></ha-icon>
+            ${TESLA_LOGO}
           </div>
           <div class="dim">${num(this._s(c.range)?.state)} km räckvidd</div>
           <div class="bar ${charging ? "charging" : ""}">
@@ -682,7 +685,7 @@ class HomePanel extends LitElement {
     if (this._room === "el") return this._energyPage();
     if (this._room) return this._roomPage(this._room);
     return html`
-      <div class="wrap">
+      <div class="wrap home">
         ${this._header()}
         <div class="grid">
           <div class="col">${this._energySummary()} ${this._charger()} ${this._car()}</div>
@@ -855,7 +858,7 @@ class HomePanel extends LitElement {
     @container (min-width: 1400px) { .room-grid { grid-template-columns: 1fr 1fr 1fr; } }
     .chev { color: var(--dim); vertical-align: middle; }
     .car-top { display: flex; justify-content: space-between; align-items: center; }
-    .car-ico { --mdc-icon-size: 64px; color: rgba(255, 255, 255, 0.25); }
+    .logo { width: 52px; height: 52px; fill: #e82127; filter: drop-shadow(0 0 14px rgba(232, 33, 39, 0.45)); }
     .car .bar { position: relative; overflow: visible; }
     .car .bar > span { background: linear-gradient(90deg, var(--blue), #7dd3fc); box-shadow: 0 0 12px var(--blue); }
     .car .bar.charging > span { background: linear-gradient(90deg, var(--green), #4ade80); box-shadow: 0 0 12px var(--green); }
@@ -905,8 +908,38 @@ class HomePanel extends LitElement {
     .media .controls button { width: 40px; height: 40px; }
     .cam { width: 100%; border-radius: 18px; display: block; cursor: pointer; }
 
+    /* Animations */
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+    @keyframes slide-in { from { opacity: 0; transform: translateX(28px); } }
+    @keyframes fade { from { opacity: 0; } }
+    @keyframes pop { 40% { transform: scale(1.15); } }
+    @keyframes grow { from { transform: scaleY(0); } }
+    @keyframes pulse { 50% { opacity: 0.55; } }
+    @keyframes ping { to { transform: scale(2.6); opacity: 0; } }
+    @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+    @keyframes unfold { from { opacity: 0; transform: translateY(-8px); } }
+    .wrap.home { animation: fade 0.3s ease-out; }
+    .wrap.page { animation: slide-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .card { animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .col:nth-child(2) .card { animation-delay: 0.06s; }
+    .col:nth-child(3) .card { animation-delay: 0.12s; }
+    .card + .card { animation-delay: 0.14s; }
+    .col:nth-child(2) .card + .card { animation-delay: 0.2s; }
+    .col:nth-child(3) .card + .card { animation-delay: 0.26s; }
+    .card + .card + .card { animation-delay: 0.3s; }
+    button { transition: transform 0.15s ease, background 0.2s, border-color 0.2s, color 0.2s; }
+    button:active { transform: scale(0.96); }
+    .room.on .bulb, .light.on .ico, .tile.on .ico { animation: pop 0.35s ease-out; }
+    .chart span { transform-origin: bottom; animation: grow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--n) * 4ms); }
+    .chart span.cur { animation: grow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both, pulse 2s ease-in-out 0.8s infinite; }
+    .dot { position: relative; }
+    .dot.bad::after, .dot.warn::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: ping 1.6s ease-out infinite; }
+    .bar.charging > span { position: relative; overflow: hidden; }
+    .bar.charging > span::after { content: ""; position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent); animation: shimmer 1.8s ease-in-out infinite; }
+    .members { animation: unfold 0.25s ease-out; }
+
     @media (prefers-reduced-motion: reduce) {
-      .disc.spin { animation: none; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
     button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
   `;
