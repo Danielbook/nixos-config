@@ -4,6 +4,7 @@ import { LitElement, html, css, nothing } from "./lit-core.min.js";
 
 const ACTIVE = ["on", "open", "opening", "cleaning", "playing", "heating", "armed_home", "armed_away", "armed_night", "triggered"];
 const ALERT = ["on", "open", "opening", "triggered", "problem"];
+const OFFLINE = ["unavailable", "unknown"];
 const WEATHER_ICONS = {
   "clear-night": "mdi:weather-night", cloudy: "mdi:weather-cloudy", fog: "mdi:weather-fog",
   hail: "mdi:weather-hail", lightning: "mdi:weather-lightning", "lightning-rainy": "mdi:weather-lightning-rainy",
@@ -115,7 +116,12 @@ class HomePanel extends LitElement {
 
   _state(id) {
     const s = this._s(id);
-    return s ? this.hass.formatEntityState(s) : "–";
+    if (!s) return "–";
+    return s.state === "unavailable" ? "Ej tillgänglig" : this.hass.formatEntityState(s);
+  }
+
+  _na(id) {
+    return this._s(id)?.state === "unavailable" ? "na" : "";
   }
 
   _moreInfo(entityId) {
@@ -158,6 +164,14 @@ class HomePanel extends LitElement {
     const greeting = h < 5 ? "God natt" : h < 10 ? "God morgon" : h < 12 ? "God förmiddag" : h < 18 ? "God eftermiddag" : "God kväll";
     const w = this._s(c.weather);
     const alerts = (c.alerts ?? []).map((id) => this._s(id)).filter((s) => s && ALERT.includes(s.state));
+    // A smoke detector that is offline cannot report fire.
+    const offline = (c.offline_alerts ?? []).map((id) => this._s(id)).filter((s) => s && OFFLINE.includes(s.state));
+    const first = alerts[0] ?? offline[0];
+    const status = alerts.length
+      ? `${alerts[0].attributes.friendly_name}${alerts.length > 1 ? ` +${alerts.length - 1}` : ""}`
+      : offline.length
+        ? offline.length === 1 ? "Brandvarnare offline" : `${offline.length} brandvarnare offline`
+        : "Allt är normalt";
     return html`
       <header>
         <div class="hello">
@@ -181,9 +195,9 @@ class HomePanel extends LitElement {
                 <span class="dim">${this._state(c.weather)}</span>
               </button>`
             : nothing}
-          <button class="pill" @click=${() => alerts[0] && this._moreInfo(alerts[0].entity_id)}>
-            <span class="dot ${alerts.length ? "bad" : ""}"></span>
-            ${alerts.length ? `${alerts[0].attributes.friendly_name}${alerts.length > 1 ? ` +${alerts.length - 1}` : ""}` : "Allt är normalt"}
+          <button class="pill" @click=${() => first && this._moreInfo(first.entity_id)}>
+            <span class="dot ${alerts.length ? "bad" : offline.length ? "warn" : ""}"></span>
+            ${status}
           </button>
           <div class="clock">${this._now.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}</div>
         </div>
@@ -198,11 +212,15 @@ class HomePanel extends LitElement {
     return prices?.length ? prices.reduce((a, x) => a + x.price, 0) / prices.length / 1000 : NaN;
   }
 
+  // Cheapest third of today's prices is "cheap", most expensive third is "expensive".
   _priceLevel() {
     const e = this._config.energy;
     const price = parseFloat(this._s(e.price)?.state);
-    const avg = this._avg(this._prices?.today);
-    const level = !avg ? "" : price < avg * 0.85 ? "cheap" : price > avg * 1.15 ? "expensive" : "normal";
+    const prices = this._prices?.today ?? [];
+    const now = this._now.getTime();
+    const cur = prices.find((x) => new Date(x.start).getTime() <= now && now < new Date(x.end).getTime());
+    const rank = cur ? prices.filter((x) => x.price < cur.price).length / prices.length : NaN;
+    const level = isNaN(rank) ? "" : rank < 1 / 3 ? "cheap" : rank >= 2 / 3 ? "expensive" : "normal";
     return { price, level, text: { cheap: "Billigt nu", normal: "Normalpris nu", expensive: "Dyrt nu" }[level] ?? "" };
   }
 
@@ -222,9 +240,9 @@ class HomePanel extends LitElement {
   _statButtons(list) {
     return html`<div class="stats">
       ${list.map(item).map(
-        (t) => html`<button class="stat" @click=${() => this._moreInfo(t.entity)}>
+        (t) => html`<button class="stat ${this._na(t.entity)}" @click=${() => this._moreInfo(t.entity)}>
           <small>${t.name ?? this._name(t.entity)}</small>
-          <b>${t.decimals === undefined ? this._state(t.entity) : html`${num(this._s(t.entity)?.state, t.decimals)}<i>${this._s(t.entity)?.attributes.unit_of_measurement ?? ""}</i>`}</b>
+          <b>${t.decimals === undefined || this._na(t.entity) ? this._state(t.entity) : html`${num(this._s(t.entity)?.state, t.decimals)}<i>${this._s(t.entity)?.attributes.unit_of_measurement ?? ""}</i>`}</b>
         </button>`
       )}
     </div>`;
@@ -277,7 +295,7 @@ class HomePanel extends LitElement {
           ${e.heatpump?.length ? html`<section class="card"><div class="head"><h2>Värmepump</h2></div>${this._statButtons(e.heatpump)}</section>` : nothing}
           ${consumers.length
             ? html`<section class="card">
-                <div class="head"><h2>Förbrukning just nu</h2><span class="dim">${num(watts.reduce((a, w) => a + w, 0))} W</span></div>
+                <div class="head"><h2>Mätta enheter</h2><span class="dim">just nu</span></div>
                 <div class="consumers">
                   ${consumers.map(
                     (c, n) => html`<button class="consumer" @click=${() => this._moreInfo(c.entity)}>
@@ -330,7 +348,7 @@ class HomePanel extends LitElement {
     const s = this._s(q.entity);
     if (!s) return nothing;
     const label = q.label?.replace(/\{(\w+)\}/g, (_, k) => (k === "state" ? s.state : (s.attributes[k] ?? "–")));
-    return html`<button class="tile ${this._isActive(q.entity) ? "on" : ""}" style="--c:${q.color ?? "#facc15"}" @click=${() => this._tap(q)} @contextmenu=${(ev) => (ev.preventDefault(), this._moreInfo(q.entity))}>
+    return html`<button class="tile ${this._isActive(q.entity) ? "on" : ""} ${this._na(q.entity)}" style="--c:${q.color ?? "#facc15"}" @click=${() => this._tap(q)} @contextmenu=${(ev) => (ev.preventDefault(), this._moreInfo(q.entity))}>
       <span class="ico"><ha-icon .icon=${q.icon ?? s.attributes.icon}></ha-icon></span>
       <b>${q.name ?? this._name(q.entity, room)}</b>
       <small>${label ?? this._state(q.entity)}</small>
@@ -342,15 +360,15 @@ class HomePanel extends LitElement {
   _roomStatus(r) {
     const temp = r.temp && this._s(r.temp) ? `${num(this._s(r.temp).state)}°` : "";
     if (!r.light) return [temp, this._state(r.status)].filter(Boolean).join(" · ");
-    const n = this._lightsOn(r.light);
+    if (this._na(r.light)) return [temp, "Ej tillgänglig"].filter(Boolean).join(" · ");
+    const n = this._lightsOn(r);
     return [temp, n ? `${n} ${n === 1 ? "lampa" : "lampor"} tända` : "Släckt"].filter(Boolean).join(" · ");
   }
 
-  _lightsOn(id) {
-    const s = this._s(id);
-    if (!s) return 0;
-    const members = s.attributes.entity_id;
-    return members ? members.filter((m) => this._s(m)?.state === "on").length : s.state === "on" ? 1 : 0;
+  // Counts the lights that the room page lists.
+  _lightsOn(r) {
+    if (!r.lights?.length) return this._s(r.light)?.state === "on" ? 1 : 0;
+    return r.lights.map(item).filter((l) => this._s(l.entity)?.state === "on").length;
   }
 
   _rooms() {
@@ -399,12 +417,13 @@ class HomePanel extends LitElement {
     const rgb = s.attributes.rgb_color;
     const dimmable = (s.attributes.supported_color_modes ?? []).some((m) => m !== "onoff");
     const name = label ?? this._name(id, room);
-    return html`<div class="light ${on ? "on" : ""}" style="--c:${on && rgb ? `rgb(${rgb.join(",")})` : "var(--amber)"};--p:${pct}%">
+    const na = s.state === "unavailable";
+    return html`<div class="light ${on ? "on" : ""} ${na ? "na" : ""}" style="--c:${on && rgb ? `rgb(${rgb.join(",")})` : "var(--amber)"};--p:${pct}%">
       <button class="ico" aria-label="Tänd eller släck ${name}" @click=${() => this._call("light.toggle", { entity_id: id })}>
         <ha-icon .icon=${s.attributes.icon ?? (on ? "mdi:lightbulb-on" : "mdi:lightbulb-outline")}></ha-icon>
       </button>
-      <button class="lname" @click=${() => this._moreInfo(id)}><b>${name}</b><small>${on ? (dimmable ? `${pct} %` : "Tänd") : "Släckt"}</small></button>
-      ${dimmable
+      <button class="lname" @click=${() => this._moreInfo(id)}><b>${name}</b><small>${na ? "Ej tillgänglig" : on ? (dimmable ? `${pct} %` : "Tänd") : "Släckt"}</small></button>
+      ${dimmable && !na
         ? html`<input type="range" min="1" max="100" aria-label="Ljusstyrka ${name}" .value=${String(pct || 1)}
             @input=${(ev) => ev.target.parentElement.style.setProperty("--p", `${ev.target.value}%`)}
             @change=${(ev) => this._call("light.turn_on", { entity_id: id, brightness_pct: Number(ev.target.value) })} />`
@@ -417,7 +436,7 @@ class HomePanel extends LitElement {
     if (!m) return nothing;
     const playing = m.state === "playing";
     const vol = m.attributes.volume_level;
-    return html`<div class="media" style="--c:#a78bfa;--p:${Math.round((vol ?? 0) * 100)}%">
+    return html`<div class="media ${this._na(id)}" style="--c:#a78bfa;--p:${Math.round((vol ?? 0) * 100)}%">
       <button class="art" style=${m.attributes.entity_picture ? `background-image:url(${m.attributes.entity_picture})` : ""} @click=${() => this._moreInfo(id)}>
         ${m.attributes.entity_picture ? nothing : html`<ha-icon icon="mdi:speaker"></ha-icon>`}
       </button>
@@ -467,7 +486,10 @@ class HomePanel extends LitElement {
           ${lights.length || r.scenes?.length
             ? html`<section class="card">
                 <div class="head"><h2>Belysning</h2></div>
-                <div class="lights">${lights.map((x) => this._lightRow(item(x), r))}</div>
+                <div class="lights">
+                  ${r.light && lights.length > 1 ? this._lightRow({ entity: r.light, name: "Alla" }, r) : nothing}
+                  ${lights.map((x) => this._lightRow(item(x), r))}
+                </div>
                 ${r.scenes?.length
                   ? html`<div class="scenes">
                       ${r.scenes.map(item).map(
@@ -699,6 +721,8 @@ class HomePanel extends LitElement {
     .sun { color: var(--amber); }
     .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
     .dot.bad { background: var(--red); box-shadow: 0 0 10px var(--red); }
+    .dot.warn { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+    .na { opacity: 0.45; }
     .clock { display: none; font-size: 54px; font-weight: 800; letter-spacing: -0.03em; margin-left: 8px; }
 
     /* Layout: one column on a phone, three columns on a wide screen */

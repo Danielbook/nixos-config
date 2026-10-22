@@ -30,6 +30,13 @@ views:
           - binary_sensor.living_room_door_contact
           - binary_sensor.kylskap_door_open
           - cover.garage_door
+        # These show an amber "Brandvarnare offline" when they are
+        # unavailable or unknown.
+        offline_alerts:
+          - binary_sensor.bedroom_smoke_sensor_smoke
+          - binary_sensor.laundry_room_smoke_sensor_smoke
+          - binary_sensor.lyras_room_smoke_detector_smoke
+          - binary_sensor.lunas_room_smoke_sensor_smoke
         energy:
           nordpool_entry: 01JQYDQJ4FY0PD4VGMSKAMTT9K
           tomorrow_available: binary_sensor.nord_pool_se3_tomorrow_price_available
@@ -43,7 +50,6 @@ views:
             - {name: Gradminuter, entity: sensor.f1255_12_cu_gradminuter_40941}
             - {name: Kompressor, entity: sensor.f1255_12_cu_status_kompressor_43427}
             - {name: Frekvens, entity: sensor.f1255_12_cu_aktuell_kompressorfrekvens_41778}
-            - {name: Eltillsats, entity: sensor.f1255_12_cu_intern_eltillsats_49993}
             - {name: Framledning, entity: sensor.f1255_12_cu_framledning_bt2_40008, decimals: 1}
             - {name: Retur, entity: sensor.f1255_12_cu_returledning_bt3_40012, decimals: 1}
             - {name: Ute (medel), entity: sensor.f1255_12_cu_medelutetemperatur_bt1_40067, decimals: 1}
@@ -55,8 +61,7 @@ views:
             - {name: 3D-skrivare, entity: sensor.prusa_mk3s_power}
             - {name: N4-server, entity: sensor.n4_server_power}
           stats:
-            - {name: Denna månad, entity: sensor.monthly_net_consumption_axensvagen_13_cost}
-            - {name: Laddning, entity: sensor.axensvagen_13_energiforbrukning_denna_laddningen_cost}
+            - {name: Laddning denna månad (spot + moms), entity: sensor.laddning_kostnad_denna_manad}
         quick:
           - {name: Larm, entity: alarm_control_panel.alarmo, icon: mdi:shield-home, color: "#4ade80"}
           - name: Lampor
@@ -81,12 +86,12 @@ views:
             temp: sensor.living_room_temperature
             sleep: [switch.adaptive_lighting_sleep_mode_living_room_ambient, switch.adaptive_lighting_sleep_mode_window]
             lights:
-              - {entity: light.living_room_ambient_group, name: Stämningsljus}
-              - {entity: light.living_room_window_group, name: Fönster}
               - {entity: light.living_room_couch_led, name: Soffa LED}
               - {entity: light.living_room_tv_led, name: TV LED}
-              - {entity: light.living_room_mushroom_group, name: Svamplampor}
               - {entity: light.living_room_go, name: Hue Go}
+              - {entity: light.living_room_window_1, name: Fönster 1}
+              - {entity: light.living_room_window, name: Fönster 2}
+              - {entity: light.living_room_window_3, name: Fönster 3}
             scenes:
               - {entity: scene.living_room_colourful, name: Färgglatt}
             sensors:
@@ -216,15 +221,11 @@ views:
             id: gym
             icon: mdi:dumbbell
             light: light.gym_group
-            temp: sensor.everything_presence_one_709ac8_temperature
             sleep: switch.adaptive_lighting_sleep_mode_daniels_desk
             lights:
               - {entity: light.gym_desk_wled, name: Skrivbord WLED}
               - {entity: light.gym_led, name: LED}
             sensors:
-              - {entity: sensor.everything_presence_one_709ac8_temperature, name: Temperatur}
-              - {entity: sensor.everything_presence_one_709ac8_humidity, name: Luftfuktighet}
-              - {entity: binary_sensor.everything_presence_one_709ac8_occupancy, name: Närvaro}
               - {entity: sensor.octoprint_current_state, name: Skrivare}
               - {entity: sensor.octoprint_job_percentage, name: Utskrift}
               - {entity: sensor.prusa_mk3s_power, name: Skrivare effekt}
@@ -266,7 +267,6 @@ views:
             temp: sensor.outside_temperature
             lights:
               - {entity: light.outside_wall, name: Vägg}
-              - {entity: light.outside_balcony_group, name: Balkong}
             sensors:
               - {entity: sensor.outside_temperature, name: Temperatur}
         charger:
@@ -294,9 +294,9 @@ views:
           climate: climate.hajen_klimat
           inside: sensor.hajen_innetemperatur
           location: device_tracker.hajen_plats
+        # Music Assistant players only.
         media:
-          - media_player.spotify_daniel_book
-          - media_player.tv_living_room
-          - media_player.vardagsrum
+          - media_player.vardagsrum_2
           - media_player.kok
-          - media_player.lunas_rum
+          - media_player.lunas_rum_2
+          - media_player.denon_avr_1912
