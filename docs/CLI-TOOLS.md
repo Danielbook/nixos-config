@@ -81,6 +81,11 @@ linked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md
   next activation; edit Nix to persist them.
 - `pi-claude-bridge` adds Claude Code as a model provider. Select
   `claude-bridge` through `/model`. It uses local Claude Code auth.
+- `extensions/personal-model.ts` selects `claude-bridge/claude-opus-5-5` for new
+  sessions under `~/Documents/repositories/personal`. Other directories use the
+  global default. A `--model` flag and a resumed session keep their model.
+- Activation patches `agent-simple-english` to skip `.nix` files. Without the
+  patch, the writing checker blocks each Nix edit.
 - Skills are not Nix-managed: Pi discovers `~/.agents/skills` natively, the
   same directory the `skills` CLI installs into for Claude Code.
 - Auth, sessions, model catalogs and package caches remain local. Never copy

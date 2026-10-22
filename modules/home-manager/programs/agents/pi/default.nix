@@ -48,6 +48,10 @@ in
       source = ./extensions/caveman-default.ts;
       force = true;
     };
+    ".pi/agent/extensions/personal-model.ts" = {
+      source = ./extensions/personal-model.ts;
+      force = true;
+    };
     ".pi/agent/extensions/safety-gates.ts" = {
       source = ./extensions/safety-gates.ts;
       force = true;
@@ -75,5 +79,11 @@ in
         $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/node ${./apply-config.mjs} "$HOME/.pi/agent" ${settings} ${mcp}
         # Skip the user's https->ssh insteadOf rewrite; activation has no ssh/agent.
         GIT_CONFIG_GLOBAL=/dev/null $DRY_RUN_CMD "$HOME/.npm-global/bin/pi" update --extensions --no-approve
+        # agent-simple-english lints .nix files as prose and blocks every Nix edit.
+        # ponytail: patch after each update. Remove when upstream skips .nix.
+        kinds="$HOME/.pi/agent/npm/node_modules/agent-simple-english/src/engine/kinds.ts"
+        if [ -f "$kinds" ] && ! grep -q '^  nix:' "$kinds"; then
+          $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/node -e 'const fs = require("fs"), f = process.argv[1]; fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("  css:", "  nix: DATA_OR_STYLE_NOT_PROSE,\n  css:"))' "$kinds"
+        fi
       '';
 }
