@@ -19,6 +19,7 @@ let
         "npm:pi-claude-bridge"
         "npm:@juicesharp/rpiv-ask-user-question"
         "npm:agent-simple-english"
+        "npm:@clementprevot/pi-session-search"
       ];
     }
   );
@@ -54,6 +55,10 @@ in
     };
     ".pi/agent/extensions/safety-gates.ts" = {
       source = ./extensions/safety-gates.ts;
+      force = true;
+    };
+    ".pi/agent/extensions/session-autoname.ts" = {
+      source = ./extensions/session-autoname.ts;
       force = true;
     };
     ".pi/agent/extensions/status-and-git.ts" = {
