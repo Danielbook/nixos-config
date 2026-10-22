@@ -8,6 +8,7 @@ resources:
   - homeassistant.yaml
   - matter-server.yaml
   - mosquitto.yaml
+  - postgres.yaml
   - music-assistant.yaml
   - namespace.yaml
   - zigbee2mqtt.yaml
