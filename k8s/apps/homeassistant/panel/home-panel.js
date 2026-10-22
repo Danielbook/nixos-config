@@ -23,6 +23,7 @@ class HomePanel extends LitElement {
     hass: { attribute: false },
     _tab: { state: true },
     _room: { state: true },
+    _expanded: { state: true },
     _player: { state: true },
     _forecast: { state: true },
     _prices: { state: true },
@@ -33,6 +34,7 @@ class HomePanel extends LitElement {
     if (!config.rooms?.length) throw new Error("home-panel: rooms is required");
     this._config = config;
     this._tab = config.rooms[0].group;
+    this._expanded = new Set();
     this._now = new Date();
   }
 
@@ -368,7 +370,10 @@ class HomePanel extends LitElement {
   // Counts the lights that the room page lists.
   _lightsOn(r) {
     if (!r.lights?.length) return this._s(r.light)?.state === "on" ? 1 : 0;
-    return r.lights.map(item).filter((l) => this._s(l.entity)?.state === "on").length;
+    return r.lights
+      .map(item)
+      .flatMap((l) => (l.members ? l.members.map(item) : [l]))
+      .filter((l) => this._s(l.entity)?.state === "on").length;
   }
 
   _rooms() {
@@ -409,7 +414,8 @@ class HomePanel extends LitElement {
     </button>`;
   }
 
-  _lightRow({ entity: id, name: label }, room) {
+  // A row with "members" is a group. Its chevron opens the single lights.
+  _lightRow({ entity: id, name: label, members }, room) {
     const s = this._s(id);
     if (!s) return nothing;
     const on = s.state === "on";
@@ -423,6 +429,14 @@ class HomePanel extends LitElement {
         <ha-icon .icon=${s.attributes.icon ?? (on ? "mdi:lightbulb-on" : "mdi:lightbulb-outline")}></ha-icon>
       </button>
       <button class="lname" @click=${() => this._moreInfo(id)}><b>${name}</b><small>${na ? "Ej tillgänglig" : on ? (dimmable ? `${pct} %` : "Tänd") : "Släckt"}</small></button>
+      ${members
+        ? html`<button class="expand ${this._expanded.has(id) ? "open" : ""}" aria-label="Visa lampor i ${name}" aria-expanded=${this._expanded.has(id) ? "true" : "false"}
+            @click=${() => {
+              const next = new Set(this._expanded);
+              next.has(id) ? next.delete(id) : next.add(id);
+              this._expanded = next;
+            }}><ha-icon icon="mdi:chevron-down"></ha-icon></button>`
+        : nothing}
       ${dimmable && !na
         ? html`<input type="range" min="1" max="100" aria-label="Ljusstyrka ${name}" .value=${String(pct || 1)}
             @input=${(ev) => ev.target.parentElement.style.setProperty("--p", `${ev.target.value}%`)}
@@ -488,7 +502,10 @@ class HomePanel extends LitElement {
                 <div class="head"><h2>Belysning</h2></div>
                 <div class="lights">
                   ${r.light && lights.length > 1 ? this._lightRow({ entity: r.light, name: "Alla" }, r) : nothing}
-                  ${lights.map((x) => this._lightRow(item(x), r))}
+                  ${lights.map(item).map(
+                    (l) => html`${this._lightRow(l, r)}
+                    ${l.members && this._expanded.has(l.entity) ? html`<div class="members">${l.members.map((m) => this._lightRow(item(m), r))}</div>` : nothing}`
+                  )}
                 </div>
                 ${r.scenes?.length
                   ? html`<div class="scenes">
@@ -870,6 +887,9 @@ class HomePanel extends LitElement {
     .light .ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: rgba(255, 255, 255, 0.06); color: var(--dim); }
     .light.on .ico { background: var(--c); color: #111; box-shadow: 0 0 16px color-mix(in srgb, var(--c) 55%, transparent); }
     .lname { display: flex; flex-direction: column; min-width: 0; }
+    .expand { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgba(255, 255, 255, 0.06); color: var(--dim); transition: transform 0.2s; }
+    .expand.open { transform: rotate(180deg); }
+    .members { display: grid; gap: 8px; margin: -2px 0 4px 22px; padding-left: 12px; border-left: 2px solid var(--line); }
     .lname b { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lname small { color: var(--dim); }
     .light.on .lname small { color: var(--c); }

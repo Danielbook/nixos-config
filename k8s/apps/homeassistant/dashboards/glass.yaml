@@ -73,10 +73,8 @@ views:
             confirm: Släck alla lampor?
           - {name: Garage, entity: cover.garage_door, icon: mdi:garage-variant, color: "#f87171"}
           - {name: Dammsugare, entity: vacuum.sky, icon: mdi:robot-vacuum, color: "#a78bfa"}
-          - {name: Dusch, entity: input_boolean.shower_mode, icon: mdi:shower-head, color: "#38bdf8", toggle: true}
           - {name: Väckarklocka, entity: input_boolean.alarm_clock, icon: mdi:alarm, color: "#818cf8", toggle: true}
           - {name: Väckningsljus, entity: input_boolean.wake_up_light, icon: mdi:weather-sunset-up, color: "#fb923c", toggle: true}
-          - {name: 3D-skrivare, entity: switch.prusa_mk3s, icon: mdi:printer-3d, color: "#2dd4bf", toggle: true}
         rooms:
           - group: Allrum
             name: Vardagsrum
@@ -86,12 +84,18 @@ views:
             temp: sensor.living_room_temperature
             sleep: [switch.adaptive_lighting_sleep_mode_living_room_ambient, switch.adaptive_lighting_sleep_mode_window]
             lights:
-              - {entity: light.living_room_couch_led, name: Soffa LED}
-              - {entity: light.living_room_tv_led, name: TV LED}
-              - {entity: light.living_room_go, name: Hue Go}
-              - {entity: light.living_room_window_1, name: Fönster 1}
-              - {entity: light.living_room_window, name: Fönster 2}
-              - {entity: light.living_room_window_3, name: Fönster 3}
+              - entity: light.living_room_ambient_group
+                name: Stämningsljus
+                members:
+                  - {entity: light.living_room_couch_led, name: Soffa LED}
+                  - {entity: light.living_room_tv_led, name: TV LED}
+                  - {entity: light.living_room_go, name: Hue Go}
+              - entity: light.living_room_window_group
+                name: Fönster
+                members:
+                  - {entity: light.living_room_window_1, name: Fönster 1}
+                  - {entity: light.living_room_window, name: Fönster 2}
+                  - {entity: light.living_room_window_3, name: Fönster 3}
             scenes:
               - {entity: scene.living_room_colourful, name: Färgglatt}
             sensors:
