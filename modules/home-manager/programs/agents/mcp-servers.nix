@@ -1,7 +1,6 @@
 # MCP servers for every agent. A server sets `command` and `args` (stdio) or
 # `url` (remote HTTP). `agents` lists the agents that get it. Keys under `pi`
-# go only into the Pi config. Adapters: common/default.nix (Claude Code) and
-# programs/pi/default.nix (Pi).
+# go only into the Pi config. Adapters: claude.nix, codex.nix and pi/.
 { lib, pkgs }:
 let
   playwrightCommand =
@@ -16,7 +15,11 @@ let
 in
 {
   playwright = {
-    agents = [ "pi" ];
+    agents = [
+      "pi"
+      "claude"
+      "codex"
+    ];
     command = "${playwrightCommand}";
     args = [
       "--headless"
@@ -28,6 +31,7 @@ in
     agents = [
       "pi"
       "claude"
+      "codex"
     ];
     command = lib.getExe pkgs.codebase-memory-mcp;
     # Default codemode exposure hides the tools, so Pi never reached for them.
