@@ -8,6 +8,10 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
+    ignores = [
+      "**/.claude/settings.local.json"
+      ".pi/"
+    ];
     includes = [
       {
         condition = "hasconfig:remote.*.url:git@gitlab.*/**";

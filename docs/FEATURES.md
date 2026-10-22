@@ -36,7 +36,7 @@
 
 ## Development Tools
 - **Neovim**: Highly customized editor with LSP, Treesitter, Telescope, Neo-tree, Catppuccin theme
-- **Git**: Version control with delta pager; `git dft`/`dlog`/`dshow` give syntax-aware diffs via difftastic
+- **Git**: Version control with delta pager. `git dft`/`dlog`/`dshow` give syntax-aware diffs via difftastic. Global ignore excludes `.pi/` agent state.
 - **Development Languages**: Node.js, Python, Go, Rust support
 - **Pi**: Latest CLI, pinned packages, custom extensions, built-in Playwright and
   codebase-memory MCP (also registered for Claude Code);

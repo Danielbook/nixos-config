@@ -21,5 +21,6 @@ kea-reservations.csv
 .DS_Store
 Thumbs.db
 
-# Claude
+# Agent state
 .claude/
+.pi/
