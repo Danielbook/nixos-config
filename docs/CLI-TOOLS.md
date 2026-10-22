@@ -79,6 +79,8 @@ linked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md
   `pi update --extensions --no-approve`. Unmanaged settings and other MCP
   servers are preserved. Changes to managed keys through Pi are reset at the
   next activation; edit Nix to persist them.
+- `pi-claude-bridge` adds Claude Code as a model provider. Select
+  `claude-bridge` through `/model`. It uses local Claude Code auth.
 - Skills are not Nix-managed: Pi discovers `~/.agents/skills` natively, the
   same directory the `skills` CLI installs into for Claude Code.
 - Auth, sessions, model catalogs and package caches remain local. Never copy
@@ -103,6 +105,8 @@ Three adapters render the registry:
 - Codex: the `registerCodexMcp` activation in `codex.nix` runs `codex-mcp.py`.
   The script replaces the `[mcp_servers.<name>]` tables in
   `~/.codex/config.toml` and keeps all other keys and comments.
+
+Testiny uses the official remote MCP server in Pi. Authentication uses `TESTINY_API_KEY` from the environment.
 
 Each merge replaces only the managed keys. Servers that you add by hand stay.
 A server that you delete from the registry also stays, so delete it by hand.

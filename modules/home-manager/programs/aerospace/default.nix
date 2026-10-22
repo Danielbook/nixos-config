@@ -77,7 +77,7 @@ lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 
       mode.main.binding = {
         # --- Applications (Hyprland: mod+Return terminal, mod+E files, mod+B browser) ---
-        alt-enter = "exec-and-forget open -na Ghostty";
+        cmd-enter = "exec-and-forget open -na Ghostty";
         alt-e = "exec-and-forget open -a Finder";
         alt-b = "exec-and-forget open -a 'Brave Browser'";
         # Hyprland mod+Y/mod+A/mod+shift+G open chrome PWAs; on macOS ChatGPT and

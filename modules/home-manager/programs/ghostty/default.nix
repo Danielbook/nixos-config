@@ -60,6 +60,7 @@
 
       # Keybindings
       keybind = [
+        "super+enter=unbind"
         "ctrl+shift+equal=increase_font_size:1"
         "ctrl+minus=decrease_font_size:1"
         "ctrl+zero=reset_font_size"

@@ -164,6 +164,14 @@ Comprehensive keybinding reference for all tools in this configuration.
 | `<leader>u` | 🌳 Toggle undo tree |
 | `Ctrl + c` | 🔄 Escape (insert mode) |
 
+### macOS Terminal Launch
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd + Enter` | Open Ghostty through AeroSpace. Ghostty fullscreen binding disabled. |
+
+`Option + Enter` is available for Pi follow-up messages.
+
 ### 🎨 Font Size (Ghostty Terminal)
 | Shortcut | Action |
 |----------|--------|
