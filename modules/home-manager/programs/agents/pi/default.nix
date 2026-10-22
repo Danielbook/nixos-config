@@ -1,7 +1,7 @@
+# Pi adapter for the MCP registry, the agent policy and the instructions file.
 {
   lib,
   pkgs,
-  nhModules,
   ...
 }:
 let
@@ -24,7 +24,7 @@ let
   );
   # Pi adapter for the shared registry. Extras under `pi` merge into the server.
   piServers = lib.filterAttrs (_: s: lib.elem "pi" s.agents) (
-    import "${nhModules}/common/mcp-servers.nix" { inherit lib pkgs; }
+    import ../mcp-servers.nix { inherit lib pkgs; }
   );
   mcp = pkgs.writeText "pi-mcp.json" (
     builtins.toJSON {
@@ -41,6 +41,9 @@ let
 in
 {
   home.file = {
+    ".pi/agent/AGENTS.md".source = ../agent-instructions.md;
+    # Read by extensions/safety-gates.ts.
+    ".pi/agent/safety-policy.json".text = builtins.toJSON (import ../policy.nix);
     ".pi/agent/extensions/caveman-default.ts" = {
       source = ./extensions/caveman-default.ts;
       force = true;
@@ -58,7 +61,7 @@ in
   home.activation.configurePi =
     lib.hm.dag.entryAfter
       [
-        "installNpmCLITools"
+        "installAgents"
         "linkGeneration"
       ]
       ''
@@ -69,7 +72,6 @@ in
             pkgs.git
           ]
         }:$PATH"
-        $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/npm install -g --ignore-scripts @earendil-works/pi-coding-agent@latest
         $DRY_RUN_CMD ${pkgs.nodejs_24}/bin/node ${./apply-config.mjs} "$HOME/.pi/agent" ${settings} ${mcp}
         # Skip the user's https->ssh insteadOf rewrite; activation has no ssh/agent.
         GIT_CONFIG_GLOBAL=/dev/null $DRY_RUN_CMD "$HOME/.npm-global/bin/pi" update --extensions --no-approve

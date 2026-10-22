@@ -70,9 +70,6 @@ in
     secrets.testiny_api_key = { };
   };
 
-  # Stop the CLI's auto-updater; Nix will handle upgrades.
-  home.sessionVariables.DISABLE_AUTOUPDATER = "1";
-
   # Source sops secrets as environment variables in the shell
   programs.zsh.initContent = lib.mkOrder 1200 ''
     export TESTINY_API_KEY="$(cat ${config.sops.secrets.testiny_api_key.path} 2>/dev/null)"

@@ -100,3 +100,17 @@ ksops Secrets and extra manifests live in a directory `k8s/<name>/`, which is a
 second source of the same Application.
 _Avoid_: a separate `<name>-secret` Application for those Secrets (the old
 split, removed in 2026-10).
+
+### Coding agents
+
+**Coding agent**:
+An AI tool that reads and changes code on a workstation for the user. Currently
+Claude Code, Codex and Pi.
+_Avoid_: "assistant" or "bot" for these tools.
+
+**Agent policy**:
+The secret paths and command tiers that each coding agent enforces in its own
+format. A secret path is never read or written. A deny command is blocked with
+no question. An ask command needs a yes from the user each time.
+_Avoid_: "safety gates" (the name of the Pi adapter file only) and "permissions"
+(the format of Claude Code only).
