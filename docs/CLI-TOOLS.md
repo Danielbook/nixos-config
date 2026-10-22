@@ -56,22 +56,25 @@ All command-line tools used across this NixOS configuration, organized by catego
 | pi | Minimal terminal coding harness, multi-provider | [github.com/earendil-works/pi](https://github.com/earendil-works/pi) |
 | github-copilot-cli | GitHub Copilot CLI | [github.com/github/copilot-cli](https://github.com/github/copilot-cli) |
 
-> **claude-code install method:** On Linux it's installed via the npm HM
-> activation (`modules/home-manager/common/default.nix`). On macOS it uses
-> Claude Code's native self-updating installer (`claude install` →
-> `~/.local/bin/claude`), so it's omitted from the npm set there. `codex` and
-> `pi` stay on npm for both. Claude Code user data (settings, skills, plugins,
-> MCP) lives in `~/.claude/` and is shared by either binary. Pi global
-> setup is managed by `modules/home-manager/programs/pi/`: Pi @latest, pinned
-> packages (Ponytail, web search, subagents, ask-user-question), three custom
-> extensions and built-in MCP with Playwright.
+> **Install method:** the `installAgents` activation in
+> `modules/home-manager/programs/agents/default.nix` installs `codex` and `pi`
+> from npm on both platforms. It installs claude-code from npm on Linux only,
+> with `DISABLE_AUTOUPDATER=1`. On macOS, Claude Code uses its native
+> self-updating installer (`claude install` → `~/.local/bin/claude`). Claude
+> Code user data (settings, skills, plugins, MCP) lives in `~/.claude/` for
+> either binary.
+
+All agent config lives in `modules/home-manager/programs/agents/`. Each agent
+gets the same [MCP servers](#mcp-servers), the same [agent
+policy](#agent-policy) and the same instructions file (`agent-instructions.md`,
+linked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md`).
 
 ### Pi configuration
 
-- `modules/home-manager/programs/pi/default.nix` owns package pins and startup
-  preferences. It renders the Pi MCP servers from the shared registry (see
-  [MCP servers](#mcp-servers)). `pi-mcp-adapter` is not loaded.
-- Activation installs latest Pi, merges managed keys into writable
+- `programs/agents/pi/default.nix` owns package pins (Ponytail, web search,
+  subagents, ask-user-question) and startup preferences. It renders the Pi MCP
+  servers from the shared registry. `pi-mcp-adapter` is not loaded.
+- After `installAgents`, the Pi activation merges managed keys into writable
   `~/.pi/agent/settings.json` and `mcp.json`, then reconciles packages with
   `pi update --extensions --no-approve`. Unmanaged settings and other MCP
   servers are preserved. Changes to managed keys through Pi are reset at the
@@ -83,52 +86,95 @@ All command-line tools used across this NixOS configuration, organized by catego
 
 ### MCP servers
 
-`modules/home-manager/common/mcp-servers.nix` defines each MCP server once. To
-add a server, add an entry to that file. An entry sets `command` and `args`
-(stdio) or `url` (remote HTTP). `agents` lists the agents that get the server:
-`"pi"`, `"claude"` or both. Keys under `pi`, for example `toolExposure` and
+`programs/agents/mcp-servers.nix` defines each MCP server once. To add a
+server, add an entry to that file. An entry sets `command` and `args` (stdio)
+or `url` (remote HTTP). `agents` lists the agents that get the server: `"pi"`,
+`"claude"` and `"codex"`. Keys under `pi`, for example `toolExposure` and
 `oauth.clientName`, go only into the Pi config.
 
-Two adapters render the registry:
+Three adapters render the registry:
 
-- Pi: `programs/pi/default.nix` writes `pi-mcp.json`. Activation merges it into
+- Pi: `pi/default.nix` writes `pi-mcp.json`. Activation merges it into
   `~/.pi/agent/mcp.json`.
-- Claude Code: the `registerClaudeMcp` activation in `common/default.nix`
-  merges the servers into `mcpServers` in `~/.claude.json`. A `url` server gets
-  `type: "http"`, and other servers get `type: "stdio"`.
+- Claude Code: the `registerClaudeMcp` activation in `claude.nix` merges the
+  servers into `mcpServers` in `~/.claude.json`. A `url` server gets `type:
+  "http"`, and other servers get `type: "stdio"`. Each server also gets an
+  allow rule `mcp__<name>__*`.
+- Codex: the `registerCodexMcp` activation in `codex.nix` runs `codex-mcp.py`.
+  The script replaces the `[mcp_servers.<name>]` tables in
+  `~/.codex/config.toml` and keeps all other keys and comments.
 
-Both merges replace only the managed keys. Servers that you add by hand stay.
+Each merge replaces only the managed keys. Servers that you add by hand stay.
+A server that you delete from the registry also stays, so delete it by hand.
 Remote OAuth servers (Figma, Miro) need one sign-in per agent: `pi mcp login
-<name>` in Pi, `/mcp` in Claude Code. Codex has no adapter.
+<name>` in Pi, `/mcp` in Claude Code, `codex mcp login <name>` in Codex.
+
+### Agent policy
+
+`programs/agents/policy.nix` holds the secret paths and the command tiers that
+each agent enforces:
+
+- `secretNames` and `secretPaths`: no read or write. `protectedPaths`: no write.
+- `deny`: command prefixes that are blocked with no question.
+- `ask`: command prefixes that need a yes each time.
+
+The adapters render the policy as follows:
+
+| Agent | Secret paths | Commands |
+|-------|--------------|----------|
+| Claude Code | `Read`/`Edit` deny rules | `Bash(...)` deny and ask rules |
+| Pi | `safety-gates.ts` checks file tools and bash text | `safety-gates.ts` blocks or asks |
+| Codex | not enforced (permission profiles are beta) | `~/.codex/rules/nix.rules` (`forbidden`, `prompt`) |
+
+Nix owns the whole `permissions` key of `~/.claude/settings.json` and writes it
+on each switch. A permission that you add by hand in user settings disappears
+at the next switch. Put it in `policy.nix` or in a project
+`.claude/settings.local.json`. Codex writes its "always allow" answers to
+`~/.codex/rules/default.rules`. Nix does not touch that file.
+
+Claude Code and Codex match a prefix token by token from the start. Thus `rm
+-fr` does not match `rm -rf` there. Pi also matches flags in any order and
+combined short flags. If `safety-policy.json` is missing, Pi blocks every tool
+call.
 
 ### codebase-memory-mcp
 
-Code knowledge-graph MCP server (nixpkgs build), registered for both Pi and
-Claude Code through the [MCP registry](#mcp-servers). Both use the same store binary, so they share one daemon and
-the per-machine graph in `~/.cache/codebase-memory-mcp/`; nothing is written to
-repos unless `index_repository` runs with `persistence: true`. Index a repo once
-with "index this project"; the watcher keeps git repos fresh after that.
-`wt` worktrees are separate paths, so the user wt config
-(`~/.config/worktrunk/config.toml`, from `modules/home-manager/common`) indexes
+Code knowledge-graph MCP server (nixpkgs build), registered for Pi, Claude Code
+and Codex through the [MCP registry](#mcp-servers). All three use the same
+store binary. Thus they share one daemon and the per-machine graph in
+`~/.cache/codebase-memory-mcp/`. Nothing goes into a repo unless
+`index_repository` runs with `persistence: true`. Index a repo once with "index
+this project". After that, the watcher keeps git repos fresh.
+
+`wt` worktrees are separate paths. Thus the user wt config
+(`~/.config/worktrunk/config.toml`, from `programs/agents/default.nix`) indexes
 each new worktree in a `post-start` hook and deletes its graph in `post-remove`.
+
 In Pi the query tools (`search_graph`, `trace_path`, `get_code_snippet`,
 `query_graph`, `search_code`, `get_architecture`, `index_status`) have `direct`
-exposure; Pi's default `codemode` hides them and they went unused. Direct
-exposure alone was not enough: the shared instruction file has to make the
-graph the first step and spell out the path-derived project name.
+exposure. The default `codemode` of Pi hides them, and Pi did not use them.
+Direct exposure alone was not enough. The shared instruction file must make
+the graph the first step and give the path-derived project name.
 - macOS Playwright retains the writable browser cache and uses Chrome;
   Linux uses Nix's bundled Chromium. Browser downloads are runtime state.
 - Pins control selected package versions/refs; npm transitive dependencies
   still resolve at activation time. This is not a fully offline, Nix-locked
   dependency closure.
 
-Validate the config merge without touching live settings:
+Validate the Pi config merge and the safety gate without a change to live
+settings:
 
 ```bash
-node --test modules/home-manager/programs/pi/apply-config.test.mjs
+node --test 'modules/home-manager/programs/agents/pi/**/*.test.mjs'
 ```
 
-Apply through `just home-manager-switch`, then restart Pi. New snapshot files
+Check the Codex rules after a build (`$G` is the home-manager generation):
+
+```bash
+codex execpolicy check --pretty --rules $G/home-files/.codex/rules/nix.rules -- rm -rf /
+```
+
+Apply through `just home-manager-switch`, then restart each agent. New snapshot files
 must be tracked in Git before the normal Git-flake rebuild sees them.
 
 ## Development
