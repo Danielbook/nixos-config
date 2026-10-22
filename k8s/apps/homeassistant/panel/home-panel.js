@@ -5,6 +5,9 @@ import { LitElement, html, css, nothing } from "./lit-core.min.js";
 const ACTIVE = ["on", "open", "opening", "cleaning", "playing", "heating", "armed_home", "armed_away", "armed_night", "triggered"];
 const ALERT = ["on", "open", "opening", "triggered", "problem"];
 const OFFLINE = ["unavailable", "unknown"];
+// An iOS activity value older than this does not count (the app sends it
+// only with a location update, so an old "Running" can stay for hours).
+const ACTIVITY_MAX_AGE_MS = 20 * 60_000;
 const WEATHER_ICONS = {
   "clear-night": "mdi:weather-night", cloudy: "mdi:weather-cloudy", fog: "mdi:weather-fog",
   hail: "mdi:weather-hail", lightning: "mdi:weather-lightning", "lightning-rainy": "mdi:weather-lightning-rainy",
@@ -163,6 +166,62 @@ class HomePanel extends LitElement {
 
   // Header
 
+  // Priority: tränar > på väg > zone > borta.
+  _presence(p) {
+    const s = this._s(p.entity);
+    if (!s) return { text: "–", icon: "mdi:help", since: undefined };
+    const a = this._s(p.activity);
+    const act = a && Date.now() - new Date(a.last_updated).getTime() < ACTIVITY_MAX_AGE_MS ? a.state : undefined;
+    const zone = (id) => this._s(id)?.attributes.friendly_name;
+    const since = s.last_changed;
+    if (act === "Running") return { text: "tränar", icon: "mdi:run", since: a.last_changed };
+    if (act === "Cycling") return { text: "tränar", icon: "mdi:bike", since: a.last_changed };
+    if (s.state === "not_home" && act === "Automotive") return { text: "är på väg", icon: "mdi:car", since: a.last_changed };
+    if (s.state === "home") return { text: "är hemma", icon: "mdi:home", since };
+    if (s.state === "not_home") return { text: "är borta", icon: "mdi:walk", since };
+    if (p.work && s.state === zone(p.work)) return { text: "är på jobbet", icon: "mdi:briefcase", since };
+    const place = Object.entries(this._config.places ?? {}).find(([id]) => zone(id) === s.state)?.[1];
+    return { text: place?.text ?? `är i ${s.state}`, icon: place?.icon ?? "mdi:map-marker", since };
+  }
+
+  _since(ts) {
+    if (!ts) return "";
+    const d = new Date(ts);
+    const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+    const days = Math.round((new Date(this._now).setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 864e5);
+    if (days === 0) return `sedan ${time}`;
+    if (days === 1) return `sedan igår ${time}`;
+    return `sedan ${d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })}`;
+  }
+
+  _avatar(p, badge = false) {
+    const s = this._s(p.entity);
+    const home = s?.state === "home";
+    const pic = s?.attributes.entity_picture;
+    return html`<span class="face ${home ? "" : "away"}">
+      ${pic ? html`<img src=${pic} alt="" />` : html`<span class="avatar">${(p.name ?? s?.attributes.friendly_name ?? "?")[0]}</span>`}
+      ${badge ? html`<span class="badge"><ha-icon .icon=${this._presence(p).icon}></ha-icon></span>` : nothing}
+    </span>`;
+  }
+
+  _people() {
+    const people = this._config.people.map(item);
+    return html`
+      <section class="card" style="order:0">
+        <div class="head"><h2>Familj</h2></div>
+        <div class="people-list">
+          ${people.map((p) => {
+            const pr = this._presence(p);
+            return html`<button class="person" @click=${() => this._moreInfo(p.entity)}>
+              ${this._avatar(p, true)}
+              <span><b>${p.name ?? this._s(p.entity)?.attributes.friendly_name} ${pr.text}</b><small>${this._since(pr.since)}</small></span>
+            </button>`;
+          })}
+        </div>
+      </section>
+    `;
+  }
+
   _header() {
     const c = this._config;
     const h = this._now.getHours();
@@ -184,14 +243,8 @@ class HomePanel extends LitElement {
           <p>${this._now.toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}</p>
         </div>
         <div class="pills">
-          <button class="pill people" @click=${() => this._moreInfo(c.people[0])}>
-            ${c.people.map((id) => {
-              const p = this._s(id);
-              const home = p?.state === "home";
-              return p?.attributes.entity_picture
-                ? html`<img class=${home ? "" : "away"} src=${p.attributes.entity_picture} title=${p.attributes.friendly_name} />`
-                : html`<span class="avatar ${home ? "" : "away"}">${p?.attributes.friendly_name?.[0] ?? "?"}</span>`;
-            })}
+          <button class="pill people" @click=${() => this._moreInfo(item(c.people[0]).entity)}>
+            ${c.people.map(item).map((p) => this._avatar(p, true))}
           </button>
           ${w
             ? html`<button class="pill" @click=${() => this._moreInfo(c.weather)}>
@@ -690,7 +743,7 @@ class HomePanel extends LitElement {
         <div class="grid">
           <div class="col">${this._energySummary()} ${this._charger()} ${this._car()}</div>
           <div class="col">${this._quick()} ${this._rooms()}</div>
-          <div class="col">${this._weather()} ${this._music()}</div>
+          <div class="col">${this._people()} ${this._weather()} ${this._music()}</div>
         </div>
       </div>
     `;
@@ -735,9 +788,18 @@ class HomePanel extends LitElement {
     .pill { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); font-size: 15px; white-space: nowrap; }
     .pill b { font-size: 18px; }
     .people { padding: 0 8px; }
-    .people img, .avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; margin-left: -10px; border: 2px solid var(--bg); display: grid; place-items: center; font-weight: 700; font-size: 13px; background: #f97316; }
-    .people :first-child { margin-left: 0; }
-    .away { filter: grayscale(1); opacity: 0.45; }
+    .people { gap: 10px; padding: 0 12px; }
+    .face { position: relative; display: inline-grid; flex: none; }
+    .face img, .face .avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: #f97316; }
+    .face.away img, .face.away .avatar { filter: grayscale(1); opacity: 0.5; }
+    .badge { position: absolute; right: -5px; bottom: -4px; width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center; background: #1f2229; border: 1.5px solid var(--bg); color: var(--amber); --mdc-icon-size: 11px; }
+    .people-list { display: grid; gap: 10px; }
+    .person { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 20px; background: var(--tile); width: 100%; }
+    .person .face img, .person .face .avatar { width: 46px; height: 46px; font-size: 18px; }
+    .person .badge { width: 24px; height: 24px; right: -6px; bottom: -4px; --mdc-icon-size: 14px; }
+    .person > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+    .person b { font-size: 17px; }
+    .person small { color: var(--dim); }
     .sun { color: var(--amber); }
     .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
     .dot.bad { background: var(--red); box-shadow: 0 0 10px var(--red); }

@@ -15,9 +15,21 @@ views:
       - type: custom:home-panel
         weather: weather.smhi_home
         outside: sensor.outside_temperature
+        # "work" is the person's work zone. "activity" is the iOS activity
+        # sensor: Running or Cycling shows "tränar", Automotive away from a
+        # zone shows "är på väg".
         people:
-          - person.daniel_book
-          - person.johanna_orjeman
+          - entity: person.daniel_book
+            name: Daniel
+            activity: sensor.daniels_iphone_13_activity
+            work: zone.daniels_work
+          - entity: person.johanna_orjeman
+            name: Johanna
+            activity: sensor.johannas_telefon_activity
+            work: zone.brastorp
+        # Text and icon for other zones. Any other zone shows "är i <zon>".
+        places:
+          zone.stable: {text: är i stallet, icon: mdi:horse}
         # The header shows "Allt är normalt" until one of these is on, open
         # or triggered.
         alerts:
