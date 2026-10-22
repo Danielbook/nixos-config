@@ -5,7 +5,6 @@
 {
   hostname,
   inputs,
-  lib,
   nixosModules,
   ...
 }:
