@@ -12,9 +12,12 @@ spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: iscsi
+  # The Actions cache server keeps its files here, beside the action clones.
+  # One cargo cache is about 250 MB. iscsi allows expansion, so a larger
+  # request grows the volume in place.
   resources:
     requests:
-      storage: 1Gi
+      storage: 10Gi
 ---
 apiVersion: v1
 kind: ConfigMap
