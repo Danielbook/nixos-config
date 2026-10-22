@@ -36,7 +36,7 @@ data:
     # dind puts job containers in /docker at the host cgroup root, outside
     # the pod, so pod limits do not apply. Limit each job here instead.
     container:
-      options: --security-opt seccomp=unconfined --security-opt apparmor=unconfined --cpus=2 --memory=3g
+      options: --security-opt seccomp=unconfined --security-opt apparmor=unconfined --cpus=2 --memory=4g
 ---
 apiVersion: apps/v1
 kind: Deployment
