@@ -13,3 +13,14 @@ resources:
   - zigbee2mqtt.yaml
 generators:
   - secret-generator.yaml
+# YAML-mode Lovelace dashboards, mounted at /config/dashboards. No hash
+# suffix, so the kubelet updates the files in place and HA does not restart.
+configMapGenerator:
+  - name: ha-dashboards
+    namespace: homeassistant
+    files:
+      - dashboards/native.yaml
+      - dashboards/mushroom.yaml
+      - dashboards/bubble.yaml
+    options:
+      disableNameSuffixHash: true

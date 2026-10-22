@@ -1,0 +1,457 @@
+# Prototype B: Mushroom cards in a sections view. Template cards give the
+# live text (greeting, room summaries) that the native cards cannot show.
+title: Home (mushroom)
+views:
+  - title: Home
+    path: home
+    icon: mdi:home
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            primary: >-
+              {% set h = now().hour %}
+              {{ 'Good night' if h < 5 else 'Good morning' if h < 12 else 'Good afternoon' if h < 18 else 'Good evening' }}
+            secondary: >-
+              {{ states('sensor.outside_temperature') }} °C outside ·
+              {{ states('sensor.count_lights_on') }} lights on ·
+              {{ states('sensor.nord_pool_se3_aktuellt_pris') }} kr/kWh
+            icon: mdi:home-heart
+            color: amber
+            multiline_secondary: true
+            grid_options: {columns: 12}
+          - type: custom:mushroom-chips-card
+            alignment: center
+            chips:
+              - type: alarm-control-panel
+                entity: alarm_control_panel.alarmo
+              - type: template
+                entity: sensor.count_lights_on
+                icon: mdi:lightbulb-group
+                icon_color: "{{ 'amber' if states(entity) | int(0) > 0 else 'disabled' }}"
+                content: "{{ states(entity) }}"
+                tap_action:
+                  action: perform-action
+                  perform_action: script.all_lights_off
+                  confirmation: {text: Turn off all lights?}
+              - type: template
+                entity: cover.garage_door
+                icon: "{{ 'mdi:garage-open' if is_state(entity, 'open') else 'mdi:garage' }}"
+                icon_color: "{{ 'red' if is_state(entity, 'open') else 'green' }}"
+                content: Garage
+                tap_action: {action: more-info}
+              - type: template
+                entity: sensor.f1255_12_cu_varmvatten_topp_bt7_40013
+                icon: mdi:water-boiler
+                icon_color: deep-orange
+                content: "{{ states(entity) | round(0) }} °C"
+              - type: weather
+                entity: weather.smhi_home
+                show_conditions: true
+                show_temperature: true
+            grid_options: {columns: 12}
+          - type: custom:mushroom-person-card
+            entity: person.daniel_book
+            icon_type: entity-picture
+            layout: horizontal
+          - type: custom:mushroom-person-card
+            entity: person.johanna_orjeman
+            icon_type: entity-picture
+            layout: horizontal
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Rooms
+            grid_options: {columns: 12}
+          - &room
+            type: custom:mushroom-template-card
+            entity: light.living_room_group
+            primary: Living room
+            secondary: "{{ states('sensor.living_room_temperature') }} °C"
+            icon: mdi:sofa
+            color: "{{ 'amber' if is_state(entity, 'on') else 'disabled' }}"
+            badge_icon: "{{ 'mdi:lightbulb-on' if is_state(entity, 'on') else '' }}"
+            badge_color: amber
+            vertical: true
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/living-room}
+            icon_tap_action: {action: toggle}
+          - <<: *room
+            entity: light.kitchen_group
+            primary: Kitchen
+            secondary: "{{ 'Someone here' if is_state('binary_sensor.presence_kitchen', 'on') else 'Empty' }}"
+            icon: mdi:silverware-fork-knife
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/kitchen}
+          - <<: *room
+            entity: light.bedroom_group
+            primary: Bedroom
+            secondary: "{{ states('sensor.bedroom_smoke_sensor_temperature') }} °C"
+            icon: mdi:bed-king
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/bedroom}
+          - <<: *room
+            entity: light.bathroom_group
+            primary: Bathroom
+            secondary: "{{ states('sensor.bathroom_motion_sensor_temperature') }} °C"
+            icon: mdi:shower
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/bathroom}
+          - <<: *room
+            entity: light.hallway_group
+            primary: Hallway
+            secondary: "{{ 'Door open' if is_state('binary_sensor.hallway_door_contact', 'on') else 'Door closed' }}"
+            icon: mdi:door
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/hallway}
+          - <<: *room
+            entity: light.lyras_room_group
+            primary: Lyra
+            secondary: "{{ states('sensor.lyras_room_smoke_detector_temperature') }} °C"
+            icon: mdi:teddy-bear
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/kids}
+          - <<: *room
+            entity: light.lunas_room_group
+            primary: Luna
+            secondary: "{{ states('light.lunas_room_group') | title }}"
+            icon: mdi:star-face
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/kids}
+          - <<: *room
+            entity: light.gym_group
+            primary: Gym
+            secondary: "{{ states('sensor.everything_presence_one_709ac8_temperature') }} °C"
+            icon: mdi:dumbbell
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/gym}
+          - <<: *room
+            entity: light.basement_bathroom_group
+            primary: Basement
+            secondary: "{{ 'Washer on' if states('sensor.laundry_room_laundry_machine_power') | float(0) > 5 else 'Idle' }}"
+            icon: mdi:bathtub
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/basement}
+          - <<: *room
+            entity: light.outside_group
+            primary: Outside
+            secondary: "{{ states('sensor.outside_temperature') }} °C"
+            icon: mdi:tree
+            tap_action: {action: navigate, navigation_path: /dash-mushroom/outside}
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: House
+            grid_options: {columns: 12}
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.alarmo
+            states: [armed_home, armed_away]
+            grid_options: {columns: 12}
+          - type: custom:mushroom-cover-card
+            entity: cover.garage_door
+            name: Garage
+            show_buttons_control: true
+            grid_options: {columns: 12}
+          - type: custom:mushroom-vacuum-card
+            entity: vacuum.sky
+            commands: [start_pause, return_home]
+            grid_options: {columns: 12}
+          - type: custom:mushroom-climate-card
+            entity: climate.kylskap_fridge
+            name: Fridge
+          - type: custom:mushroom-climate-card
+            entity: climate.kylskap_freezer
+            name: Freezer
+          - type: custom:mushroom-entity-card
+            entity: sensor.axensvagen_13_laddstatus
+            name: EV charger
+            icon: mdi:ev-station
+          - type: custom:mushroom-entity-card
+            entity: sensor.f1255_12_cu_gradminuter_40941
+            name: Degree minutes
+            icon: mdi:heat-pump
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Media
+            grid_options: {columns: 12}
+          - &media
+            type: custom:mushroom-media-player-card
+            entity: media_player.tv_living_room
+            name: TV
+            use_media_info: true
+            show_volume_level: true
+            volume_controls: [volume_mute, volume_set]
+            media_controls: [play_pause_stop, previous, next]
+            grid_options: {columns: 12}
+          - <<: *media
+            entity: media_player.spotify_daniel_book
+            name: Spotify
+
+  - title: Living room
+    path: living-room
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Living room
+            subtitle: "{{ states('sensor.living_room_temperature') }} °C"
+            grid_options: {columns: 12}
+          - &light
+            type: custom:mushroom-light-card
+            entity: light.living_room_group
+            name: All
+            use_light_color: true
+            show_brightness_control: true
+            collapsible_controls: true
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.living_room_ambient_group
+            name: Ambient
+          - <<: *light
+            entity: light.living_room_window_group
+            name: Windows
+          - <<: *light
+            entity: light.living_room_couch_led
+            name: Couch LED
+            show_color_control: true
+          - <<: *light
+            entity: light.living_room_tv_led
+            name: TV LED
+            show_color_control: true
+          - <<: *light
+            entity: light.living_room_mushroom_group
+            name: Mushroom
+          - type: custom:mushroom-entity-card
+            entity: scene.living_room_colourful
+            name: Colourful
+            tap_action: {action: perform-action, perform_action: scene.turn_on, target: {entity_id: scene.living_room_colourful}}
+            grid_options: {columns: 12}
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Media
+            grid_options: {columns: 12}
+          - <<: *media
+            entity: media_player.tv_living_room
+          - <<: *media
+            entity: media_player.denon_avr_1912
+            name: Receiver
+
+  - title: Kitchen
+    path: kitchen
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Kitchen
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.kitchen_group
+            name: All
+          - <<: *light
+            entity: light.kitchen_island
+            name: Island
+          - <<: *light
+            entity: light.kitchen_bench
+            name: Bench
+          - <<: *light
+            entity: light.kitchen_ceiling
+            name: Ceiling
+          - <<: *light
+            entity: light.kitchen_table
+            name: Table
+          - <<: *light
+            entity: light.kitchen_window_group
+            name: Windows
+          - <<: *light
+            entity: light.kitchen_display_cabinet
+            name: Cabinet
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Appliances
+            grid_options: {columns: 12}
+          - {type: custom:mushroom-climate-card, entity: climate.kylskap_fridge, name: Fridge, show_temperature_control: true, grid_options: {columns: 12}}
+          - {type: custom:mushroom-climate-card, entity: climate.kylskap_freezer, name: Freezer, show_temperature_control: true, grid_options: {columns: 12}}
+          - {type: custom:mushroom-entity-card, entity: switch.kitchen_dishwasher, name: Dishwasher}
+          - {type: custom:mushroom-entity-card, entity: binary_sensor.kylskap_door_open, name: Fridge door}
+
+  - title: Bedroom
+    path: bedroom
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Bedroom
+            subtitle: "{{ states('sensor.bedroom_smoke_sensor_temperature') }} °C"
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.bedroom_group
+            name: All
+          - <<: *light
+            entity: light.bedroom_daniel
+            name: Daniel
+          - <<: *light
+            entity: light.bedroom_johanna
+            name: Johanna
+          - <<: *light
+            entity: light.bedroom_window
+            name: Window
+          - {type: custom:mushroom-entity-card, entity: switch.adaptive_lighting_sleep_mode_bedroom, name: Sleep mode, icon: mdi:sleep, tap_action: {action: toggle}}
+          - {type: custom:mushroom-entity-card, entity: input_boolean.alarm_clock, name: Alarm clock, icon: mdi:alarm, tap_action: {action: toggle}}
+
+  - title: Bathroom
+    path: bathroom
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Bathroom
+            subtitle: "{{ states('sensor.bathroom_motion_sensor_temperature') }} °C"
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.bathroom_group
+            name: All
+          - <<: *light
+            entity: light.bathroom_ceiling_group
+            name: Ceiling
+          - {type: custom:mushroom-entity-card, entity: input_boolean.shower_mode, name: Shower mode, icon: mdi:shower-head, tap_action: {action: toggle}}
+
+  - title: Hallway
+    path: hallway
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Hallway
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.hallway_group
+            name: All
+          - {type: custom:mushroom-entity-card, entity: binary_sensor.hallway_door_contact, name: Front door}
+          - {type: custom:mushroom-entity-card, entity: binary_sensor.hallway_motion_sensor_occupancy, name: Motion}
+
+  - title: Kids
+    path: kids
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Lyra
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.lyras_room_group
+            name: All
+          - <<: *light
+            entity: light.lyras_room_bed
+            name: Bed
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Luna
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.lunas_room_group
+            name: All
+          - <<: *light
+            entity: light.lunas_room_bed
+            name: Bed
+          - <<: *light
+            entity: light.lunas_room_window_light
+            name: Window
+          - <<: *light
+            entity: light.lunas_room_reading_corner
+            name: Reading corner
+          - <<: *media
+            entity: media_player.lunas_rum
+            name: Speaker
+
+  - title: Gym
+    path: gym
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Gym
+            subtitle: >-
+              {{ states('sensor.everything_presence_one_709ac8_temperature') }} °C ·
+              {{ states('sensor.everything_presence_one_709ac8_humidity') }} %
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.gym_group
+            name: All
+          - <<: *light
+            entity: light.gym_desk_wled
+            name: Desk WLED
+            show_color_control: true
+          - <<: *light
+            entity: light.gym_led
+            name: LED
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: 3D printer
+            grid_options: {columns: 12}
+          - {type: picture-entity, entity: camera.octoprint_camera, show_name: false, grid_options: {columns: 12}}
+          - type: custom:mushroom-template-card
+            entity: sensor.octoprint_job_percentage
+            primary: "{{ states('sensor.octoprint_current_state') }}"
+            secondary: "{{ states(entity) }} %"
+            icon: mdi:printer-3d-nozzle
+            color: "{{ 'green' if is_state('binary_sensor.octoprint_printing', 'on') else 'disabled' }}"
+          - {type: custom:mushroom-entity-card, entity: switch.prusa_mk3s, name: Printer power, tap_action: {action: toggle}}
+
+  - title: Basement
+    path: basement
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Basement
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.basement_bathroom_group
+            name: Bathroom
+          - {type: custom:mushroom-entity-card, entity: switch.laundry_room_laundry_machine, name: Washer, tap_action: {action: toggle}}
+          - {type: custom:mushroom-entity-card, entity: sensor.laundry_room_laundry_machine_power, name: Washer power}
+
+  - title: Outside
+    path: outside
+    subview: true
+    back_path: /dash-mushroom/home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Outside
+            subtitle: "{{ states('sensor.outside_temperature') }} °C"
+            grid_options: {columns: 12}
+          - <<: *light
+            entity: light.outside_group
+            name: All
+          - <<: *light
+            entity: light.outside_wall
+            name: Wall
+          - <<: *light
+            entity: light.outside_balcony_group
+            name: Balcony
+          - {type: weather-forecast, entity: weather.smhi_home, forecast_type: hourly, grid_options: {columns: 12}}

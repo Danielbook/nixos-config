@@ -12,6 +12,9 @@
 # up). configuration.yaml needs an `http:` block added post-restore (jupiter
 # had none — Traefik is new) with use_x_forwarded_for + trusted_proxies for
 # the pod CIDR. replicas 0 until ha-config PVC is restored.
+#
+# The dashboards in dashboards/ need a `lovelace: dashboards:` block (mode:
+# yaml, filename: dashboards/<name>.yaml) in configuration.yaml on the PVC.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -64,7 +67,13 @@ spec:
               mountPath: /config
             - name: arduino
               mountPath: /dev/arduino
+            - name: dashboards
+              mountPath: /config/dashboards
+              readOnly: true
       volumes:
+        - name: dashboards
+          configMap:
+            name: ha-dashboards
         - name: config
           persistentVolumeClaim:
             claimName: ha-config
