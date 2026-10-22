@@ -10,8 +10,8 @@ No CLI installed — use the Gitea-compatible REST API via curl.
 
 Token in `$FORGEJO_TOKEN`, sops-managed: stored in
 `home/daniel/dagobah/secrets.yaml` (key `forgejo_api_token`) and exported by
-zsh via home-manager. Created in Forgejo → Settings → Applications, issue
-read/write scope. Every call: `-H "Authorization: token $FORGEJO_TOKEN"`.
+zsh via home-manager. Created in Forgejo → Settings → Applications, with issue
+and repository read/write scopes. Every call: `-H "Authorization: token $FORGEJO_TOKEN"`.
 
 Base URL: `API=https://forgejo.local.bookorjeman.com/api/v1/repos/danielbook/nixos-config`
 
@@ -25,6 +25,8 @@ Base URL: `API=https://forgejo.local.bookorjeman.com/api/v1/repos/danielbook/nix
   A label must exist in the repo first — create with `POST $API/labels` and
   `{"name":"...","color":"#ededed"}`.
 - **Close**: `PATCH $API/issues/<n>` with `{"state":"closed"}`
+- **Open a PR**: push the branch, then `POST $API/pulls` with
+  `{"title":"...","head":"<branch>","base":"main","body":"..."}`.
 
 ## Pull requests as a triage surface
 
