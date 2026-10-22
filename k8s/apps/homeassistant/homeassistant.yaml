@@ -70,10 +70,16 @@ spec:
             - name: dashboards
               mountPath: /config/dashboards
               readOnly: true
+            - name: panel
+              mountPath: /config/www/home-panel
+              readOnly: true
       volumes:
         - name: dashboards
           configMap:
             name: ha-dashboards
+        - name: panel
+          configMap:
+            name: ha-panel
         - name: config
           persistentVolumeClaim:
             claimName: ha-config

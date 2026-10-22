@@ -1,0 +1,79 @@
+# Glass dashboard: one panel view with the custom home-panel card
+# (panel/home-panel.js). The card gets all entity IDs from this file.
+title: Home
+views:
+  - title: Home
+    path: home
+    icon: mdi:home
+    type: panel
+    cards:
+      - type: custom:home-panel
+        weather: weather.smhi_home
+        outside: sensor.outside_temperature
+        people:
+          - person.daniel_book
+          - person.johanna_orjeman
+        # The header shows "All systems normal" until one of these is
+        # on, open or triggered.
+        alerts:
+          - alarm_control_panel.alarmo
+          - binary_sensor.bedroom_smoke_sensor_smoke
+          - binary_sensor.laundry_room_smoke_sensor_smoke
+          - binary_sensor.lyras_room_smoke_detector_smoke
+          - binary_sensor.lunas_room_smoke_sensor_smoke
+          - binary_sensor.hallway_door_contact
+          - binary_sensor.living_room_door_contact
+          - binary_sensor.kylskap_door_open
+          - cover.garage_door
+        energy:
+          nordpool_entry: 01JQYDQJ4FY0PD4VGMSKAMTT9K
+          price: sensor.nord_pool_se3_aktuellt_pris
+          average: sensor.nord_pool_se3_dagligt_genomsnitt
+          low: sensor.nord_pool_se3_lagsta_pris
+          high: sensor.nord_pool_se3_hogsta_pris
+          next: sensor.nord_pool_se3_nasta_pris
+          stats:
+            - {name: Hot water, entity: sensor.f1255_12_cu_varmvatten_topp_bt7_40013, decimals: 1}
+            - {name: Deg. min, entity: sensor.f1255_12_cu_gradminuter_40941}
+            - {name: Outside, entity: sensor.outside_temperature, decimals: 1}
+        quick:
+          - {name: Alarm, entity: alarm_control_panel.alarmo, icon: mdi:shield-home, color: "#4ade80"}
+          - name: Lights
+            entity: sensor.count_lights_on
+            icon: mdi:lightbulb-group
+            label: "{state} on"
+            color: "#facc15"
+            service: script.all_lights_off
+            confirm: Turn off all lights?
+          - {name: Garage, entity: cover.garage_door, icon: mdi:garage-variant, color: "#f87171"}
+          - {name: Vacuum, entity: vacuum.sky, icon: mdi:robot-vacuum, color: "#a78bfa"}
+          - {name: Shower, entity: input_boolean.shower_mode, icon: mdi:shower-head, color: "#38bdf8", toggle: true}
+          - {name: Sleep, entity: switch.adaptive_lighting_sleep_mode_bedroom, icon: mdi:weather-night, color: "#818cf8", toggle: true}
+          - {name: Wake-up, entity: input_boolean.wake_up_light, icon: mdi:weather-sunset-up, color: "#fb923c", toggle: true}
+          - {name: Printer, entity: switch.prusa_mk3s, icon: mdi:printer-3d, color: "#2dd4bf", toggle: true}
+        rooms:
+          - {group: Living, name: Living room, icon: mdi:sofa, light: light.living_room_group, temp: sensor.living_room_temperature}
+          - {group: Living, name: Kitchen, icon: mdi:silverware-fork-knife, light: light.kitchen_group}
+          - {group: Living, name: Hallway, icon: mdi:door, light: light.hallway_group, temp: sensor.hallway_motion_sensor_temperature}
+          - {group: Living, name: Outside, icon: mdi:tree, light: light.outside_group, temp: sensor.outside_temperature}
+          - {group: Bedrooms, name: Bedroom, icon: mdi:bed-king, light: light.bedroom_group, temp: sensor.bedroom_smoke_sensor_temperature}
+          - {group: Bedrooms, name: Lyra, icon: mdi:teddy-bear, light: light.lyras_room_group, temp: sensor.lyras_room_smoke_detector_temperature}
+          - {group: Bedrooms, name: Luna, icon: mdi:star-face, light: light.lunas_room_group}
+          - {group: Bedrooms, name: Bathroom, icon: mdi:shower, light: light.bathroom_group, temp: sensor.bathroom_motion_sensor_temperature}
+          - {group: Bedrooms, name: Basement bath, icon: mdi:bathtub, light: light.basement_bathroom_group}
+          - {group: Other, name: Gym, icon: mdi:dumbbell, light: light.gym_group, temp: sensor.everything_presence_one_709ac8_temperature}
+        charger:
+          name: EV charger
+          status: sensor.axensvagen_13_laddstatus
+          power: sensor.axensvagen_13_laddeffekt
+          session: sensor.axensvagen_13_laddat_denna_sessionen
+          max_kw: 11
+          stats:
+            - {name: Current, entity: sensor.axensvagen_13_tilldelad_laddstrom}
+            - {name: Total, entity: sensor.axensvagen_13_forbrukad_energi}
+        media:
+          - media_player.spotify_daniel_book
+          - media_player.tv_living_room
+          - media_player.vardagsrum
+          - media_player.kok
+          - media_player.lunas_rum

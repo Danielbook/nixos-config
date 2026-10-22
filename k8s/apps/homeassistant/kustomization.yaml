@@ -22,5 +22,15 @@ configMapGenerator:
       - dashboards/native.yaml
       - dashboards/mushroom.yaml
       - dashboards/bubble.yaml
+      - dashboards/glass.yaml
+    options:
+      disableNameSuffixHash: true
+  # The home-panel card, served at /local/home-panel/. The Lovelace resource
+  # entry (/local/home-panel/home-panel.js?v=N) is in HA storage, not here.
+  - name: ha-panel
+    namespace: homeassistant
+    files:
+      - panel/home-panel.js
+      - panel/lit-core.min.js
     options:
       disableNameSuffixHash: true
