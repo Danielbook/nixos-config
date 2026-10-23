@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
         - name: forgejo
-          image: codeberg.org/forgejo/forgejo:13
+          image: codeberg.org/forgejo/forgejo:15.0.10 # LTS until 2027-07. 17.0.0 is not safe yet (push and merge bug)
           env:
             - name: USER_UID
               value: "1000"
