@@ -230,7 +230,8 @@ automation:
         target:
           entity_id: tts.piper
         data:
-          media_player_entity_id: media_player.kok
+          # Gym (Denon) during development. Set media_player.kok for the kitchen.
+          media_player_entity_id: media_player.denon_avr_1912
           message: >-
             {{ state_attr('sensor.kitchen_brief', trigger.id)
                or 'Det finns ingen sammanfattning ännu.' }}
