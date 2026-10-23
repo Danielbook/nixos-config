@@ -29,9 +29,9 @@ script:
         description: Ask the LLM again, also if the facts did not change
         example: false
     variables:
-      key: "{{ 'today' if day | int(0) == 0 else 'tomorrow' }}"
-      start: "{{ (today_at() + timedelta(days=day | int(0))).isoformat() }}"
-      end: "{{ (today_at() + timedelta(days=day | int(0) + 1)).isoformat() }}"
+      key: "{{ 'today' if day | default(0) | int(0) == 0 else 'tomorrow' }}"
+      start: "{{ (today_at() + timedelta(days=day | default(0) | int(0))).isoformat() }}"
+      end: "{{ (today_at() + timedelta(days=day | default(0) | int(0) + 1)).isoformat() }}"
       # All calendars, also the CalDAV ones added later, except the Workday
       # calendars and the Mealie calendars that are not dinner.
       calendars: >-
@@ -189,7 +189,7 @@ script:
           media_player_entity_id: media_player.unnamed_room
           message: >-
             {{ state_attr('sensor.kitchen_brief',
-                          'today' if day | int(0) == 0 else 'tomorrow')
+                          'today' if day | default(0) | int(0) == 0 else 'tomorrow')
                or 'Det finns ingen sammanfattning ännu.' }}
 
 template:
