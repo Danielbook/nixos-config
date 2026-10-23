@@ -1,0 +1,70 @@
+# ha-postgres: the Home Assistant recorder database. It uses the same
+# pattern as authentik-postgres (postgres:16-alpine on an iscsi PVC).
+# SQLite works on iscsi. But 180 days of full history is about 15-25 GB,
+# and at that size purge, history and upgrade migrations are slow on
+# SQLite. The data came from home-assistant_v2.db (schema 53), copied with
+# HA stopped. HA connects with db_url: !secret recorder_db_url in
+# integrations/recorder.yaml on the ha-config PVC.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ha-postgres
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iscsi
+  resources:
+    requests:
+      storage: 40Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ha-postgres
+  namespace: homeassistant
+  labels:
+    app: ha-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ha-postgres
+  template:
+    metadata:
+      labels:
+        app: ha-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          envFrom:
+            - secretRef:
+                name: ha-postgres
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata # the ext4 PVC root holds lost+found, and initdb needs an empty dir
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 50m
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ha-postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ha-postgres
+  namespace: homeassistant
+spec:
+  selector:
+    app: ha-postgres
+  ports:
+    - port: 5432

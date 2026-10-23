@@ -12,6 +12,9 @@
 # up). configuration.yaml needs an `http:` block added post-restore (jupiter
 # had none — Traefik is new) with use_x_forwarded_for + trusted_proxies for
 # the pod CIDR. replicas 0 until ha-config PVC is restored.
+#
+# The dashboards in dashboards/ need a `lovelace: dashboards:` block (mode:
+# yaml, filename: dashboards/<name>.yaml) in configuration.yaml on the PVC.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -33,6 +36,11 @@ metadata:
   labels:
     app: homeassistant
 spec:
+  # Two HA pods must never share /config and the recorder database.
+  # Recreate stops the old pod before the new one starts.
+  strategy:
+    type: Recreate
+    rollingUpdate: null
   replicas: 1 # data restored + http: block added 2026-07-08 (Stage F1c)
   selector:
     matchLabels:
@@ -64,7 +72,19 @@ spec:
               mountPath: /config
             - name: arduino
               mountPath: /dev/arduino
+            - name: dashboards
+              mountPath: /config/dashboards
+              readOnly: true
+            - name: panel
+              mountPath: /config/www/home-panel
+              readOnly: true
       volumes:
+        - name: dashboards
+          configMap:
+            name: ha-dashboards
+        - name: panel
+          configMap:
+            name: ha-panel
         - name: config
           persistentVolumeClaim:
             claimName: ha-config

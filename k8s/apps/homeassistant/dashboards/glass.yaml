@@ -1,0 +1,333 @@
+# Glass dashboard: one panel view with the custom home-panel card
+# (panel/home-panel.js). The card gets all entity IDs from this file.
+#
+# Lists of entities accept "entity.id" or {entity, name, ...}. A room page
+# shows the sections that its entry has: lights, scenes, devices, sensors,
+# media and camera. "sleep" lists the Adaptive Lighting sleep-mode switches
+# that the Nattläge switch at the top of the room page controls.
+title: Hem
+views:
+  - title: Hem
+    path: home
+    icon: mdi:home
+    type: panel
+    cards:
+      - type: custom:home-panel
+        weather: weather.smhi_home
+        outside: sensor.outside_temperature
+        # "work" is the person's work zone. "activity" is the iOS activity
+        # sensor: Running or Cycling shows "tränar", Automotive away from a
+        # zone shows "är på väg".
+        people:
+          - entity: person.daniel_book
+            name: Daniel
+            activity: sensor.daniels_iphone_13_activity
+            work: zone.daniels_work
+          - entity: person.johanna_orjeman
+            name: Johanna
+            activity: sensor.johannas_telefon_activity
+            work: zone.brastorp
+        # Text and icon for other zones. Any other zone shows "är i <zon>".
+        places:
+          zone.stable: {text: är i stallet, icon: mdi:horse}
+        # The header shows "Allt är normalt" until one of these is on, open
+        # or triggered.
+        alerts:
+          - alarm_control_panel.alarmo
+          - binary_sensor.bedroom_smoke_sensor_smoke
+          - binary_sensor.laundry_room_smoke_sensor_smoke
+          - binary_sensor.lyras_room_smoke_detector_smoke
+          - binary_sensor.lunas_room_smoke_sensor_smoke
+          - binary_sensor.hallway_door_contact
+          - binary_sensor.living_room_door_contact
+          - binary_sensor.kylskap_door_open
+          - cover.garage_door
+        # These show an amber "Brandvarnare offline" when they are
+        # unavailable or unknown.
+        offline_alerts:
+          - binary_sensor.bedroom_smoke_sensor_smoke
+          - binary_sensor.laundry_room_smoke_sensor_smoke
+          - binary_sensor.lyras_room_smoke_detector_smoke
+          - binary_sensor.lunas_room_smoke_sensor_smoke
+        energy:
+          nordpool_entry: 01JQYDQJ4FY0PD4VGMSKAMTT9K
+          tomorrow_available: binary_sensor.nord_pool_se3_tomorrow_price_available
+          price: sensor.nord_pool_se3_aktuellt_pris
+          low: sensor.nord_pool_se3_lagsta_pris
+          high: sensor.nord_pool_se3_hogsta_pris
+          next: sensor.nord_pool_se3_nasta_pris
+          heatpump:
+            - {name: Varmvatten topp, entity: sensor.f1255_12_cu_varmvatten_topp_bt7_40013, decimals: 1}
+            - {name: Varmvatten laddning, entity: sensor.f1255_12_cu_varmvatten_laddning_bt6_40014, decimals: 1}
+            - {name: Gradminuter, entity: sensor.f1255_12_cu_gradminuter_40941}
+            - {name: Kompressor, entity: sensor.f1255_12_cu_status_kompressor_43427}
+            - {name: Frekvens, entity: sensor.f1255_12_cu_aktuell_kompressorfrekvens_41778}
+            - {name: Framledning, entity: sensor.f1255_12_cu_framledning_bt2_40008, decimals: 1}
+            - {name: Retur, entity: sensor.f1255_12_cu_returledning_bt3_40012, decimals: 1}
+            - {name: Ute (medel), entity: sensor.f1255_12_cu_medelutetemperatur_bt1_40067, decimals: 1}
+          consumers:
+            - {name: Elbil, entity: sensor.axensvagen_13_laddeffekt}
+            - {name: Diskmaskin, entity: sensor.kitchen_dishwasher_power}
+            - {name: Kylskåp, entity: sensor.kitchen_fridge_power}
+            - {name: Tvättmaskin, entity: sensor.laundry_room_laundry_machine_power}
+            - {name: 3D-skrivare, entity: sensor.prusa_mk3s_power}
+            - {name: N4-server, entity: sensor.n4_server_power}
+          stats:
+            - {name: Laddning i månaden, entity: sensor.laddning_kostnad_denna_manad, decimals: 0}
+        quick:
+          - {name: Larm, entity: alarm_control_panel.alarmo, icon: mdi:shield-home, color: "#4ade80"}
+          - name: Lampor
+            entity: sensor.count_lights_on
+            icon: mdi:lightbulb-group
+            label: "{state} tända"
+            color: "#facc15"
+            service: script.all_lights_off
+            confirm: Släck alla lampor?
+          - {name: Garage, entity: cover.garage_door, icon: mdi:garage-variant, color: "#f87171"}
+          - {name: Dammsugare, entity: vacuum.sky, icon: mdi:robot-vacuum, color: "#a78bfa"}
+          - {name: Väckarklocka, entity: input_boolean.alarm_clock, icon: mdi:alarm, color: "#818cf8", toggle: true}
+          - {name: Väckningsljus, entity: input_boolean.wake_up_light, icon: mdi:weather-sunset-up, color: "#fb923c", toggle: true}
+        rooms:
+          - group: Allrum
+            name: Vardagsrum
+            id: vardagsrum
+            icon: mdi:sofa
+            light: light.living_room_group
+            temp: sensor.living_room_temperature
+            sleep: [switch.adaptive_lighting_sleep_mode_living_room_ambient, switch.adaptive_lighting_sleep_mode_window]
+            lights:
+              - entity: light.living_room_ambient_group
+                name: Stämningsljus
+                members:
+                  - {entity: light.living_room_couch_led, name: Soffa LED}
+                  - {entity: light.living_room_tv_led, name: TV LED}
+                  - {entity: light.living_room_go, name: Hue Go}
+              - entity: light.living_room_window_group
+                name: Fönster
+                members:
+                  - {entity: light.living_room_window_1, name: Fönster 1}
+                  - {entity: light.living_room_window, name: Fönster 2}
+                  - {entity: light.living_room_window_3, name: Fönster 3}
+            scenes:
+              - {entity: scene.living_room_colourful, name: Färgglatt}
+            sensors:
+              - {entity: sensor.living_room_temperature, name: Temperatur}
+              - {entity: binary_sensor.living_room_door_contact, name: Altandörr}
+            media:
+              - media_player.tv_living_room
+              - media_player.vardagsrum
+            devices:
+              - {entity: vacuum.sky, name: Dammsugare, icon: mdi:robot-vacuum, color: "#a78bfa"}
+              - {entity: automation.living_room_media_player_volume_limit, name: Volymgräns, icon: mdi:volume-medium, color: "#38bdf8", toggle: true}
+              - {entity: automation.morning_tv_lockout, name: TV-spärr morgon, icon: mdi:television-off, color: "#f87171", toggle: true}
+          - group: Allrum
+            name: Kök
+            id: kok
+            icon: mdi:silverware-fork-knife
+            light: light.kitchen_group
+            sleep: [switch.adaptive_lighting_sleep_mode_kitchen_window, switch.adaptive_lighting_sleep_mode_ceiling_lights]
+            lights:
+              - {entity: light.kitchen_island, name: Köksö}
+              - {entity: light.kitchen_bench, name: Bänk}
+              - {entity: light.kitchen_ceiling, name: Tak}
+              - {entity: light.kitchen_table, name: Matbord}
+              - entity: light.kitchen_window_group
+                name: Fönster
+                members:
+                  - {entity: light.kitchen_window_1, name: Fönster 1}
+                  - {entity: light.kitchen_window, name: Fönster 2}
+                  - {entity: light.kitchen_window_3, name: Fönster 3}
+              - {entity: light.kitchen_display_cabinet, name: Vitrinskåp}
+            sensors:
+              - {entity: binary_sensor.presence_kitchen, name: Närvaro kök}
+              - {entity: binary_sensor.presence_kitchen_counter, name: Närvaro bänk}
+              - {entity: binary_sensor.presence_dining_area, name: Närvaro matplats}
+              - {entity: sensor.kylskap_fridge_temp, name: Kylskåp}
+              - {entity: sensor.kylskap_freezer_temp, name: Frys}
+              - {entity: binary_sensor.kylskap_door_open, name: Kylskåpsdörr}
+              - {entity: sensor.kitchen_dishwasher_power, name: Diskmaskin}
+            devices:
+              - {entity: climate.kylskap_fridge, name: Kylskåp, icon: mdi:fridge, color: "#38bdf8", label: "{current_temperature}°"}
+              - {entity: climate.kylskap_freezer, name: Frys, icon: mdi:snowflake, color: "#38bdf8", label: "{current_temperature}°"}
+              - {entity: switch.kylskap_express_mode, name: Expresskyla, icon: mdi:snowflake-alert, color: "#38bdf8", toggle: true}
+              - {entity: switch.kitchen_dishwasher, name: Diskmaskin, icon: mdi:dishwasher, color: "#2dd4bf"}
+            media:
+              - media_player.kok
+          - group: Allrum
+            name: Hall
+            id: hall
+            icon: mdi:door
+            light: light.hallway_group
+            temp: sensor.hallway_motion_sensor_temperature
+            sleep: [switch.adaptive_lighting_sleep_mode_ceiling_lights]
+            lights:
+              - entity: light.hallway_ceiling_group
+                name: Tak
+                members:
+                  - {entity: light.hallway_ceiling_1, name: Tak 1}
+                  - {entity: light.hallway_ceiling, name: Tak 2}
+                  - {entity: light.hallway_ceiling_3, name: Tak 3}
+            sensors:
+              - {entity: binary_sensor.hallway_door_contact, name: Ytterdörr}
+              - {entity: binary_sensor.hallway_motion_sensor_occupancy, name: Rörelse}
+              - {entity: sensor.hallway_motion_sensor_temperature, name: Temperatur}
+              - {entity: sensor.hallway_motion_sensor_illuminance, name: Ljus}
+          - group: Sovrum
+            name: Sovrum
+            id: sovrum
+            icon: mdi:bed-king
+            light: light.bedroom_group
+            temp: sensor.bedroom_smoke_sensor_temperature
+            sleep: switch.adaptive_lighting_sleep_mode_bedroom
+            lights:
+              - {entity: light.bedroom_daniel, name: Daniel}
+              - {entity: light.bedroom_johanna, name: Johanna}
+              - {entity: light.bedroom_window, name: Fönster}
+            sensors:
+              - {entity: sensor.bedroom_smoke_sensor_temperature, name: Temperatur}
+              - {entity: binary_sensor.bedroom_smoke_sensor_smoke, name: Brandvarnare}
+            devices:
+              - {entity: input_boolean.alarm_clock, name: Väckarklocka, icon: mdi:alarm, color: "#818cf8", toggle: true}
+              - {entity: input_boolean.wake_up_light, name: Väckningsljus, icon: mdi:weather-sunset-up, color: "#fb923c", toggle: true}
+          - group: Sovrum
+            name: Lyra
+            id: lyra
+            icon: mdi:teddy-bear
+            light: light.lyras_room_group
+            temp: sensor.lyras_room_smoke_detector_temperature
+            sleep: switch.adaptive_lighting_sleep_mode_lyras_room
+            lights:
+              - {entity: light.lyras_room_bed, name: Säng}
+            sensors:
+              - {entity: sensor.lyras_room_smoke_detector_temperature, name: Temperatur}
+              - {entity: binary_sensor.lyras_room_smoke_detector_smoke, name: Brandvarnare}
+          - group: Sovrum
+            name: Luna
+            id: luna
+            icon: mdi:star-face
+            light: light.lunas_room_group
+            sleep: switch.adaptive_lighting_sleep_mode_lunas_room
+            lights:
+              - {entity: light.lunas_room_bed, name: Säng}
+              - {entity: light.lunas_room_window_light, name: Fönster}
+              - {entity: light.lunas_room_reading_corner, name: Läshörna}
+            sensors:
+              - {entity: binary_sensor.lunas_room_smoke_sensor_smoke, name: Brandvarnare}
+            media:
+              - media_player.lunas_rum
+          - group: Sovrum
+            name: Badrum
+            id: badrum
+            icon: mdi:shower
+            light: light.bathroom_group
+            temp: sensor.bathroom_motion_sensor_temperature
+            sleep: [switch.adaptive_lighting_sleep_mode_ceiling_lights]
+            lights:
+              - entity: light.bathroom_ceiling_group
+                name: Tak
+                members:
+                  - {entity: light.bathroom_ceiling_1, name: Tak 1}
+                  - {entity: light.bathroom_ceiling, name: Tak 2}
+                  - {entity: light.bathroom_ceiling_3, name: Tak 3}
+            sensors:
+              - {entity: binary_sensor.bathroom_motion_sensor_occupancy, name: Rörelse}
+              - {entity: sensor.bathroom_motion_sensor_temperature, name: Temperatur}
+              - {entity: sensor.bathroom_motion_sensor_illuminance, name: Ljus}
+            devices:
+              - {entity: input_boolean.shower_mode, name: Duschläge, icon: mdi:shower-head, color: "#38bdf8", toggle: true}
+              - {entity: automation.motion_bathroom, name: Rörelsestyrt ljus, icon: mdi:motion-sensor, color: "#facc15", toggle: true}
+          - group: Sovrum
+            name: Källarbadrum
+            id: kallarbadrum
+            icon: mdi:bathtub
+            light: light.basement_bathroom_group
+            sleep: [switch.adaptive_lighting_sleep_mode_ceiling_lights]
+            lights:
+              - {entity: light.basement_bathroom_ceiling, name: Tak}
+            sensors:
+              - {entity: binary_sensor.basement_bathroom_motion_sensor_occupancy, name: Rörelse}
+              - {entity: sensor.basement_bathroom_motion_sensor_illuminance, name: Ljus}
+          - group: Övrigt
+            name: Gym
+            id: gym
+            icon: mdi:dumbbell
+            light: light.gym_group
+            sleep: switch.adaptive_lighting_sleep_mode_daniels_desk
+            lights:
+              - {entity: light.gym_desk_wled, name: Skrivbord WLED}
+              - {entity: light.gym_led, name: LED}
+            sensors:
+              - {entity: sensor.octoprint_current_state, name: Skrivare}
+              - {entity: sensor.octoprint_job_percentage, name: Utskrift}
+              - {entity: sensor.prusa_mk3s_power, name: Skrivare effekt}
+              - {entity: sensor.n4_server_power, name: N4 effekt}
+            devices:
+              - {entity: switch.prusa_mk3s, name: 3D-skrivare, icon: mdi:printer-3d, color: "#2dd4bf", toggle: true}
+              - {entity: switch.n4_server, name: N4-server, icon: mdi:server, color: "#2dd4bf"}
+            media:
+              - media_player.denon_avr_1912
+            camera: camera.octoprint_camera
+          - group: Övrigt
+            name: Tvättstuga
+            id: tvattstuga
+            icon: mdi:washing-machine
+            status: sensor.laundry_room_laundry_machine_power
+            sensors:
+              - {entity: sensor.laundry_room_laundry_machine_power, name: Tvättmaskin effekt}
+              - {entity: sensor.laundry_room_laundry_machine_energy, name: Tvättmaskin energi}
+              - {entity: sensor.laundry_room_smoke_sensor_temperature, name: Temperatur}
+              - {entity: binary_sensor.laundry_room_smoke_sensor_smoke, name: Brandvarnare}
+            devices:
+              - {entity: switch.laundry_room_laundry_machine, name: Tvättmaskin, icon: mdi:washing-machine, color: "#38bdf8"}
+          - group: Övrigt
+            name: Garage
+            id: garage
+            icon: mdi:garage-variant
+            status: cover.garage_door
+            devices:
+              - {entity: cover.garage_door, name: Garageport, icon: mdi:garage-variant, color: "#f87171"}
+            sensors:
+              - {entity: sensor.axensvagen_13_laddstatus, name: Laddbox}
+              - {entity: sensor.axensvagen_13_laddeffekt, name: Laddeffekt}
+              - {entity: sensor.axensvagen_13_laddat_denna_sessionen, name: Laddat}
+          - group: Övrigt
+            name: Ute
+            id: ute
+            icon: mdi:tree
+            light: light.outside_group
+            temp: sensor.outside_temperature
+            lights:
+              - {entity: light.outside_wall, name: Vägg}
+            sensors:
+              - {entity: sensor.outside_temperature, name: Temperatur}
+        charger:
+          name: Laddbox
+          status: sensor.axensvagen_13_laddstatus
+          power: sensor.axensvagen_13_laddeffekt
+          session: sensor.axensvagen_13_laddat_denna_sessionen
+          max_kw: 11
+          stats:
+            - {name: Ström, entity: sensor.axensvagen_13_tilldelad_laddstrom, decimals: 0}
+            - {name: Totalt, entity: sensor.axensvagen_13_forbrukad_energi, decimals: 0}
+          # Shown on the El page only.
+          details:
+            - {name: L1, entity: sensor.axensvagen_13_strom_fas_1}
+            - {name: L2, entity: sensor.axensvagen_13_strom_fas_2}
+            - {name: L3, entity: sensor.axensvagen_13_strom_fas_3}
+        car:
+          name: Hajen
+          battery: sensor.hajen_batteriniva
+          range: sensor.hajen_batterirackvidd
+          charging: sensor.hajen_laddar
+          power: sensor.hajen_laddarens_effekt
+          limit: number.hajen_grans_for_laddning
+          lock: lock.hajen_las
+          climate: climate.hajen_klimat
+          inside: sensor.hajen_innetemperatur
+          location: device_tracker.hajen_plats
+        # Music Assistant players only.
+        media:
+          - media_player.vardagsrum_2
+          - media_player.kok
+          - media_player.lunas_rum_2
+          - media_player.denon_avr_1912

@@ -8,8 +8,27 @@ resources:
   - homeassistant.yaml
   - matter-server.yaml
   - mosquitto.yaml
+  - postgres.yaml
   - music-assistant.yaml
   - namespace.yaml
   - zigbee2mqtt.yaml
 generators:
   - secret-generator.yaml
+# YAML-mode Lovelace dashboards, mounted at /config/dashboards. No hash
+# suffix, so the kubelet updates the files in place and HA does not restart.
+configMapGenerator:
+  - name: ha-dashboards
+    namespace: homeassistant
+    files:
+      - dashboards/glass.yaml
+    options:
+      disableNameSuffixHash: true
+  # The home-panel card, served at /local/home-panel/. The Lovelace resource
+  # entry (/local/home-panel/home-panel.js?v=N) is in HA storage, not here.
+  - name: ha-panel
+    namespace: homeassistant
+    files:
+      - panel/home-panel.js
+      - panel/lit-core.min.js
+    options:
+      disableNameSuffixHash: true
