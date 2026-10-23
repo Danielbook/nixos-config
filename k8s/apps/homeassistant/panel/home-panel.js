@@ -300,7 +300,7 @@ class HomePanel extends LitElement {
       ${list.map(item).map(
         (t) => html`<button class="stat ${this._na(t.entity)}" @click=${() => this._moreInfo(t.entity)}>
           <small>${t.name ?? this._name(t.entity)}</small>
-          <b>${t.decimals === undefined || this._na(t.entity) ? this._state(t.entity) : html`${num(this._s(t.entity)?.state, t.decimals)}<i>${this._s(t.entity)?.attributes.unit_of_measurement ?? ""}</i>`}</b>
+          <b>${t.decimals === undefined || this._na(t.entity) ? this._state(t.entity) : html`${num(this._s(t.entity)?.state, t.decimals)}<i>${t.unit ?? this._s(t.entity)?.attributes.unit_of_measurement ?? ""}</i>`}</b>
         </button>`
       )}
     </div>`;
@@ -331,9 +331,9 @@ class HomePanel extends LitElement {
             </button>
             ${this._chart(this._prices?.today)}
             ${this._statButtons([
-              { name: "Lägst", entity: e.low, decimals: 2 },
-              { name: "Högst", entity: e.high, decimals: 2 },
-              { name: "Nästa", entity: e.next, decimals: 2 },
+              { name: "Lägst", entity: e.low, decimals: 2, unit: "" },
+              { name: "Högst", entity: e.high, decimals: 2, unit: "" },
+              { name: "Nästa", entity: e.next, decimals: 2, unit: "" },
             ])}
             <div class="stats"><div class="stat"><small>Snitt idag</small><b>${num(this._avg(this._prices?.today), 2)}</b></div></div>
           </section>
@@ -364,7 +364,7 @@ class HomePanel extends LitElement {
                 </div>
               </section>`
             : nothing}
-          ${e.stats?.length ? html`<section class="card"><div class="head"><h2>Kostnad</h2></div>${this._statButtons(e.stats)}</section>` : nothing}
+          ${e.stats?.length ? html`<section class="card"><div class="head"><h2>Kostnad (spot + moms)</h2></div>${this._statButtons(e.stats)}</section>` : nothing}
           ${this._charger(true)} ${this._car()}
         </div>
       </div>

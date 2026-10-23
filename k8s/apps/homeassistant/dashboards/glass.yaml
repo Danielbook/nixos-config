@@ -73,7 +73,7 @@ views:
             - {name: 3D-skrivare, entity: sensor.prusa_mk3s_power}
             - {name: N4-server, entity: sensor.n4_server_power}
           stats:
-            - {name: Laddning denna månad (spot + moms), entity: sensor.laddning_kostnad_denna_manad}
+            - {name: Laddning i månaden, entity: sensor.laddning_kostnad_denna_manad, decimals: 0}
         quick:
           - {name: Larm, entity: alarm_control_panel.alarmo, icon: mdi:shield-home, color: "#4ade80"}
           - name: Lampor
@@ -307,8 +307,8 @@ views:
           session: sensor.axensvagen_13_laddat_denna_sessionen
           max_kw: 11
           stats:
-            - {name: Ström, entity: sensor.axensvagen_13_tilldelad_laddstrom}
-            - {name: Totalt, entity: sensor.axensvagen_13_forbrukad_energi}
+            - {name: Ström, entity: sensor.axensvagen_13_tilldelad_laddstrom, decimals: 0}
+            - {name: Totalt, entity: sensor.axensvagen_13_forbrukad_energi, decimals: 0}
           # Shown on the El page only.
           details:
             - {name: L1, entity: sensor.axensvagen_13_strom_fas_1}
