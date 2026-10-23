@@ -62,7 +62,7 @@ in Swedish.
 | Button model (Zigbee, Z2M) | Open. Not paired yet. Name it `Kitchen Brief Button` in Z2M. Set the `single`/`double` payloads for the model |
 | School lunch menu URL | Postponed. The MVP has no lunch |
 | Preschool lunch menu URL | Postponed |
-| Mealie dinner entity id | Open. Expected `calendar.mealie_dinner` |
+| Mealie dinner entity id | `calendar.mealie_middag` |
 | Model for Swedish in 8 GB | Open. See Phase 4 |
 
 ## Phase 1 — Infrastructure
