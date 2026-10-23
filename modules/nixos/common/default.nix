@@ -57,6 +57,23 @@
     loader.timeout = 10;
   };
 
+  # Disk health. smartd sends its alert mail to this "mailer", which posts the
+  # body to the ntfy homelab topic. hoth's SSD wore out with no warning (2026-10-23).
+  sops.secrets.ntfy_publisher_token = { };
+  services.smartd = {
+    enable = true;
+    notifications.mail = {
+      enable = true;
+      # ntfy caps a message at 4096 bytes, so the smartctl dump gets cut.
+      mailer = pkgs.writeShellScript "smartd-ntfy" ''
+        ${pkgs.coreutils}/bin/head -c 4000 | ${pkgs.curl}/bin/curl -sS --max-time 20 \
+          -H "Authorization: Bearer $(${pkgs.coreutils}/bin/cat ${config.sops.secrets.ntfy_publisher_token.path})" \
+          -H "Title: smartd on ${config.networking.hostName}" -H "Priority: high" \
+          --data-binary @- https://ntfy.local.bookorjeman.com/homelab
+      '';
+    };
+  };
+
   # Networking
   networking.networkmanager = {
     enable = true;
