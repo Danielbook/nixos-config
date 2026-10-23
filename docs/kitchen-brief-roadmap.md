@@ -1,7 +1,8 @@
 # Kitchen brief ("Vad händer idag") — roadmap
 
 A physical button in the kitchen. A press plays a spoken Swedish summary of the
-day (30–40 s). A local LLM writes the text. All parts run locally.
+day (30–40 s). A local LLM writes the text. All parts run locally, except
+the voice (Home Assistant Cloud TTS, see Decisions).
 
 **Language:** code, config and comments in English. Spoken text and LLM output
 in Swedish.
@@ -14,7 +15,8 @@ in Swedish.
 | Zigbee | Zigbee2MQTT + Mosquitto in the same namespace |
 | Ollama | `k8s/apps/ollama`, `http://ollama.ollama.svc.cluster.local:11434`, `qwen2.5:7b-instruct-q4_K_M`, `NUM_PARALLEL=1`, one loaded model. The GPU (tatooine, GTX 1070) is shared with holocron and Jellyfin |
 | Mealie | `k8s/apps/mealie` |
-| Piper (TTS) | `k8s/apps/homeassistant/piper.yaml` (Wyoming, `sv_SE-nst-medium`) |
+| TTS | Home Assistant Cloud, `tts.home_assistant_cloud`, voice `SofieNeural` (`sv-SE`) |
+| Piper (TTS) | `k8s/apps/homeassistant/piper.yaml` (Wyoming, `tts.piper`). Not used by the brief |
 | Kitchen speaker | `media_player.kok` (Music Assistant) |
 | Weather | SMHI is installed (`weather.smhi_home`). Met.no is not necessary |
 | Workday, Nord Pool, waste | Installed (`binary_sensor.workday`, `nordpool`, `motalavattenavfall`) |
@@ -45,6 +47,11 @@ in Swedish.
   preschool lunch → dinner. Omit empty sections.
 - **Fallback:** if Ollama fails, play a plain Swedish template text.
 - **Length:** 80–100 words. No lists, no emojis.
+- **Voice: Home Assistant Cloud, Sofie.** We tested the three Swedish Piper
+  voices (nst, alma, lisa) on the gym speaker. All sounded bad. The Cloud
+  voices Sofie, Mattias and Hillevi sounded much better, and Sofie was the
+  best. This breaks the "all local" rule for the voice only. The brief text
+  goes to the cloud, the calendar data does not.
 - Homelab alerts never go to the kitchen. They go to ntfy.
 
 ## Phase 0 — Answer the open questions
