@@ -1,0 +1,236 @@
+# Kitchen brief: a button in the kitchen plays a short spoken Swedish summary
+# of the day. Plan and open items: docs/kitchen-brief-roadmap.md.
+#
+# Each hour the generate automation collects the facts for today and
+# tomorrow. If the facts changed, Ollama phrases them in Swedish and the text
+# goes into sensor.kitchen_brief. A press only plays the stored text.
+# Templates format all dates, times and numbers. The LLM only phrases them.
+
+rest_command:
+  # Direct Ollama call, not ai_task: the HA Ollama integration has no
+  # temperature option. No num_ctx, so the request uses the same context
+  # size as the other clients and Ollama does not reload the model.
+  kitchen_brief_ollama:
+    url: http://ollama.ollama.svc.cluster.local:11434/api/chat
+    method: POST
+    content_type: application/json
+    timeout: 180 # the GPU is shared, a request can wait behind other requests
+    payload: "{{ payload | to_json }}"
+
+script:
+  kitchen_brief_generate:
+    alias: Kitchen brief - generate
+    mode: queued
+    fields:
+      day:
+        description: 0 = today, 1 = tomorrow
+        example: 0
+      force:
+        description: Ask the LLM again, also if the facts did not change
+        example: false
+    variables:
+      key: "{{ 'today' if day | int(0) == 0 else 'tomorrow' }}"
+      start: "{{ (today_at() + timedelta(days=day | int(0))).isoformat() }}"
+      end: "{{ (today_at() + timedelta(days=day | int(0) + 1)).isoformat() }}"
+      # All calendars, also the CalDAV ones added later, except the Workday
+      # calendars and the Mealie calendars that are not dinner.
+      calendars: >-
+        {{ states.calendar | map(attribute='entity_id')
+           | reject('search', '^calendar\.(mealie_(?!dinner)|workday_calendar|weekend_calendar)')
+           | list }}
+    sequence:
+      - action: calendar.get_events
+        target:
+          entity_id: "{{ calendars }}"
+        data:
+          start_date_time: "{{ start }}"
+          end_date_time: "{{ end }}"
+        response_variable: cal
+        continue_on_error: true
+      - action: weather.get_forecasts
+        target:
+          entity_id: weather.smhi_home
+        data:
+          type: daily
+        response_variable: daily
+        continue_on_error: true
+      - action: weather.get_forecasts
+        target:
+          entity_id: weather.smhi_home
+        data:
+          type: hourly
+        response_variable: hourly
+        continue_on_error: true
+      - variables:
+          facts: >-
+            {%- set d = as_datetime(start) %}
+            {%- set weekdays = ['måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag', 'söndag'] %}
+            {%- set months = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli',
+                              'augusti', 'september', 'oktober', 'november', 'december'] %}
+            {%- set conditions = {
+                  'clear-night': 'klart', 'cloudy': 'mulet', 'exceptional': 'ovanligt väder',
+                  'fog': 'dimma', 'hail': 'hagel', 'lightning': 'åska',
+                  'lightning-rainy': 'åska och regn', 'partlycloudy': 'växlande molnighet',
+                  'pouring': 'kraftigt regn', 'rainy': 'regn', 'snowy': 'snö',
+                  'snowy-rainy': 'snöblandat regn', 'sunny': 'sol', 'windy': 'blåsigt',
+                  'windy-variant': 'blåsigt och molnigt'} %}
+            {%- set date = weekdays[d.weekday()] ~ ' ' ~ d.day ~ ' ' ~ months[d.month - 1] %}
+            {%- set out = namespace(lines=[], events=[]) %}
+            {%- if key == 'today' %}
+              {%- set out.lines = out.lines + ['God morgon! Idag är det ' ~ date ~ '.'] %}
+            {%- else %}
+              {%- set out.lines = out.lines + ['Imorgon är det ' ~ date ~ '.'] %}
+            {%- endif %}
+
+            {#- Weather: the day, then 08 and 16 from the hourly forecast. No clock
+                times here, the LLM mixed them with the event times. #}
+            {%- for f in (daily | default({})).get('weather.smhi_home', {}).get('forecast', [])
+                  if as_local(as_datetime(f.datetime)).date() == d.date() %}
+              {%- if loop.first %}
+                {%- set w = 'Vädret: ' ~ conditions.get(f.condition, f.condition)
+                            ~ ', mellan ' ~ f.templow | round(0) | int ~ ' och '
+                            ~ f.temperature | round(0) | int ~ ' grader' %}
+                {%- if f.precipitation | float(0) > 0 %}
+                  {%- set w = w ~ ', ' ~ (f.precipitation | round(1) | string | replace('.', ',')) ~ ' millimeter nederbörd' %}
+                {%- endif %}
+                {%- set out.lines = out.lines + [w ~ '.'] %}
+              {%- endif %}
+            {%- endfor %}
+            {%- for f in (hourly | default({})).get('weather.smhi_home', {}).get('forecast', []) %}
+              {%- set t = as_local(as_datetime(f.datetime)) %}
+              {%- if t.date() == d.date() and t.hour in [8, 16] %}
+                {%- set out.lines = out.lines + [('På morgonen ' if t.hour == 8 else 'På eftermiddagen ')
+                      ~ f.temperature | round(0) | int ~ ' grader och '
+                      ~ conditions.get(f.condition, f.condition) ~ '.'] %}
+              {%- endif %}
+            {%- endfor %}
+
+            {#- Events from all calendars, sorted by start. All-day first. #}
+            {%- for entity, res in (cal | default({})).items() if entity != 'calendar.mealie_dinner' %}
+              {%- for e in res.events %}
+                {%- set name = state_attr(entity, 'friendly_name') %}
+                {%- set out.events = out.events + [{'start': e.start,
+                      'summary': e.summary ~ (' (' ~ name ~ ')' if name else '')}] %}
+              {%- endfor %}
+            {%- endfor %}
+            {%- for e in out.events | sort(attribute='start') %}
+              {%- set when = 'klockan ' ~ as_local(as_datetime(e.start)).strftime('%-H:%M')
+                             if 'T' in e.start else 'hela dagen' %}
+              {%- set out.lines = out.lines + [('Händelser: ' if loop.first else '')
+                    ~ e.summary ~ ', ' ~ when ~ '.'] %}
+            {%- endfor %}
+
+            {%- set dinner = (cal | default({})).get('calendar.mealie_dinner', {}).get('events', []) %}
+            {%- if dinner %}
+              {%- set out.lines = out.lines + ['Middag: ' ~ dinner | map(attribute='summary') | join(' och ') ~ '.'] %}
+            {%- endif %}
+            {{- out.lines | join(' ') }}
+      - condition: template
+        value_template: >-
+          {{ force | default(false) or facts != state_attr('sensor.kitchen_brief', 'facts_' ~ key) }}
+      - action: rest_command.kitchen_brief_ollama
+        data:
+          payload:
+            model: qwen2.5:7b-instruct-q4_K_M
+            stream: false
+            options:
+              temperature: 0.2
+            messages:
+              - role: system
+                content: >-
+                  You write a short spoken brief of the day for a Swedish
+                  family. A speaker in the kitchen reads it aloud. Rewrite
+                  the facts from the user as natural, friendly spoken Swedish.
+                  Rules: Use only the given facts. Do not invent, add or guess
+                  anything. Keep the order of the facts. Keep all names, times,
+                  dates and numbers exactly as given. Do not say the calendar
+                  names in parentheses unless they tell who the event is for.
+                  No lists, no headings, no emojis, no markdown. Write at most
+                  100 words. Reply with the brief only.
+              - role: user
+                content: "{{ facts }}"
+        response_variable: llm
+        continue_on_error: true
+      - variables:
+          text: >-
+            {%- set reply = (llm | default({})).get('content', {}) %}
+            {%- if llm is defined and llm.status == 200 and reply is mapping
+                  and reply.get('message', {}).get('content', '') | trim %}
+              {{- reply.message.content | trim }}
+            {%- else %}
+              {{- facts }}
+            {%- endif %}
+      - event: kitchen_brief_ready
+        event_data:
+          key: "{{ key }}"
+          text: "{{ text }}"
+          facts: "{{ facts }}"
+
+template:
+  - triggers:
+      - trigger: event
+        event_type: kitchen_brief_ready
+    sensor:
+      - name: Kitchen brief
+        unique_id: kitchen_brief
+        default_entity_id: sensor.kitchen_brief
+        device_class: timestamp
+        state: "{{ now().isoformat() }}"
+        attributes:
+          today: >-
+            {{ trigger.event.data.text if trigger.event.data.key == 'today'
+               else this.attributes.get('today', '') }}
+          facts_today: >-
+            {{ trigger.event.data.facts if trigger.event.data.key == 'today'
+               else this.attributes.get('facts_today', '') }}
+          tomorrow: >-
+            {{ trigger.event.data.text if trigger.event.data.key == 'tomorrow'
+               else this.attributes.get('tomorrow', '') }}
+          facts_tomorrow: >-
+            {{ trigger.event.data.facts if trigger.event.data.key == 'tomorrow'
+               else this.attributes.get('facts_tomorrow', '') }}
+
+automation:
+  # ponytail: HA has no "calendar changed" trigger. An hourly run with the
+  # facts check above calls the LLM only when a fact changed.
+  - id: kitchen_brief_generate
+    alias: Kitchen brief - generate
+    mode: single
+    triggers:
+      - trigger: time_pattern
+        minutes: 0
+      - trigger: homeassistant
+        event: start
+    actions:
+      - action: script.kitchen_brief_generate
+        data:
+          day: 0
+      - action: script.kitchen_brief_generate
+        data:
+          day: 1
+
+  # Name the button "Kitchen Brief Button" in Zigbee2MQTT. The action values
+  # (single, double) depend on the button model.
+  - id: kitchen_brief_play
+    alias: Kitchen brief - play
+    mode: single
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Kitchen Brief Button
+        value_template: "{{ value_json.action | default('') }}"
+        payload: single
+        id: today
+      - trigger: mqtt
+        topic: zigbee2mqtt/Kitchen Brief Button
+        value_template: "{{ value_json.action | default('') }}"
+        payload: double
+        id: tomorrow
+    actions:
+      - action: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: media_player.kok
+          message: >-
+            {{ state_attr('sensor.kitchen_brief', trigger.id)
+               or 'Det finns ingen sammanfattning ännu.' }}

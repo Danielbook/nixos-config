@@ -78,6 +78,9 @@ spec:
             - name: panel
               mountPath: /config/www/home-panel
               readOnly: true
+            - name: packages
+              mountPath: /config/integrations/git
+              readOnly: true
       volumes:
         - name: dashboards
           configMap:
@@ -85,6 +88,9 @@ spec:
         - name: panel
           configMap:
             name: ha-panel
+        - name: packages
+          configMap:
+            name: ha-packages
         - name: config
           persistentVolumeClaim:
             claimName: ha-config

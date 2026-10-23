@@ -11,6 +11,7 @@ resources:
   - postgres.yaml
   - music-assistant.yaml
   - namespace.yaml
+  - piper.yaml
   - zigbee2mqtt.yaml
 generators:
   - secret-generator.yaml
@@ -30,5 +31,14 @@ configMapGenerator:
     files:
       - panel/home-panel.js
       - panel/lit-core.min.js
+    options:
+      disableNameSuffixHash: true
+  # HA packages, mounted at /config/integrations/git. configuration.yaml
+  # loads that directory with !include_dir_named. A change needs a YAML
+  # reload in HA (or a restart for a new integration key).
+  - name: ha-packages
+    namespace: homeassistant
+    files:
+      - packages/kitchen_brief.yaml
     options:
       disableNameSuffixHash: true
