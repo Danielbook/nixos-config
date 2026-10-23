@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: esphome
-          image: esphome/esphome:2026.6.4
+          image: esphome/esphome:2026.10.0
           ports:
             - containerPort: 6052
           volumeMounts:

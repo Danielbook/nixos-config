@@ -1,0 +1,26 @@
+# Renovate opens a PR for each new container image, Helm chart and flake
+# input, and a weekly flake.lock PR. Config: renovate.json at the repo root.
+#
+# Secret RENOVATE_TOKEN: a PAT of the Forgejo user "renovate", which has
+# write access to this repo. Scopes: repo rw, user r, issue rw, organization r.
+# Repo settings → Actions → Secrets.
+name: renovate
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/renovatebot/renovate:44.178.5
+    steps:
+      - name: Run Renovate
+        env:
+          RENOVATE_PLATFORM: forgejo
+          RENOVATE_ENDPOINT: https://forgejo.local.bookorjeman.com/api/v1
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_REPOSITORIES: Danielbook/nixos-config
+          LOG_LEVEL: info
+        run: renovate

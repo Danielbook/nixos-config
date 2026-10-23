@@ -74,7 +74,7 @@ spec:
         kubernetes.io/hostname: naboo
       containers:
         - name: music-assistant
-          image: ghcr.io/music-assistant/server:2.10.4
+          image: ghcr.io/music-assistant/server:2.10.7
           ports:
             - containerPort: 8095
             - containerPort: 8097

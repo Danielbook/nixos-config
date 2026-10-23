@@ -70,6 +70,9 @@
 - **Nix Flakes**: Reproducible package management
 - **Home Manager**: User environment configuration
 - **Flatpak**: Sandboxed application support
+- **Renovate**: daily Forgejo Actions run (`.forgejo/workflows/renovate.yml`)
+  opens PRs for pinned images, Helm charts and flake inputs, and a weekly
+  `flake.lock` PR. Config in `renovate.json`
 
 ## macOS (dagobah)
 - **Aerospace**: Tiling window manager

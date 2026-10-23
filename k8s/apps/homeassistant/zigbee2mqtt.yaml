@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: zigbee2mqtt
-          image: koenkk/zigbee2mqtt:2.12.1
+          image: koenkk/zigbee2mqtt:2.14.2
           env:
             # ZIGBEE2MQTT_CONFIG_* overrides configuration.yaml at startup
             - name: ZIGBEE2MQTT_CONFIG_MQTT_USER
