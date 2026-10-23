@@ -197,7 +197,12 @@ in
         ]
         ++ lib.optionals (cfg.nodeIp != "") [
           "--node-ip=${cfg.nodeIp}"
+          # --node-ip alone did not stop flannel from picking the VIP
+          # (2026-10-23, ADR-0006). The external IP is an explicit value.
+          "--node-external-ip=${cfg.nodeIp}"
         ]
+        # Cluster-wide: flannel sends VXLAN to each node's external IP.
+        ++ lib.optionals isServer [ "--flannel-external-ip" ]
         ++ lib.optionals (isServer && cfg.oidcIssuerUrl != "") [
           "--kube-apiserver-arg=oidc-issuer-url=${cfg.oidcIssuerUrl}"
           "--kube-apiserver-arg=oidc-client-id=${cfg.oidcClientId}"
