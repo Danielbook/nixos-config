@@ -36,7 +36,7 @@ script:
       # calendars and the Mealie calendars that are not dinner.
       calendars: >-
         {{ states.calendar | map(attribute='entity_id')
-           | reject('search', '^calendar\.(mealie_(?!dinner)|workday_calendar|weekend_calendar)')
+           | reject('search', '^calendar\.(mealie_(?!middag)|workday_calendar|weekend_calendar)')
            | list }}
     sequence:
       - action: calendar.get_events
@@ -108,7 +108,7 @@ script:
             {#- Events from all calendars, sorted by start. All-day first. Mellis
                 (the daily snack) is skipped. Emojis are removed, TTS reads them.
                 No calendar names, the LLM spoke them aloud. #}
-            {%- for entity, res in (cal | default({})).items() if entity != 'calendar.mealie_dinner' %}
+            {%- for entity, res in (cal | default({})).items() if entity != 'calendar.mealie_middag' %}
               {%- for e in res.events if e.summary is not search('^\\s*mellis\\b', ignorecase=True) %}
                 {%- set out.events = out.events + [{'start': e.start,
                       'summary': e.summary | regex_replace('[^\w\s.,:!?&/()\'+%–-]', '')
@@ -122,7 +122,7 @@ script:
                     ~ e.summary ~ ', ' ~ when ~ '.'] %}
             {%- endfor %}
 
-            {%- set dinner = (cal | default({})).get('calendar.mealie_dinner', {}).get('events', []) %}
+            {%- set dinner = (cal | default({})).get('calendar.mealie_middag', {}).get('events', []) %}
             {%- if dinner %}
               {%- set out.lines = out.lines + ['Middag: ' ~ dinner | map(attribute='summary') | join(' och ') ~ '.'] %}
             {%- endif %}
