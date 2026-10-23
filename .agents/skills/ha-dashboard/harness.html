@@ -1,0 +1,122 @@
+<!doctype html>
+<!--
+  Test page for the home-panel card with fake data. Serve the repo root:
+    python3 -m http.server 8765 --bind 127.0.0.1
+  Then open http://127.0.0.1:8765/.agents/skills/ha-dashboard/harness.html
+  Add #<room id> or #el to open a page. Set states in the query string:
+    ?set=person.daniel_book=Stable,binary_sensor.hallway_door_contact=on
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <style>
+      body { margin: 0; background: #0d0f14; }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import yaml from "https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/+esm";
+      import "/k8s/apps/homeassistant/panel/home-panel.js";
+
+      // HA renders ha-icon in its own shadow DOM. Light DOM children would
+      // move the part markers of Lit, so this stub also uses a shadow root.
+      customElements.define("ha-icon", class extends HTMLElement {
+        static observedAttributes = ["icon"];
+        set icon(v) { this._icon = v; this._render(); }
+        get icon() { return this._icon; }
+        attributeChangedCallback(_, __, v) { this.icon = v; }
+        connectedCallback() { this._render(); }
+        _render() {
+          const size = (getComputedStyle(this).getPropertyValue("--mdc-icon-size") || "24px").trim();
+          this.style.display = "inline-flex";
+          (this.shadowRoot ?? this.attachShadow({ mode: "open" })).innerHTML =
+            `<iconify-icon icon="${this._icon}" width="${size}" height="${size}"></iconify-icon>`;
+        }
+      });
+
+      const doc = yaml.load(await (await fetch("/k8s/apps/homeassistant/dashboards/glass.yaml")).text());
+      const config = doc.views[0].cards[0];
+
+      const now = Date.now();
+      const S = (state, attributes = {}, ago = 0) => ({
+        state, attributes,
+        last_changed: new Date(now - ago).toISOString(),
+        last_updated: new Date(now - ago).toISOString(),
+      });
+
+      // Values that make the screens look realistic. Other IDs get a fake state.
+      const states = {
+        "weather.smhi_home": S("partlycloudy", { temperature: 9.9, humidity: 81, wind_speed: 14, wind_speed_unit: "km/h" }),
+        "sun.sun": S("below_horizon", { next_setting: new Date(now + 6 * 36e5).toISOString() }),
+        "person.daniel_book": S("home", { friendly_name: "Daniel" }, 3 * 36e5),
+        "person.johanna_orjeman": S("Stable", { friendly_name: "Johanna" }, 26 * 36e5),
+        "zone.daniels_work": S("0", { friendly_name: "Configura" }),
+        "zone.brastorp": S("0", { friendly_name: "Bråstorp" }),
+        "zone.stable": S("1", { friendly_name: "Stable" }),
+        "alarm_control_panel.alarmo": S("armed_home"),
+        "cover.garage_door": S("closed"),
+        "sensor.nord_pool_se3_aktuellt_pris": S("0.84", { unit_of_measurement: "SEK/kWh" }),
+        "sensor.count_lights_on": S("3"),
+        "binary_sensor.nord_pool_se3_tomorrow_price_available": S("on"),
+        "sensor.axensvagen_13_laddstatus": S("charging"),
+        "sensor.axensvagen_13_laddeffekt": S("7400", { unit_of_measurement: "W" }),
+        "sensor.hajen_batteriniva": S("72", { unit_of_measurement: "%" }),
+        "sensor.hajen_batterirackvidd": S("341", { unit_of_measurement: "km" }),
+        "sensor.hajen_laddar": S("disconnected"),
+        "number.hajen_grans_for_laddning": S("80"),
+        "lock.hajen_las": S("locked"),
+        "climate.hajen_klimat": S("off"),
+        "device_tracker.hajen_plats": S("home"),
+      };
+
+      const fake = (id) => {
+        const [domain, name] = id.split(".");
+        const h = [...id].reduce((a, c) => a + c.charCodeAt(0), 0);
+        if (domain === "light") return S(h % 3 ? "on" : "off", { friendly_name: name, brightness: 60 + (h % 190), rgb_color: h % 2 ? [255, 180, 90] : [120, 160, 255], supported_color_modes: ["xy"] });
+        if (domain === "sensor") return S(String((h % 400) / 10), { friendly_name: name, unit_of_measurement: /power|effekt/.test(name) ? "W" : "°C" });
+        if (domain === "binary_sensor") return S("off", { friendly_name: name });
+        if (domain === "media_player") return S("paused", { friendly_name: name, media_title: "Nyheterna", media_artist: "SVT", volume_level: 0.35 });
+        if (domain === "climate") return S("cool", { friendly_name: name, current_temperature: 4 });
+        if (domain === "camera") return S("idle", { friendly_name: name, access_token: "x" });
+        return S(h % 4 ? "off" : "on", { friendly_name: name });
+      };
+
+      for (const pair of (new URLSearchParams(location.search).get("set") ?? "").split(",").filter(Boolean)) {
+        const [id, value] = pair.split("=");
+        states[id] = S(value, { friendly_name: id.split(".")[1] });
+      }
+
+      const proxy = new Proxy(states, {
+        get: (t, k) => (typeof k !== "string" || !k.includes(".") ? t[k] : (t[k] ??= fake(k))),
+      });
+
+      // Nord Pool returns SEK/MWh per 15-minute period.
+      const prices = Array.from({ length: 96 }, (_, i) => {
+        const start = new Date(); start.setHours(0, i * 15, 0, 0);
+        return { start: start.toISOString(), end: new Date(start.getTime() + 9e5).toISOString(), price: 400 + 600 * Math.sin((i / 96) * Math.PI * 2 - 1.5) ** 2 + 300 * Math.random() };
+      });
+
+      const SV = { on: "På", off: "Av", home: "Hemma", armed_home: "Larmat hemma", closed: "Stängd", docked: "Dockad", partlycloudy: "Halvklart", charging: "Laddar", playing: "Spelar", paused: "Pausad", idle: "Inaktiv", cool: "Kyla", unknown: "Okänd" };
+      const hass = {
+        states: proxy,
+        user: { name: "Daniel Böök" },
+        locale: { language: "sv" },
+        formatEntityState: (s) => SV[s.state] ?? `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`,
+        callService: async (...args) => (console.log("callService", ...args), { response: { SE3: prices } }),
+        connection: {
+          subscribeMessage: async (cb) => {
+            cb({ forecast: [0, 1, 2, 3, 4].map((i) => ({ datetime: new Date(now + i * 864e5).toISOString(), condition: ["partlycloudy", "rainy", "sunny", "cloudy", "sunny"][i], temperature: [12, 10, 13, 11, 14][i], templow: [6, 5, 4, 7, 6][i], precipitation: [0, 3.2, 0, 0.4, 0][i] })) });
+            return () => {};
+          },
+        },
+      };
+
+      const el = document.createElement("home-panel");
+      el.setConfig(config);
+      el.hass = hass;
+      document.body.append(el);
+    </script>
+  </body>
+</html>

@@ -148,6 +148,10 @@ Issues live on self-hosted Forgejo (source of truth) via its REST API. See `docs
 
 Default five labels, names as-is. See `docs/agents/triage-labels.md`.
 
+### Home Assistant dashboard
+
+To change the Glass dashboard (the `home-panel` card, a room page or `glass.yaml`), read `.agents/skills/ha-dashboard/SKILL.md` first.
+
 ### Domain docs
 
 Single-context: `GLOSSARY.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
