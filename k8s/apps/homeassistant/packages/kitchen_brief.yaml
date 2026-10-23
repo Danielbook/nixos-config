@@ -127,6 +127,10 @@ script:
               {%- set out.lines = out.lines + ['Till middag blir det ' ~ dinner | map(attribute='summary') | join(' och ') ~ '.'] %}
             {%- endif %}
             {{- out.lines | join(' ') }}
+      # ponytail: the dinner sentence skips the LLM. With it in the
+      # prompt, the LLM rewrote it or invented a dinner on a day without one.
+      - variables:
+          dinner: "{{ facts | regex_findall('Till middag blir det [^.]*[.]') | first | default('') }}"
       - condition: template
         value_template: >-
           {{ force | default(false) or facts != state_attr('sensor.kitchen_brief', 'facts_' ~ key) }}
@@ -145,13 +149,11 @@ script:
                   the facts from the user as natural, friendly spoken Swedish.
                   Rules: Use only the given facts. Do not invent, add or guess
                   anything. Keep the order of the facts. Keep all names, times,
-                  dates and numbers exactly as given. Keep the sentence
-                  that starts with "Till middag blir det" word for word.
-                  Say a time as "klockan 17:00", never "på klockan".
-                  No lists, no headings, no emojis, no markdown. Write at most
+                  dates and numbers exactly as given. Say a time as
+                  "klockan 17:00", never "på klockan". No lists, no headings, no emojis, no markdown. Write at most
                   100 words. Reply with the brief only.
               - role: user
-                content: "{{ facts }}"
+                content: "{{ facts | replace(dinner, '') | trim }}"
         response_variable: llm
         continue_on_error: true
       - variables:
@@ -159,7 +161,7 @@ script:
             {%- set reply = (llm | default({})).get('content', {}) %}
             {%- if llm is defined and llm.status == 200 and reply is mapping
                   and reply.get('message', {}).get('content', '') | trim %}
-              {{- reply.message.content | trim }}
+              {{- (reply.message.content | trim ~ ' ' ~ dinner) | trim }}
             {%- else %}
               {{- facts }}
             {%- endif %}
