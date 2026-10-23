@@ -23,6 +23,18 @@ const num = (v, d = 0) => (isNaN(parseFloat(v)) ? "–" : parseFloat(v).toFixed(
 const slug = (r) => r.id ?? r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 // Config lists accept "entity.id" or {entity, name, ...}.
 const item = (x) => (typeof x === "string" ? { entity: x } : x);
+// The start time of the state `current`, from minimal history rows
+// ({s, lu, lc?}, seconds). An HA restart sets last_changed again, so walk
+// back over rows with the same state and over unavailable/unknown gaps.
+const stateSince = (rows, current) => {
+  let since;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const r = rows[i];
+    if (r.s === current) since = r.lc ?? r.lu;
+    else if (!OFFLINE.includes(r.s)) break;
+  }
+  return since && new Date(since * 1000).toISOString();
+};
 
 class HomePanel extends LitElement {
   static properties = {
@@ -33,6 +45,7 @@ class HomePanel extends LitElement {
     _player: { state: true },
     _forecast: { state: true },
     _prices: { state: true },
+    _homeSince: { state: true },
     _now: { state: true },
   };
 
@@ -74,6 +87,7 @@ class HomePanel extends LitElement {
       });
     }
     this._loadPrices();
+    this._loadSince();
   }
 
   // Nord Pool prices for today, and for tomorrow when they are published.
@@ -95,6 +109,32 @@ class HomePanel extends LitElement {
     };
     const next = new Date(this._now.getTime() + 864e5).toLocaleDateString("sv-SE");
     this._prices = { today: await get(today), tomorrow: tomorrowReady ? await get(next) : [] };
+  }
+
+  // The true "sedan" time of each person, from 14 days of history. Fetch
+  // again when the state or last_changed changes.
+  async _loadSince() {
+    this._homeSinceKeys ??= {};
+    for (const p of this._config.people.map(item)) {
+      const s = this._s(p.entity);
+      const key = s && `${s.state}/${s.last_changed}`;
+      if (!key || this._homeSinceKeys[p.entity] === key) continue;
+      this._homeSinceKeys[p.entity] = key;
+      try {
+        const res = await this.hass.callWS({
+          type: "history/history_during_period",
+          start_time: new Date(Date.now() - 14 * 864e5).toISOString(),
+          entity_ids: [p.entity],
+          minimal_response: true,
+          no_attributes: true,
+          significant_changes_only: false,
+        });
+        const since = stateSince(res[p.entity] ?? [], s.state);
+        if (since) this._homeSince = { ...this._homeSince, [p.entity]: { key, since } };
+      } catch (err) {
+        console.warn(`home-panel: no history for ${p.entity}`, err);
+      }
+    }
   }
 
   // The open room lives in the URL hash, so the back gesture closes it.
@@ -173,7 +213,8 @@ class HomePanel extends LitElement {
     const a = this._s(p.activity);
     const act = a && Date.now() - new Date(a.last_updated).getTime() < ACTIVITY_MAX_AGE_MS ? a.state : undefined;
     const zone = (id) => this._s(id)?.attributes.friendly_name;
-    const since = s.last_changed;
+    const fixed = this._homeSince?.[p.entity];
+    const since = fixed?.key === `${s.state}/${s.last_changed}` ? fixed.since : s.last_changed;
     if (act === "Running") return { text: "tränar", icon: "mdi:run", since: a.last_changed };
     if (act === "Cycling") return { text: "tränar", icon: "mdi:bike", since: a.last_changed };
     if (s.state === "not_home" && act === "Automotive") return { text: "är på väg", icon: "mdi:car", since: a.last_changed };
