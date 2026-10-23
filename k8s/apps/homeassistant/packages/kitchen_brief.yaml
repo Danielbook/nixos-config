@@ -111,7 +111,7 @@ script:
             {%- for entity, res in (cal | default({})).items() if entity != 'calendar.mealie_dinner' %}
               {%- for e in res.events if e.summary is not search('^\\s*mellis\\b', ignorecase=True) %}
                 {%- set out.events = out.events + [{'start': e.start,
-                      'summary': e.summary | regex_replace('[^\w\s.,:!?&/()\'-]', '')
+                      'summary': e.summary | regex_replace('[^\w\s.,:!?&/()\'+%–-]', '')
                                  | regex_replace('\s+', ' ') | trim}] %}
               {%- endfor %}
             {%- endfor %}
