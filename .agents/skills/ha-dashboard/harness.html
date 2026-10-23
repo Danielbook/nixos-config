@@ -110,6 +110,13 @@
         locale: { language: "sv" },
         formatEntityState: (s) => SV[s.state] ?? `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`,
         callService: async (...args) => (console.log("callService", ...args), { response: { SE3: prices } }),
+        // History: a real change 20 h ago, then an HA restart 1 h ago.
+        callWS: async ({ entity_ids }) =>
+          Object.fromEntries(entity_ids.map((id) => [id, [
+            { s: "not_home", lu: (now - 30 * 36e5) / 1000 },
+            { s: states[id].state, lu: (now - 20 * 36e5) / 1000 },
+            { s: states[id].state, lu: (now - 36e5) / 1000 },
+          ]])),
         connection: {
           subscribeMessage: async (cb) => {
             cb({ forecast: [0, 1, 2, 3, 4].map((i) => ({ datetime: new Date(now + i * 864e5).toISOString(), condition: ["partlycloudy", "rainy", "sunny", "cloudy", "sunny"][i], temperature: [12, 10, 13, 11, 14][i], templow: [6, 5, 4, 7, 6][i], precipitation: [0, 3.2, 0, 0.4, 0][i] })) });
