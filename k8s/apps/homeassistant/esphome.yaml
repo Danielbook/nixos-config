@@ -24,6 +24,9 @@ metadata:
     app: esphome
 spec:
   replicas: 1 # data restored 2026-07-08 (Stage F1c)
+  strategy:
+    type: Recreate # RWO iscsi PVC — RollingUpdate deadlocks on Multi-Attach
+    rollingUpdate: null # drop the old default, else the Argo CD apply fails
   selector:
     matchLabels:
       app: esphome
