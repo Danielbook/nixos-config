@@ -16,7 +16,6 @@ in Swedish.
 | Ollama | `k8s/apps/ollama`, `http://ollama.ollama.svc.cluster.local:11434`, `qwen2.5:7b-instruct-q4_K_M`, `NUM_PARALLEL=1`, one loaded model. The GPU (tatooine, GTX 1070) is shared with holocron and Jellyfin |
 | Mealie | `k8s/apps/mealie` |
 | TTS | Home Assistant Cloud, `tts.home_assistant_cloud`, voice `SofieNeural` (`sv-SE`) |
-| Piper (TTS) | `k8s/apps/homeassistant/piper.yaml` (Wyoming, `tts.piper`). Not used by the brief |
 | Kitchen speaker | `media_player.kok` (Music Assistant) |
 | Weather | SMHI is installed (`weather.smhi_home`). Met.no is not necessary |
 | Workday, Nord Pool, waste | Installed (`binary_sensor.workday`, `nordpool`, `motalavattenavfall`) |
@@ -68,14 +67,11 @@ in Swedish.
 
 ## Phase 1 — Infrastructure
 
-1. Done in git: Piper Deployment + Service, the `ha-packages` ConfigMap and
-   its mount.
-2. After the Argo sync: add the Wyoming integration in HA, host
-   `piper.homeassistant.svc.cluster.local`, port 10200. Make sure that the
-   entity is `tts.piper`.
+Done: the `ha-packages` ConfigMap and its mount. The voice is Home Assistant
+Cloud (`tts.home_assistant_cloud`, `SofieNeural`). Piper is removed.
 
-**Verify:** `tts.speak` with `tts.piper` plays a Swedish test sentence on
-`media_player.kok`.
+**Verify:** `tts.speak` with the Cloud voice plays a Swedish test sentence on
+the speaker.
 
 ## Phase 2 — Data sources
 
