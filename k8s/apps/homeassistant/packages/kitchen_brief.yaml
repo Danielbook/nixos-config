@@ -166,6 +166,32 @@ script:
           text: "{{ text }}"
           facts: "{{ facts }}"
 
+  kitchen_brief_play:
+    alias: Kitchen brief - play
+    icon: mdi:account-voice
+    mode: single
+    fields:
+      day:
+        description: 0 = today, 1 = tomorrow
+        example: 0
+    actions:
+      # Home Assistant Cloud, not Piper: all three Swedish Piper voices
+      # (nst, alma, lisa) sounded bad. Only the text goes to the cloud.
+      - action: tts.speak
+        target:
+          entity_id: tts.home_assistant_cloud
+        data:
+          language: sv-SE
+          options:
+            voice: SofieNeural
+          # The Kök Sonos from the Sonos integration. The Music Assistant
+          # player media_player.kok cannot connect to it.
+          media_player_entity_id: media_player.unnamed_room
+          message: >-
+            {{ state_attr('sensor.kitchen_brief',
+                          'today' if day | int(0) == 0 else 'tomorrow')
+               or 'Det finns ingen sammanfattning ännu.' }}
+
 template:
   - triggers:
       - trigger: event
@@ -226,17 +252,6 @@ automation:
         payload: double
         id: tomorrow
     actions:
-      # Home Assistant Cloud, not Piper: all three Swedish Piper voices
-      # (nst, alma, lisa) sounded bad. Only the text goes to the cloud.
-      - action: tts.speak
-        target:
-          entity_id: tts.home_assistant_cloud
+      - action: script.kitchen_brief_play
         data:
-          language: sv-SE
-          options:
-            voice: SofieNeural
-          # Gym (Denon) during development. Set media_player.kok for the kitchen.
-          media_player_entity_id: media_player.denon_avr_1912
-          message: >-
-            {{ state_attr('sensor.kitchen_brief', trigger.id)
-               or 'Det finns ingen sammanfattning ännu.' }}
+          day: "{{ 0 if trigger.id == 'today' else 1 }}"
