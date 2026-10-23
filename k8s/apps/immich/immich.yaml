@@ -137,7 +137,7 @@ spec:
     spec:
       containers:
         - name: immich-server
-          image: ghcr.io/immich-app/immich-server:v3.0.2
+          image: ghcr.io/immich-app/immich-server:v3.3.5
           envFrom:
             - secretRef:
                 name: immich-server-env

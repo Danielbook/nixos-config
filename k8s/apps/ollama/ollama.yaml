@@ -47,7 +47,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: ollama
-          image: ollama/ollama:0.31.2
+          image: ollama/ollama:0.40.9
           # 8 GB shared with holocron whisper + jellyfin NVENC: one model
           # (qwen2.5:7b, every consumer uses it), resident forever, one request
           # at a time — callers queue instead of fighting over VRAM.

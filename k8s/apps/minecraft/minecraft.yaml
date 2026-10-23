@@ -41,7 +41,7 @@ spec:
       terminationGracePeriodSeconds: 120 # let the server save the world on SIGTERM
       containers:
         - name: minecraft
-          image: itzg/minecraft-server:2026.9.2-java25
+          image: itzg/minecraft-server:2026.10.0-java25
           env:
             - name: EULA
               value: "TRUE"

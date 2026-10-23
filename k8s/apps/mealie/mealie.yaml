@@ -120,7 +120,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: backup
-              image: curlimages/curl:8.11.1
+              image: curlimages/curl:8.23.0
               env:
                 - name: TOKEN
                   valueFrom:
