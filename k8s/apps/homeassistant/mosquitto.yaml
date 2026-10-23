@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: mosquitto
-          image: eclipse-mosquitto@sha256:6f8d8a947c506f8a2290ec65cd4bd2bc7cb4d43fb5f6271f861cb013e2ef9797 # 2.1.2 — eclipse-mosquitto doesn't publish a 2.1.2 tag, pin by digest
+          image: eclipse-mosquitto:2.1.2-alpine@sha256:847b8594cd4928734bda3c5daad42fea5c79de50d87a568798552e60eea2e970 # tag for Renovate, digest locks the image
           ports:
             - containerPort: 1883
           volumeMounts:

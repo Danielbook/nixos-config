@@ -17,11 +17,16 @@
   },
   "packageRules": [
     {
-      "description": "A Postgres major needs pg_upgrade or a dump and restore. Do it by hand.",
+      "description": "A database major needs a manual migration: pg_upgrade or a dump and restore for Postgres, one major at a time for MongoDB. Do it by hand.",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["postgres"],
+      "matchPackageNames": ["postgres", "ghcr.io/immich-app/postgres", "mongo"],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+    {
+      "description": "Mark major updates, so that they are easy to find in the PR list.",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major"]
     }
   ]
 }
