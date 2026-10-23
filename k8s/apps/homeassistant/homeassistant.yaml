@@ -54,6 +54,11 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       nodeSelector:
         kubernetes.io/hostname: naboo
+      # The recorder stops after ~30 s of retries, so wait for the DB first.
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16.15-alpine
+          command: [sh, -c, "until pg_isready -h ha-postgres -p 5432; do sleep 2; done"]
       containers:
         - name: homeassistant
           image: ghcr.io/home-assistant/home-assistant:2026.10.2
