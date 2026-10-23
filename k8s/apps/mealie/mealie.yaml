@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
         - name: mealie
-          image: ghcr.io/mealie-recipes/mealie:v3.20.1
+          image: ghcr.io/mealie-recipes/mealie:v3.29.0
           env:
             - name: ALLOW_SIGNUP
               value: "false"
@@ -74,6 +74,8 @@ spec:
               value: "false"
             - name: OIDC_CONFIGURATION_URL
               value: https://auth.local.bookorjeman.com/application/o/mealie/.well-known/openid-configuration
+            # Mealie 3.22+ needs email_verified=true. The authentik provider
+            # uses the custom scope mapping "Mealie: email (verified)" for it.
             - name: OIDC_CLIENT_ID
               value: i38EuNvUIUkgA1fEKhgQlnTiUjIndIrZJuN6nQGR
             # AI config is NOT here. Mealie v3.20 migration 2187537c52b8 moved
