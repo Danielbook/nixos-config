@@ -127,7 +127,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: ghcr.io/goauthentik/server:2025.12.6 # :latest actually resolved to 2025.2.4 (older than jupiter's source 2025.8) — DB already has post-2025.8 schema, pin to a version at or above it instead
+          image: ghcr.io/goauthentik/server:2026.2.7 # :latest actually resolved to 2025.2.4 (older than jupiter's source 2025.8) — DB already has post-2025.8 schema, pin to a version at or above it instead
           args:
             - server
           envFrom:
@@ -182,7 +182,7 @@ spec:
     spec:
       containers:
         - name: worker
-          image: ghcr.io/goauthentik/server:2025.12.6 # :latest actually resolved to 2025.2.4 (older than jupiter's source 2025.8) — DB already has post-2025.8 schema, pin to a version at or above it instead
+          image: ghcr.io/goauthentik/server:2026.2.7 # :latest actually resolved to 2025.2.4 (older than jupiter's source 2025.8) — DB already has post-2025.8 schema, pin to a version at or above it instead
           args:
             - worker
           envFrom:
