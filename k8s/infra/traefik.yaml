@@ -18,7 +18,7 @@ spec:
       path: k8s/traefik
     - repoURL: https://traefik.github.io/charts
       chart: traefik
-      targetRevision: 41.0.1 # Traefik v3.7.5 — bump deliberately
+      targetRevision: 41.7.1 # Traefik v3.7.14 — bump deliberately
       helm:
         valuesObject:
           # Stateless: the wildcard cert comes from a cert-manager Secret (see
