@@ -184,9 +184,10 @@ script:
           language: sv-SE
           options:
             voice: SofieNeural
-          # The Kök Sonos from the Sonos integration. The Music Assistant
-          # player media_player.kok cannot connect to it.
-          media_player_entity_id: media_player.unnamed_room
+          # The Kök Sonos in Music Assistant: a chime plays first, then the
+          # music continues. OPNsense lets the Sonos reach naboo on 8095,
+          # 8097 and 8123.
+          media_player_entity_id: media_player.kok
           message: >-
             {{ state_attr('sensor.kitchen_brief',
                           'today' if day | default(0) | int(0) == 0 else 'tomorrow')
