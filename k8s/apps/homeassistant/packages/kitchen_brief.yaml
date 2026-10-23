@@ -174,7 +174,7 @@ script:
       day:
         description: 0 = today, 1 = tomorrow
         example: 0
-    actions:
+    sequence:
       # Home Assistant Cloud, not Piper: all three Swedish Piper voices
       # (nst, alma, lisa) sounded bad. Only the text goes to the cloud.
       - action: tts.speak
