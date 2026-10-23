@@ -1,5 +1,5 @@
 # influxdb — Stage F1. Source was jupiter's grafana-stack docker-compose
-# (influxdb:2.7, bind mount ./influxdb -> /var/lib/influxdb2). Straight data-dir
+# (influxdb:2.9, bind mount ./influxdb -> /var/lib/influxdb2). Straight data-dir
 # restore of an existing running instance (not a fresh-init container), so no
 # env/secret is needed here. Data restored 2026-07-08 (6.9G tar-streamed from
 # jupiter, size matches source) — bumped to replicas 1. jupiter's own influxdb
@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
         - name: influxdb
-          image: influxdb:2.7
+          image: influxdb:2.9
           resources:
             # 954Mi steady state once the TSM index is loaded after a restart.
             # An earlier reading of 401Mi came from a pod with 24d uptime, after

@@ -18,7 +18,7 @@ spec:
       path: k8s/headlamp
     - repoURL: https://kubernetes-sigs.github.io/headlamp/
       chart: headlamp
-      targetRevision: 0.43.0 # Headlamp v0.43.0 — bump deliberately
+      targetRevision: 0.46.0 # Headlamp v0.46.0 — bump deliberately
       helm:
         valuesObject:
           serviceAccount:
