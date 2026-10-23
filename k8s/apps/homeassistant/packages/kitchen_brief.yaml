@@ -147,6 +147,7 @@ script:
                   anything. Keep the order of the facts. Keep all names, times,
                   dates and numbers exactly as given. Keep the sentence
                   that starts with "Till middag blir det" word for word.
+                  Say a time as "klockan 17:00", never "på klockan".
                   No lists, no headings, no emojis, no markdown. Write at most
                   100 words. Reply with the brief only.
               - role: user
