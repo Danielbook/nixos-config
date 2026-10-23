@@ -1,0 +1,6 @@
+# The Sonos speakers are on the IOT VLAN. Discovery does not cross the
+# VLANs, so HA connects to the reserved IP. Kök = 10.10.20.70.
+sonos:
+  media_player:
+    hosts:
+      - 10.10.20.70
