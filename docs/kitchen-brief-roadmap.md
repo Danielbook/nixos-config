@@ -16,7 +16,7 @@ in Swedish.
 | Ollama | `k8s/apps/ollama`, `http://ollama.ollama.svc.cluster.local:11434`, `qwen2.5:7b-instruct-q4_K_M`, `NUM_PARALLEL=1`, one loaded model. The GPU (tatooine, GTX 1070) is shared with holocron and Jellyfin |
 | Mealie | `k8s/apps/mealie` |
 | TTS | Home Assistant Cloud, `tts.home_assistant_cloud`, voice `SofieNeural` (`sv-SE`) |
-| Kitchen speaker | `media_player.unnamed_room` (Sonos integration, "Kök") |
+| Kitchen speaker | `media_player.kok` (Music Assistant) |
 | Weather | SMHI is installed (`weather.smhi_home`). Met.no is not necessary |
 | Workday, Nord Pool, waste | Installed (`binary_sensor.workday`, `nordpool`, `motalavattenavfall`) |
 | Calendars | Apple/iCloud |
@@ -58,7 +58,7 @@ in Swedish.
 | Question | Answer |
 |---|---|
 | HA deployment | Container in k3s (answered) |
-| Kitchen speaker entity id | `media_player.unnamed_room` (Sonos integration, "Kök") |
+| Kitchen speaker entity id | `media_player.kok` (Music Assistant) |
 | Button model (Zigbee, Z2M) | Open. Not paired yet. Name it `Kitchen Brief Button` in Z2M. Set the `single`/`double` payloads for the model |
 | School lunch menu URL | Postponed. The MVP has no lunch |
 | Preschool lunch menu URL | Postponed |
@@ -98,7 +98,7 @@ Done in git (`packages/kitchen_brief.yaml`):
    text is stored.
 4. **Triggers.** Each hour and at HA start.
 5. **Play.** Button `single` → today, `double` → tomorrow, `script.kitchen_brief_play`
-   with `tts.speak` on `media_player.unnamed_room`. The double press is also done.
+   with `tts.speak` on `media_player.kok`. The double press is also done.
 
 Tested before the deploy: the facts template renders with live SMHI data,
 the LLM gives correct facts in 4 of 4 runs (about 4 s each), and HA
