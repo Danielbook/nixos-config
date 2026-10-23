@@ -71,7 +71,7 @@ spec:
     spec:
       containers:
         - name: navidrome
-          image: deluan/navidrome:0.62.0
+          image: deluan/navidrome:0.64.2
           env:
             - name: ND_SCANNER_SCHEDULE
               value: "@every 1h"
