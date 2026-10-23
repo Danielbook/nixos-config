@@ -106,7 +106,7 @@ script:
             {%- endfor %}
 
             {#- Events from all calendars, sorted by start. All-day first. Mellis
-                (the daily snack) is skipped. Emojis are removed, Piper reads them.
+                (the daily snack) is skipped. Emojis are removed, TTS reads them.
                 No calendar names, the LLM spoke them aloud. #}
             {%- for entity, res in (cal | default({})).items() if entity != 'calendar.mealie_dinner' %}
               {%- for e in res.events if e.summary is not search('^\\s*mellis\\b', ignorecase=True) %}
