@@ -105,12 +105,14 @@ script:
               {%- endif %}
             {%- endfor %}
 
-            {#- Events from all calendars, sorted by start. All-day first. #}
+            {#- Events from all calendars, sorted by start. All-day first. Mellis
+                (the daily snack) is skipped. Emojis are removed, Piper reads them.
+                No calendar names, the LLM spoke them aloud. #}
             {%- for entity, res in (cal | default({})).items() if entity != 'calendar.mealie_dinner' %}
-              {%- for e in res.events %}
-                {%- set name = state_attr(entity, 'friendly_name') %}
+              {%- for e in res.events if e.summary is not search('^\\s*mellis\\b', ignorecase=True) %}
                 {%- set out.events = out.events + [{'start': e.start,
-                      'summary': e.summary ~ (' (' ~ name ~ ')' if name else '')}] %}
+                      'summary': e.summary | regex_replace('[^\w\s.,:!?&/()\'-]', '')
+                                 | regex_replace('\s+', ' ') | trim}] %}
               {%- endfor %}
             {%- endfor %}
             {%- for e in out.events | sort(attribute='start') %}
@@ -143,9 +145,7 @@ script:
                   the facts from the user as natural, friendly spoken Swedish.
                   Rules: Use only the given facts. Do not invent, add or guess
                   anything. Keep the order of the facts. Keep all names, times,
-                  dates and numbers exactly as given. Do not say the calendar
-                  names in parentheses unless they tell who the event is for.
-                  No lists, no headings, no emojis, no markdown. Write at most
+                  dates and numbers exactly as given. No lists, no headings, no emojis, no markdown. Write at most
                   100 words. Reply with the brief only.
               - role: user
                 content: "{{ facts }}"
