@@ -20,9 +20,6 @@ configMapGenerator:
   - name: ha-dashboards
     namespace: homeassistant
     files:
-      - dashboards/native.yaml
-      - dashboards/mushroom.yaml
-      - dashboards/bubble.yaml
       - dashboards/glass.yaml
     options:
       disableNameSuffixHash: true
