@@ -36,6 +36,11 @@ metadata:
   labels:
     app: homeassistant
 spec:
+  # Two HA pods must never share /config and the recorder database.
+  # Recreate stops the old pod before the new one starts.
+  strategy:
+    type: Recreate
+    rollingUpdate: null
   replicas: 1 # data restored + http: block added 2026-07-08 (Stage F1c)
   selector:
     matchLabels:
