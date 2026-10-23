@@ -66,7 +66,7 @@
       enable = true;
       # ntfy caps a message at 4096 bytes, so the smartctl dump gets cut.
       mailer = pkgs.writeShellScript "smartd-ntfy" ''
-        ${pkgs.coreutils}/bin/head -c 4000 | ${pkgs.curl}/bin/curl -sS --max-time 20 \
+        ${pkgs.coreutils}/bin/head -c 4000 | ${pkgs.curl}/bin/curl -sS -o /dev/null --max-time 20 \
           -H "Authorization: Bearer $(${pkgs.coreutils}/bin/cat ${config.sops.secrets.ntfy_publisher_token.path})" \
           -H "Title: smartd on ${config.networking.hostName}" -H "Priority: high" \
           --data-binary @- https://ntfy.local.bookorjeman.com/homelab
