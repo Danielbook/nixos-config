@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: open-webui
-          image: ghcr.io/open-webui/open-webui:v0.10.2
+          image: ghcr.io/open-webui/open-webui:v0.12.3
           envFrom:
             - secretRef:
                 name: open-webui-oauth
