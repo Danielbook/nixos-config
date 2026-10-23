@@ -39,5 +39,6 @@ configMapGenerator:
     namespace: homeassistant
     files:
       - packages/kitchen_brief.yaml
+      - packages/sonos.yaml
     options:
       disableNameSuffixHash: true
