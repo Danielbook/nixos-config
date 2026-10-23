@@ -113,6 +113,8 @@ Three adapters render the registry:
 
 Testiny uses the official remote MCP server in Pi. Authentication uses `TESTINY_API_KEY` from the environment.
 
+Home Assistant uses its MCP Server integration (`/api/mcp`) in Pi. Authentication uses a long-lived access token in `HOMEASSISTANT_TOKEN` from the environment.
+
 Each merge replaces only the managed keys. Servers that you add by hand stay.
 A server that you delete from the registry also stays, so delete it by hand.
 Remote OAuth servers (Figma, Miro) need one sign-in per agent: `pi mcp login

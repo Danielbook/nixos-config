@@ -50,6 +50,12 @@ in
     url = "https://app.testiny.io/api/v1/mcp-server";
     headers.Authorization = "Bearer \${TESTINY_API_KEY}";
   };
+  # Needs the MCP Server integration enabled in Home Assistant.
+  homeassistant = {
+    agents = [ "pi" ];
+    url = "https://homeassistant.local.bookorjeman.com/api/mcp";
+    headers.Authorization = "Bearer \${HOMEASSISTANT_TOKEN}";
+  };
   # Figma allowlists OAuth clients by name. It rejects the name of Pi.
   figma = {
     agents = [ "pi" ];

@@ -42,6 +42,7 @@
     defaultSopsFile = ./secrets.yaml;
     secrets.authentik_mcp_token = { };
     secrets.forgejo_api_token = { };
+    secrets.homeassistant_token = { };
     secrets.jira_api_token = { };
   };
 
@@ -49,6 +50,7 @@
   programs.zsh.initContent = lib.mkOrder 1200 ''
     export AUTHENTIK_MCP_TOKEN="$(cat ${config.sops.secrets.authentik_mcp_token.path} 2>/dev/null)"
     export FORGEJO_TOKEN="$(cat ${config.sops.secrets.forgejo_api_token.path} 2>/dev/null)"
+    export HOMEASSISTANT_TOKEN="$(cat ${config.sops.secrets.homeassistant_token.path} 2>/dev/null)"
     export JIRA_API_TOKEN="$(cat ${config.sops.secrets.jira_api_token.path} 2>/dev/null)"
   '';
 
