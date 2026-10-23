@@ -64,7 +64,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: grafana
-          image: grafana/grafana-enterprise:10.2.3
+          image: grafana/grafana-enterprise:10.4.19-security-01
           envFrom:
             - secretRef:
                 name: grafana-env
